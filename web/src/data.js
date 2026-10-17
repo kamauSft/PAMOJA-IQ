@@ -1,5 +1,4 @@
 export const PRACTICE_PHONE = "0707436816";
-export const ORIGINAL_PIN = "2580";
 
 export const memberBooks = {
   name: "Thomas",

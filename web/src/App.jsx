@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, Navigate, Route, Routes, useNavigate, useSearchParams } from "react-router-dom";
 import { resetPin, restoreOriginalPin, sessionOpen, signIn, signOut } from "./auth.js";
-import { desk, memberBooks, ORIGINAL_PIN, PRACTICE_PHONE } from "./data.js";
+import { desk, memberBooks, PRACTICE_PHONE } from "./data.js";
 import meeting from "./photos/chama-meeting.jpg";
 import treasurer from "./photos/treasurer-desk.jpg";
 import morning from "./photos/member-morning.jpg";
@@ -51,8 +51,8 @@ function Landing() {
         <img src={treasurer} alt="A treasurer checking the register beside a laptop" />
         <div>
           <h2>Practice books for 0707436816</h2>
-          <p>The same number opens the member account and the treasurer desk. These figures are for a demonstration. They are not a live chama.</p>
-          <p>Five wrong tries lock this browser for 15 minutes. A new PIN stays on this browser only. The original practice PIN can be restored.</p>
+          <p>The same number opens the member account and the treasurer desk. The figures are practice books for a demonstration.</p>
+          <p>Five wrong tries lock this browser for 15 minutes. A replacement PIN stays on this browser only.</p>
           <p><Link to="/reset">Reset the PIN</Link></p>
         </div>
       </section>
@@ -69,9 +69,9 @@ function Login() {
   const [show, setShow] = useState(false);
   const [message, setMessage] = useState("");
 
-  function submit(event) {
+  async function submit(event) {
     event.preventDefault();
-    const result = signIn(phone, pin);
+    const result = await signIn(phone, pin);
     if (!result.ok) {
       setMessage(result.message);
       return;
@@ -83,7 +83,7 @@ function Login() {
     <main className="door">
       <Brand />
       <h1>{door === "treasurer" ? "Treasurer" : "Member"}</h1>
-      <p className="muted">Practice sign-in for {PRACTICE_PHONE}. The original PIN is {ORIGINAL_PIN}.</p>
+      <p className="muted">{door === "treasurer" ? "This door is for the treasurer. You will see the full desk." : "This door is for a member. You will see your own account."}</p>
       <form className="card" onSubmit={submit}>
         <label>
           Phone
@@ -109,9 +109,9 @@ function Reset() {
   const [pin, setPin] = useState("");
   const [message, setMessage] = useState("");
 
-  function submit(event) {
+  async function submit(event) {
     event.preventDefault();
-    const result = resetPin(phone, pin);
+    const result = await resetPin(phone, pin);
     setMessage(result.ok ? "The new PIN is saved on this browser." : result.message);
   }
 
@@ -127,8 +127,8 @@ function Reset() {
         {message ? <p role="status">{message}</p> : null}
       </form>
       <p>
-        <button className="ghost" style={{ color: "var(--navy)", borderColor: "var(--line)" }} type="button" onClick={() => { restoreOriginalPin(); setMessage(`Restored. The PIN is ${ORIGINAL_PIN} again.`); }}>
-          Restore {ORIGINAL_PIN}
+        <button className="ghost" style={{ color: "var(--navy)", borderColor: "var(--line)" }} type="button" onClick={() => { restoreOriginalPin(); setMessage("The original practice PIN is restored on this browser."); }}>
+          Restore the original practice PIN
         </button>
       </p>
     </main>
@@ -136,6 +136,7 @@ function Reset() {
 }
 
 function MemberHome() {
+  const months = ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"];
   return (
     <Gate>
       <main className="wrap" style={{ paddingBottom: "3rem" }}>
@@ -152,20 +153,40 @@ function MemberHome() {
         </div>
         <section className="card">
           <p className="muted">Today</p>
-          <h1>{memberBooks.line}</h1>
-          <p>{memberBooks.proverb}</p>
+          <h2>{memberBooks.line}</h2>
+          <p className="muted">{memberBooks.proverb}</p>
+        </section>
+        <section className="card" style={{ marginTop: "1rem" }}>
+          <h2>Reminders</h2>
+          <p>{memberBooks.month}</p>
           <p>{memberBooks.reminder}</p>
+        </section>
+        <p className="muted" style={{ marginTop: "1.5rem" }}>Your position</p>
+        <h1>{memberBooks.name}&apos;s money</h1>
+        <p className="muted">{memberBooks.memberNo} · Active. This page shows only this member. Books as of 2026-10-16.</p>
+        <section className="card" style={{ marginTop: "1rem" }}>
+          <p className="muted">Oct 2026 contribution · due KES 2,000</p>
+          <h2>Recorded</h2>
         </section>
         <section className="grid" style={{ marginTop: "1rem" }}>
           <article className="card"><p className="muted">Savings</p><strong>{memberBooks.savings}</strong></article>
           <article className="card"><p className="muted">Loan still due</p><strong>{memberBooks.loan}</strong></article>
-          <article className="card"><p className="muted">Fines</p><strong>{memberBooks.fines}</strong></article>
+          <article className="card"><p className="muted">Unpaid fines</p><strong>{memberBooks.fines}</strong></article>
           <article className="card"><p className="muted">Net</p><strong>{memberBooks.net}</strong></article>
         </section>
         <section className="card" style={{ marginTop: "1rem" }}>
-          <p>{memberBooks.memberNo} · {memberBooks.month}</p>
+          <h2>Your months</h2>
           <p>{memberBooks.streak}</p>
+          <div className="months">
+            {months.map((month) => (
+              <span key={month}><i className="dot paid" />{month}</span>
+            ))}
+          </div>
+        </section>
+        <section className="card" style={{ marginTop: "1rem" }}>
+          <h2>Goal</h2>
           <p>{memberBooks.goal}</p>
+          <div className="bar"><div style={{ width: "60%" }} /></div>
         </section>
       </main>
     </Gate>
@@ -187,17 +208,21 @@ function DeskPage() {
           <img src={treasurer} alt="The treasurer's desk with the register and a laptop" />
           <p>{desk.chama}</p>
         </div>
-        <section className="grid">
+        <p className="muted">Treasurer desk</p>
+        <h1>Oct 2026 meeting</h1>
+        <p className="muted">Books as of 2026-10-16. 3 still to pay.</p>
+        <section className="grid" style={{ marginTop: "1rem" }}>
           <article className="card"><p className="muted">Savings</p><strong>{desk.savings}</strong></article>
           <article className="card"><p className="muted">Loans out</p><strong>{desk.loans}</strong></article>
           <article className="card"><p className="muted">Collected</p><strong>{desk.collected}</strong></article>
           <article className="card"><p className="muted">On time</p><strong>{desk.onTime}</strong></article>
         </section>
         <section className="card" style={{ marginTop: "1rem" }}>
-          <h2>Still to pay</h2>
+          <h2>Reminders ready to show members</h2>
           {desk.behind.map((row) => <p key={row.name}><strong>{row.name}.</strong> {row.detail}</p>)}
         </section>
-        <div style={{ overflowX: "auto", marginTop: "1rem" }}>
+        <h2>Members</h2>
+        <div style={{ overflowX: "auto" }}>
           <table>
             <thead><tr><th>No.</th><th>Name</th><th>Phone</th><th>Savings</th><th>October</th></tr></thead>
             <tbody>
