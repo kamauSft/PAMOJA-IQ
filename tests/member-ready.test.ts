@@ -1,12 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { encouragement } from "@/content/encouragement";
 import { hashPin } from "@/lib/auth/pin";
 import { publishNotice, publishPositions } from "@/lib/chama/publish";
-import { createSavingsGoal } from "@/lib/goals/create";
+import { createSavingsGoal, updateSavingsGoal } from "@/lib/goals/create";
 import { goalProgress } from "@/lib/goals/progress";
 import { prismaRaw } from "@/lib/db";
 import { loadMemberHome } from "@/lib/member/home";
-import { personalLine, quoteForDay } from "@/lib/quotes/daily";
 import { umojaSettings } from "@/lib/chama/rules";
 import { runWithTenant } from "@/lib/tenancy/context";
 import { resetDatabase } from "./db";
@@ -15,28 +13,9 @@ afterEach(async () => {
   await resetDatabase();
 });
 
-describe("daily word", () => {
-  it("changes with the Nairobi day and stays short", () => {
-    expect(encouragement.en).toHaveLength(encouragement.sw.length);
-    expect(encouragement.en.length).toBeGreaterThanOrEqual(30);
-    for (const line of [...encouragement.en, ...encouragement.sw]) {
-      expect(line.length).toBeGreaterThan(10);
-      expect(line.length).toBeLessThanOrEqual(160);
-    }
-    expect(new Set(encouragement.en).size).toBe(encouragement.en.length);
-    const first = quoteForDay(new Date("2026-10-17T06:00:00.000Z"));
-    const later = quoteForDay(new Date("2026-10-17T20:00:00.000Z"));
-    const next = quoteForDay(new Date("2026-10-18T06:00:00.000Z"));
-    expect(first.day).toBe("2026-10-17");
-    expect(later.text).toBe(first.text);
-    expect(next.text).not.toBe(first.text);
-    expect(personalLine({ locale: "en", thisMonth: "MISSED" })).not.toMatch(/KES|arrears|fine/i);
-    expect(publishNotice()).not.toMatch(/\d|KES/);
-  });
-});
-
 describe("goals and published books", () => {
   it("tracks a goal against savings and hides an upload until it is shared", async () => {
+    expect(publishNotice()).not.toMatch(/\d|KES/);
     expect(
       goalProgress({
         savedCents: 200_000,
@@ -126,5 +105,23 @@ describe("goals and published books", () => {
     );
     expect(home.goals[0]?.title).toBe("School fees");
     expect(home.goals[0]?.percent).toBe(50);
+    const changed = await updateSavingsGoal({
+      chamaId: chama.id,
+      membershipId: membership.id,
+      goalId: home.goals[0]!.id,
+      title: "School fees for Asha",
+      targetShillings: 5000,
+      targetDate: "2027-08-01",
+    });
+    expect(changed).toEqual({ ok: true });
+    const blocked = await updateSavingsGoal({
+      chamaId: chama.id,
+      membershipId: office.id,
+      goalId: home.goals[0]!.id,
+      title: "Not yours",
+      targetShillings: 5000,
+      targetDate: "2027-08-01",
+    });
+    expect(blocked.ok).toBe(false);
   });
 });

@@ -1,6 +1,7 @@
 import { randomInt } from "node:crypto";
 import type { MembershipRole } from "@prisma/client";
 import { appendAuditInTransaction } from "@/lib/audit/log";
+import { importFileLabel } from "@/lib/chama/import-label";
 import { hashPin } from "@/lib/auth/pin";
 import { prismaRaw } from "@/lib/db";
 import type { WorkbookRead } from "./workbook";
@@ -29,6 +30,7 @@ export async function saveImport(input: {
   chamaId: string;
   actor: { membershipId: string; personId: string; role: MembershipRole };
   workbook: WorkbookRead;
+  fileName?: string;
 }): Promise<ImportSaveResult> {
   const problems = [...input.workbook.problems];
   const ready = input.workbook.members.filter((member) => {
@@ -146,7 +148,11 @@ export async function saveImport(input: {
       action: "import.excel",
       entityType: "Chama",
       entityId: input.chamaId,
-      after: { membersAdded, contributionsAdded },
+      after: {
+        membersAdded,
+        contributionsAdded,
+        fileName: importFileLabel(input.fileName ?? "Excel"),
+      },
     });
 
     return { membersAdded, membersAlready, contributionsAdded, contributionsSkipped, problems };

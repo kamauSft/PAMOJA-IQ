@@ -14,6 +14,7 @@ import {
 } from "../finance";
 import { assertOfficial } from "../tenancy/context";
 import { parseChamaSettings } from "./rules";
+import { importFileLabel, importWhen } from "./import-label";
 import {
   contributionCell,
   formatRateBps,
@@ -33,7 +34,9 @@ export interface DeskView {
   activeMembers: number;
   poolLabel: string;
   reserveLabel: string;
+  savingsLabel: string;
   loansOutstandingLabel: string;
+  latestImport: { fileName: string; whenLabel: string } | null;
   collectionRateLabel: string;
   collectionRateBps: number;
   expectedLabel: string;
@@ -58,6 +61,7 @@ export interface DeskView {
     name: string;
     role: string;
     status: string;
+    savingsCents: number;
     savingsLabel: string;
     loanLabel: string;
     finesLabel: string;
@@ -103,7 +107,7 @@ export async function loadDesk(asOf: Date): Promise<DeskView> {
   if (!chama) throw new Error("Chama is missing");
   const settings = parseChamaSettings(chama.settings);
 
-  const [memberships, expenses, welfare, metrics, receipts, auditIntact] = await Promise.all([
+  const [memberships, expenses, welfare, metrics, receipts, auditIntact, latestImportLog] = await Promise.all([
     db.membership.findMany({
       include: {
         person: true,
@@ -118,6 +122,7 @@ export async function loadDesk(asOf: Date): Promise<DeskView> {
     db.valueMetric.findMany({ orderBy: { period: "asc" } }),
     db.mpesaTransaction.findMany({ where: { status: "NEEDS_REVIEW" }, orderBy: { createdAt: "asc" } }),
     auditIsIntact(),
+    db.auditLog.findFirst({ where: { action: "import.excel" }, orderBy: { seq: "desc" } }),
   ]);
   const mpesaNeedsReview = receipts.length;
 
@@ -273,7 +278,14 @@ export async function loadDesk(asOf: Date): Promise<DeskView> {
     activeMembers,
     poolLabel: formatKes(pool.poolCents),
     reserveLabel: formatKes(pool.reserveCents),
-    loansOutstandingLabel: formatKes(loansOutstandingCents),
+    savingsLabel: formatKes(contributionCents),
+    loansOutstandingLabel: formatKes(loanBalance(installments)),
+    latestImport: latestImportLog
+      ? {
+          fileName: importFileLabel(fileNameFromAudit(latestImportLog.after)),
+          whenLabel: importWhen(latestImportLog.createdAt),
+        }
+      : null,
     collectionRateLabel: formatRateBps(summary.collectionRateBps),
     collectionRateBps: summary.collectionRateBps,
     expectedLabel: formatKes(summary.expectedContributionCents),
@@ -312,6 +324,7 @@ export async function loadDesk(asOf: Date): Promise<DeskView> {
       loanLabel: formatKes(row.loanBalanceCents),
       finesLabel: formatKes(row.finesCents),
       arrearsLabel: formatKes(row.arrearsCents),
+      savingsCents: row.savingsCents,
       phoneMasked: row.phoneMasked,
       thisMonth: row.cells.at(-1) ?? "NOT_DUE",
     })),
@@ -339,6 +352,12 @@ export async function loadDesk(asOf: Date): Promise<DeskView> {
       .map(({ rank: _rank, ...loan }) => loan),
     value,
   };
+}
+
+function fileNameFromAudit(after: unknown): string {
+  if (!after || typeof after !== "object" || Array.isArray(after)) return "Excel";
+  const name = (after as { fileName?: unknown }).fileName;
+  return typeof name === "string" && name.trim() ? name : "Excel";
 }
 
 function loanRank(status: string): number {

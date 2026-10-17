@@ -39,6 +39,7 @@ export async function POST(request: Request) {
       chamaId: session.chamaId,
       actor: { membershipId: session.membershipId, personId: session.personId, role: session.role },
       workbook,
+      fileName: file.name,
     });
     return Response.json(saved);
   }

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
 import { LoginForm } from "@/components/login-form";
 import { Preferences } from "@/components/preferences";
@@ -31,7 +30,7 @@ const WHO = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ who?: string; phone?: string }>;
+  searchParams: Promise<{ who?: string; phone?: string; door?: string }>;
 }) {
   const query = await searchParams;
   const locale = await getLocale();
@@ -39,7 +38,23 @@ export default async function LoginPage({
   const freshPhone = query.phone && normalizePhone(query.phone) ? query.phone : null;
   const whoKey = query.who === "treasurer" || query.who === "member" || query.who === "chair" ? query.who : null;
   const who = freshPhone || !whoKey ? null : WHO[whoKey];
-  const title = who ? text.shell.roles[who === WHO.member ? "MEMBER" : who === WHO.chair ? "CHAIR" : "TREASURER"] : text.login.signIn;
+  const door = query.door === "treasurer" || query.door === "member" ? query.door : null;
+  const title = who
+    ? text.shell.roles[who === WHO.member ? "MEMBER" : who === WHO.chair ? "CHAIR" : "TREASURER"]
+    : door === "treasurer"
+      ? text.shell.roles.TREASURER
+      : door === "member"
+        ? text.shell.roles.MEMBER
+        : text.login.signIn;
+  const intro = freshPhone
+    ? text.login.fresh
+    : who
+      ? who[locale]
+      : door === "treasurer"
+        ? text.login.doorTreasurer
+        : door === "member"
+          ? text.login.doorMember
+          : text.login.fallback;
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-5 py-10">
@@ -52,20 +67,15 @@ export default async function LoginPage({
       </div>
       <p className="mt-2 text-xs text-muted">{brand.tagline}</p>
       <h1 className="mt-3 font-display text-4xl">{title}</h1>
-      <p className="mt-2 text-sm text-muted">{freshPhone ? text.login.fresh : who ? who[locale] : text.login.fallback}</p>
+      <p className="mt-2 text-sm text-muted">{intro}</p>
       <div className="mt-6">
         <LoginForm
-          initialPhone={freshPhone ?? who?.phone ?? ""}
+          initialPhone={freshPhone ?? who?.phone ?? (door === "treasurer" ? "0707436816" : "")}
           initialPin={freshPhone ? "" : (who?.pin ?? "")}
-          startWithPin={freshPhone ? true : Boolean(who?.pin)}
+          startWithPin={freshPhone ? true : door === "treasurer" ? true : Boolean(who?.pin)}
           labels={text.login}
         />
       </div>
-      <p className="mt-6 text-sm text-muted">
-        <Link className="underline" href="/start">
-          {text.login.create}
-        </Link>
-      </p>
     </main>
   );
 }

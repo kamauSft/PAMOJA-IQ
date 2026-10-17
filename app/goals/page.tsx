@@ -45,6 +45,17 @@ export default async function GoalsPage() {
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-leaf/20">
               <div className="h-full bg-leaf" style={{ width: `${goal.percent}%` }} />
             </div>
+            <div className="mt-4">
+              <GoalForm
+                labels={page}
+                goal={{
+                  id: goal.id,
+                  title: goal.title,
+                  targetShillings: goal.targetShillings,
+                  targetDate: goal.targetDate,
+                }}
+              />
+            </div>
           </article>
         ))}
       </div>

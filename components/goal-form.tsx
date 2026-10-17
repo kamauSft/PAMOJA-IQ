@@ -5,13 +5,23 @@ import { useRouter } from "next/navigation";
 
 export function GoalForm({
   labels,
+  goal,
 }: {
-  labels: { name: string; amount: string; date: string; save: string; working: string; failed: string };
+  labels: {
+    name: string;
+    amount: string;
+    date: string;
+    save: string;
+    working: string;
+    failed: string;
+    saveChange: string;
+  };
+  goal?: { id: string; title: string; targetShillings: number; targetDate: string };
 }) {
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [targetShillings, setTargetShillings] = useState("");
-  const [targetDate, setTargetDate] = useState("");
+  const [title, setTitle] = useState(goal?.title ?? "");
+  const [targetShillings, setTargetShillings] = useState(goal ? String(goal.targetShillings) : "");
+  const [targetDate, setTargetDate] = useState(goal?.targetDate ?? "");
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -21,18 +31,25 @@ export function GoalForm({
     setMessage("");
     try {
       const response = await fetch("/api/goals", {
-        method: "POST",
+        method: goal ? "PATCH" : "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ title, targetShillings: Number(targetShillings), targetDate }),
+        body: JSON.stringify({
+          id: goal?.id,
+          title,
+          targetShillings: Number(targetShillings),
+          targetDate,
+        }),
       });
       const body = (await response.json().catch(() => null)) as { message?: string } | null;
       if (!response.ok) {
         setMessage(body?.message || labels.failed);
         return;
       }
-      setTitle("");
-      setTargetShillings("");
-      setTargetDate("");
+      if (!goal) {
+        setTitle("");
+        setTargetShillings("");
+        setTargetDate("");
+      }
       router.refresh();
     } catch {
       setMessage(labels.failed);
@@ -62,7 +79,7 @@ export function GoalForm({
         <input className="field" name="date" type="date" value={targetDate} onChange={(event) => setTargetDate(event.target.value)} />
       </label>
       <button className="tap rounded-full bg-sisal px-5 text-sm font-semibold text-ink disabled:opacity-60" disabled={pending} type="submit">
-        {pending ? labels.working : labels.save}
+        {pending ? labels.working : goal ? labels.saveChange : labels.save}
       </button>
       {message ? (
         <p className="text-sm text-clay" role="alert">

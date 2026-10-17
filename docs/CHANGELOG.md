@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### Removed by the owner
+
+- Member circles are gone from the treasurer's desk. The register is a table.
+- The daily word is gone from the member home. There is no encouragement library.
+- Goal photos, confetti, and floating animations are not part of the product.
+
+### Two doors, and a member the treasurer adds
+
+- The front page is only two doors: Treasurer and Member. The sections that sat underneath are gone.
+- The treasurer door opens with the treasurer's own number. The member door is separate.
+- A member's menu is the dashboard and goals. They can change a goal. The other member pages send them back to the dashboard.
+- The sign-in code is still shown on the page. It is not sent to a phone.
+
+### Treasurer desk
+
+- The top row shows total savings, loans out, cash safe to lend, and what was collected against what was expected.
+- After an Excel upload, the desk names that file and the Nairobi date it was added.
+
 ### Member statistics
 
 - The member home shows the last 12 months, how many were paid on time in a row, and savings growing across those months.

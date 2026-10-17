@@ -9,7 +9,6 @@ import { requireSession, tenantFromSession } from "@/lib/chama/page-session";
 import { getLocale } from "@/lib/locale";
 import { loadMemberHome } from "@/lib/member/home";
 import { shortMonth } from "@/lib/member/stats";
-import { personalLine, quoteForDay } from "@/lib/quotes/daily";
 import { runWithTenant } from "@/lib/tenancy/context";
 
 export const dynamic = "force-dynamic";
@@ -25,23 +24,10 @@ export default async function HomePage() {
   const first = home.personName.split(" ")[0];
   const month =
     home.thisMonth === "PAID" || home.thisMonth === "LATE" ? text.recorded : home.thisMonth === "MISSED" ? text.missed : text.notDue;
-  const quote = quoteForDay(new Date(), locale);
-  const nearest = home.goals.find((goal) => goal.remainingCents > 0);
-  const line = personalLine({
-    locale,
-    thisMonth: home.thisMonth,
-    goalTitle: nearest?.title,
-    remainingCents: nearest?.remainingCents,
-  });
 
   return (
     <Shell chamaName={home.chamaName} personName={home.personName} role={session.role} current="/home">
-      <section className="card p-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-leaf">{text.quote}</p>
-        <p className="mt-2 font-display text-2xl">{quote.text}</p>
-        <p className="mt-2 text-sm text-muted">{line}</p>
-      </section>
-      <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-leaf">{text.position}</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-leaf">{text.position}</p>
       <h1 className="mt-1 font-display text-4xl">
         {first}&apos;s {text.money}
       </h1>
@@ -168,17 +154,6 @@ export default async function HomePage() {
         ))}
       </section>
       {session.role === "MEMBER" ? <MemberPinForm labels={pin} /> : null}
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Link href="/mine" className="tap rounded-full border border-ink/20 px-4 text-sm">
-          {text.months}
-        </Link>
-        <Link href="/loan" className="tap rounded-full border border-ink/20 px-4 text-sm">
-          {text.myLoan}
-        </Link>
-        <Link href="/statement" className="tap rounded-full bg-leaf px-4 text-sm font-semibold text-ivory">
-          {text.statement}
-        </Link>
-      </div>
     </Shell>
   );
 }

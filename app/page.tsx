@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
 import { Preferences } from "@/components/preferences";
-import { Rise } from "@/components/rise";
 import { brand } from "@/config/brand";
 import { copy } from "@/content/ui";
 import { getLocale } from "@/lib/locale";
@@ -23,22 +22,16 @@ export default async function LandingPage() {
       <p className="mt-3 text-sm text-muted">{brand.tagline}</p>
       <h1 className="mt-4 max-w-3xl font-display text-4xl leading-tight text-ink sm:text-5xl">{page.headline}</h1>
       <p className="mt-4 max-w-2xl text-lg text-muted">{page.sub}</p>
-      <div className="mt-8 flex flex-wrap gap-3">
-        <Link href="/start" className="tap rounded-full bg-sisal px-5 text-sm font-semibold text-ink">
-          {page.startCta}
+      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <Link href="/login?door=treasurer" className="card block p-5">
+          <span className="font-display text-2xl">{page.treasurerCta}</span>
+          <p className="mt-2 text-sm text-muted">{page.treasurerHint}</p>
         </Link>
-        <Link href="/login" className="tap rounded-full bg-leaf px-5 text-sm font-semibold text-ivory">
-          {page.signIn}
+        <Link href="/login?door=member" className="card block p-5">
+          <span className="font-display text-2xl">{page.memberCta}</span>
+          <p className="mt-2 text-sm text-muted">{page.memberHint}</p>
         </Link>
       </div>
-      <Rise className="card mt-12 p-6">
-        <h2 className="font-display text-3xl">{page.howTitle}</h2>
-        <p className="mt-3 max-w-2xl text-muted">{page.howBody}</p>
-      </Rise>
-      <section id="price" className="mt-12">
-        <h2 className="font-display text-3xl">{page.priceTitle}</h2>
-        <p className="mt-2 max-w-2xl text-muted">{page.priceBody}</p>
-      </section>
     </main>
   );
 }
