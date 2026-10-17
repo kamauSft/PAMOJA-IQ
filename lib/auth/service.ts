@@ -143,7 +143,7 @@ async function sendLoginCode(input: {
   const sent = await prismaRaw.otpChallenge.count({
     where: { personId: input.personId, createdAt: { gt: since } },
   });
-  if (sent >= OTP_MAX_SENDS) {
+  if (!input.demoOtpVisible && sent >= OTP_MAX_SENDS) {
     return { status: "rate_limited", message: "Too many codes. Try again in 15 minutes." };
   }
   const code = newOtpCode();

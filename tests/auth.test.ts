@@ -237,6 +237,7 @@ describe("auth", () => {
     env.NODE_ENV = "production";
     expect(sessionCookieOptions().secure).toBe(true);
     env.NODE_ENV = "test";
+    expect(sessionCookieOptions().secure).toBe(false);
     expect(sessionCookieOptions().httpOnly).toBe(true);
     expect(sessionCookieOptions().sameSite).toBe("lax");
     expect(sessionCookieOptions().maxAge).toBe(30 * 60);

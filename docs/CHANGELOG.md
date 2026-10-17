@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### The app stays up on this computer
+
+- Double-click `start-pamoja.bat` to open Pamoja IQ. Leave that window open. `stop-pamoja.bat` closes it.
+- `/health` says whether the app and the records are running.
+- If the app is down, sign-in says to start it, instead of saying the connection failed.
+- The https lock is added only when the app is on the internet. On this computer the address stays http.
+
 ### A line that follows the member's own figures
 
 - The member home opens with one sentence about that member: a cleared loan, a savings step, a goal, a streak, or a quiet proverb.

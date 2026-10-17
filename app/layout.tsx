@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { brand } from "@/config/brand";
 import { getLocale } from "@/lib/locale";
 import { ThemeBoot } from "@/components/theme-boot";
+import { DevCleanup } from "@/components/dev-cleanup";
 import "./globals.css";
 
 const body = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "600"], variable: "--font-body" });
@@ -20,6 +21,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={locale} className={`${body.variable} ${mono.variable}`}>
       <body className="font-sans antialiased">
         <ThemeBoot />
+        {process.env.NODE_ENV === "development" ? <DevCleanup /> : null}
         {children}
       </body>
     </html>

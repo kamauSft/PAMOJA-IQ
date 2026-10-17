@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-17 — Local testing stays on http, and the internet site gets the padlock
+
+Strict-Transport-Security is sent only when NODE_ENV is production. The session cookie is Secure only then. Development does not register a service worker. Thomas starts the app by double-clicking start-pamoja.bat so it does not depend on an agent terminal.
+
 ## 2026-10-17 — The morning line follows one member's own figures
 
 The random daily word stays out. In its place, the home picks the highest situation that is true for that member, from a cleared loan down to a proverb plus their savings. Numbers come from the finance functions. A phone alert uses a separate sentence with no amounts. The member can later choose to show amounts. Swahili uses the same situations.
