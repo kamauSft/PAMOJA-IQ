@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import { PrintButton } from "@/components/print-button";
 import { Shell } from "@/components/shell";
+import { copy } from "@/content/ui";
 import { requireSession, tenantFromSession } from "@/lib/chama/page-session";
+import { getLocale } from "@/lib/locale";
+import { statementShareText } from "@/lib/member/stats";
 import { loadStatement, membershipIdForMemberNo } from "@/lib/member/statement";
 import { runWithTenant, TenantIsolationError } from "@/lib/tenancy/context";
 
@@ -13,6 +16,8 @@ export default async function StatementPage({
   searchParams: Promise<{ memberNo?: string }>;
 }) {
   const session = await requireSession();
+  const locale = await getLocale();
+  const text = copy(locale).statement;
   const query = await searchParams;
   const statement = await runWithTenant(tenantFromSession(session), async () => {
     const membershipId = query.memberNo
@@ -27,36 +32,61 @@ export default async function StatementPage({
     }
   });
   if (statement === "forbidden" || statement === null) redirect("/home");
+  const share = statement.closing
+    ? statementShareText({
+        personName: statement.personName,
+        chamaName: statement.chamaName,
+        lines: [
+          { label: text.savings, value: statement.closing.savingsLabel },
+          { label: text.loan, value: statement.closing.loanLabel },
+          { label: text.fines, value: statement.closing.finesLabel },
+          { label: text.net, value: statement.closing.netLabel },
+        ],
+      })
+    : null;
 
   return (
     <Shell chamaName={statement.chamaName} personName={session.personName} role={session.role} current="/statement">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-serif text-4xl">Statement</h1>
-          <p className="mt-1 text-sm text-stone-600">
+          <h1 className="font-display text-4xl">{text.title}</h1>
+          <p className="mt-1 text-sm text-muted">
             {statement.memberNo} · {statement.personName}
           </p>
         </div>
-        <PrintButton />
+        <div className="flex flex-wrap gap-2">
+          {share ? (
+            <a
+              className="tap rounded-full bg-leaf px-4 text-sm font-semibold text-ivory"
+              href={`https://wa.me/?text=${encodeURIComponent(share)}`}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {text.share}
+            </a>
+          ) : null}
+          <PrintButton label={text.print} />
+        </div>
       </div>
+      {statement.lines.length === 0 ? <p className="mt-6 text-sm text-muted">{text.empty}</p> : null}
       <table className="mt-6 w-full text-left text-sm">
-        <thead className="text-stone-500">
+        <thead className="text-muted">
           <tr>
-            <th className="py-2 font-medium">Date</th>
-            <th className="py-2 font-medium">Entry</th>
-            <th className="py-2 font-medium">Savings</th>
-            <th className="py-2 font-medium">Loan</th>
-            <th className="py-2 font-medium">Fines</th>
+            <th className="py-2 font-medium">{text.date}</th>
+            <th className="py-2 font-medium">{text.entry}</th>
+            <th className="py-2 font-medium">{text.savings}</th>
+            <th className="py-2 font-medium">{text.loan}</th>
+            <th className="py-2 font-medium">{text.fines}</th>
           </tr>
         </thead>
         <tbody>
           {statement.lines.map((line, index) => (
-            <tr key={`${line.date}-${index}`} className="border-t border-stone-200">
+            <tr key={`${line.date}-${index}`} className="border-t border-ink/10">
               <td className="py-2">{line.date}</td>
               <td>{line.description}</td>
-              <td>{line.savingsLabel}</td>
-              <td>{line.loanLabel}</td>
-              <td>{line.finesLabel}</td>
+              <td className="tabular-nums">{line.savingsLabel}</td>
+              <td className="tabular-nums">{line.loanLabel}</td>
+              <td className="tabular-nums">{line.finesLabel}</td>
             </tr>
           ))}
         </tbody>

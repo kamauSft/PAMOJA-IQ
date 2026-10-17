@@ -1,13 +1,13 @@
 "use client";
 
-export function PrintButton() {
+export function PrintButton({ label }: { label: string }) {
   return (
     <button
-      className="no-print rounded-full border border-stone-400 px-4 py-2 text-sm"
+      className="no-print tap rounded-full border border-ink/20 px-4 text-sm"
       type="button"
       onClick={() => window.print()}
     >
-      Print statement
+      {label}
     </button>
   );
 }

@@ -81,6 +81,12 @@ describe("Umoja seed", () => {
     expect(home.position.savingsCents).toBe(savingsCentsAt("M005", SEED_AS_OF));
     expect(home.auditIntact).toBe(true);
     expect(home.goals[0]?.title).toBe("Plot deposit");
+    expect(home.months).toHaveLength(12);
+    expect(home.streak).toBeGreaterThan(0);
+    expect(home.group?.savingsLabel).toBeTruthy();
+    expect(home.borrowRoomCents).toBe(
+      Math.max(0, home.position.savingsCents * 3 - home.position.loanBalanceCents),
+    );
 
     await expect(
       runWithTenant({ chamaId: amina.chamaId, membershipId: amina.id, role: "MEMBER" }, () =>

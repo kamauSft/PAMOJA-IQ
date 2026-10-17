@@ -47,10 +47,19 @@ export async function loadStatement(membershipId: string) {
     })),
   });
 
+  const last = lines.at(-1);
   return {
     chamaName: membership.chama.name,
     personName: membership.person.name,
     memberNo: membership.memberNo,
+    closing: last
+      ? {
+          savingsLabel: formatKes(last.savingsCents),
+          loanLabel: formatKes(last.loanBalanceCents),
+          finesLabel: formatKes(last.finesCents),
+          netLabel: formatKes(last.savingsCents - last.loanBalanceCents - last.finesCents),
+        }
+      : null,
     lines: lines.map((line) => ({
       date: line.date,
       description: line.description,

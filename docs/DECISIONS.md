@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-17 — A member sees their own months, and the group only as totals
+
+The home counts an on-time streak from published payments. Room to borrow is the chama's savings multiple minus the open loan, and it does not change the books. Group savings, loans out, and the on-time rate are totals. The on-time rate stays hidden when fewer than five members were due. A WhatsApp share contains only that member's name and figures.
+
 ## 2026-10-17 — New Excel stays private until the treasurer shares positions
 
 Imported payments are saved with no publish time. The treasurer's desk can see them. A member's home, months, and statement only count payments that have been shared. **Member positions** is the separate step that sets the publish time and tells each member, without amounts or other names, that their position is ready.
