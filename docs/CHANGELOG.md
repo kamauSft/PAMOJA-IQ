@@ -6,7 +6,7 @@
 
 - The public GitHub page is a serious front: three photographs, slow gold and green light, sign-in, and Reset PIN.
 - The PIN is chosen on that page and kept in the browser. It is not written in the program or on the screen.
-- The full books stay on the chama computer.
+- The same PIN opens a member door and a treasurer door.
 
 ### The public practice page is gone
 
