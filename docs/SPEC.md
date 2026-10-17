@@ -271,17 +271,15 @@ Move away from the current plain cream-and-serif look to something richer:
 Route: `/` (the current "Two doors" page becomes part of this or moves to `/demo`).
 
 ### Hero
-- Dark `--ink` background with a faint woven-basket texture.
+- Dark `--ink` background. The woven-basket texture is **REMOVED**.
 - Small logo + **SMART KIKAPU** wordmark, eyebrow text **"Intelligent Chama Solution"**.
 - Headline: **"Your chama's money, clear to every member."**
 - Sub-line: "The treasurer uploads the records once. Every member checks their savings, loans and fines from their phone. No more screenshots, no more disputes."
 - Buttons: **"Sign in"** (primary, sisal) and **"See how it works"** (scrolls down).
 
-### The bubble view (signature element of the hero)
-- An animated cluster of **circles ("bubbles") floating inside a basket shape**. Each bubble is one member of the demo chama; its **size = total savings**, its **colour = status** (paid this month / late / in arrears), with gentle physics (use `d3-force` with a collision force, or Framer Motion; keep it under 60 bubbles and 60fps).
-- Hover/tap a bubble: show **anonymised** info only ("Member · KES 34,000 saved · paid Oct"). **Never show real names or numbers on the public landing page.** Use demo data.
-- Under the cluster, three live totals that count up on load: **Total savings**, **Loans out**, **On-time this month (%)**.
-- Must render a nice static state instantly (no blank area while JS loads) and be fully visible on a phone.
+### The bubble view — REMOVED
+
+**REMOVED (Round 2, Change 1).** Do not build a bubble view, floating circles, `d3-force`, or a woven-basket texture on the landing page. The hero stays a short serious page with no animation.
 
 ### Sections below the hero
 1. **How it works** (3 real steps): Treasurer uploads the Excel → Smart Kikapu checks and organises it → Every member signs in with their phone number.
@@ -363,7 +361,7 @@ Route: `/me`. The member lands here after login. Design it like a premium bankin
 - **Contribution streak:** "14 months paid on time", with a 12-month grid of dots (paid / late / missed).
 - **My loan:** principal, interest, paid so far, balance, next installment date and amount, progress ring.
 - **Fines:** unpaid total and list.
-- **My share of the group:** "Your savings are 6.2% of the group's KES 548,000", with a small personal bubble shown inside the group bubble cluster (other members anonymous).
+- **My share of the group:** "Your savings are 6.2% of the group's KES 548,000". The personal bubble and the group bubble cluster are **REMOVED**.
 - **How much I can borrow** based on the chama's rules (3× savings minus outstanding loan; computed by the finance functions).
 - **Group totals** (no other member's details): total savings, loans out, on-time rate this month.
 
@@ -381,7 +379,7 @@ Route: `/me`. The member lands here after login. Design it like a premium bankin
 ## Part 7: Treasurer dashboard upgrades
 
 - Use the new design system.
-- Add a **Members bubble view**: every member as a bubble, size = savings, colour = this month's status; tap to open the member. Toggle between bubble view and table view.
+- The members bubble view is **REMOVED**. The register is a table. Tap a row to open the member.
 - Dashboard cards: total savings, cash safe to lend, loans out, collected this month vs expected, arrears list.
 - Prominent **"Upload Excel"** button linking to the import portal.
 - Show the date and source of the latest import ("Last updated from umoja-oct-2026.xlsx, 16 Oct 2026").
@@ -418,7 +416,7 @@ Route: `/me/goals`. Button **"New goal"** opens a short, friendly form (works we
   3. **Clear my loan**: "Finish paying my loan by March 2027" (tracks loan balance down to zero).
   4. **Stay consistent**: "Pay on time for 12 months in a row" (tracks the on-time streak).
 - **Target amount** (types 1–2) and **target date**.
-- **Optional photo** for motivation (upload from phone, e.g. a picture of the plot or the child's school). JPEG/PNG/WebP, max 5 MB, resized and compressed on upload, stripped of location data (EXIF), visible only to that member.
+- Goal photo uploads are **REMOVED**. Keep the savings goal itself: title, target amount, and target date.
 - **Optional note** ("Why this matters to me").
 - Show a live preview while typing: "To reach KES 60,000 by June 2027 you need about KES 3,250 a month. You currently save KES 2,000 a month."
 - Limit: up to 5 active goals per member.
@@ -432,10 +430,10 @@ Route: `/me/goals`. Button **"New goal"** opens a short, friendly form (works we
   - **Projection**: "At your current pace you'll reach this in August 2027 (2 months late). Adding KES 1,000 a month gets you there on time."
   - Small chart of progress over time with the target line
   - Date the data was last updated by the treasurer ("Updated from treasurer's upload on 16 Oct 2026")
-- **Milestones** at 25%, 50%, 75% and 100% trigger a tasteful celebration (subtle confetti or a glowing bubble, respecting `prefers-reduced-motion`) and are recorded in a milestone history.
+- Confetti, celebration animations, and a glowing bubble are **REMOVED**. Do not add them.
 - When a goal is completed: a "Goal reached" badge, the date reached, and an option to set a new goal.
 - Member can edit, pause, or archive a goal; completed and archived goals stay in a history tab.
-- Goals appear on the member home screen (top 2 active goals) and as the member's own highlighted bubble in the bubble view.
+- Goals appear on the member home screen (top 2 active goals). The highlighted bubble is **REMOVED**.
 
 ### Privacy and rules
 - Goals and photos are **private to the member by default**. The treasurer sees only an anonymous count ("12 members have active goals") unless the member chooses **"Share with the group"**, which shows the goal name and percentage (never the amount) on a group encouragement wall.
@@ -449,7 +447,9 @@ Route: `/me/goals`. Button **"New goal"** opens a short, friendly form (works we
 
 ---
 
-## Part 10: Morning encouragement
+## Part 10: Morning encouragement — REMOVED
+
+**REMOVED (Round 2, Change 1).** Do not build morning quotes, encouragement messages, a `DailyMessage` model, a settings toggle, a scheduled quote job, or a quote card on the member home. The text below is kept only so it is not rebuilt.
 
 Every morning each member gets a short, encouraging message.
 
@@ -504,7 +504,7 @@ The treasurer uploads **one Excel file for the whole group**. Pamoja IQ splits i
 - **Treasurer and chair** can see all members of **their own chama only**. Secretary sees meetings and attendance, not balances (configurable).
 - **Group numbers only as totals:** members may see group totals (total savings, loans out, on-time %), never per-member lists, rankings ("you are #3"), or anything that reveals a neighbour's figure.
   - Hide any group statistic that would describe fewer than **5 members** (e.g. "on-time rate among members with loans" when only 2 have loans), because small groups reveal individuals.
-- **Bubble view for members:** the member's own bubble is highlighted; all other bubbles are anonymous, have **no tooltip amounts**, are drawn with sizes rounded into bands, and are shuffled on every load so position can't identify anyone. Option for the chama to turn the group bubble view off for members.
+- The member bubble view is **REMOVED**. Do not draw other members as circles.
 - **Defaulters list** is visible only to officials, unless the chama explicitly turns on "show defaulters to members" in Settings (off by default, change logged).
 - **Statements and PDFs:** generated per member on request, served through short-lived signed URLs (5 minutes) tied to the session; PDF filenames contain no names or phone numbers of others; the original Excel is **deleted after import** and never available for download by members.
 - **AI assistant (when added):** for member sessions, tools only receive the member's own scope; the AI never gets other members' rows, so it cannot leak them even if asked.
@@ -539,7 +539,7 @@ The treasurer uploads **one Excel file for the whole group**. Pamoja IQ splits i
 7. Member portal statistics (Part 6).
 8. Treasurer dashboard bubble view (Part 7).
 9. Member savings goals with photo upload and automatic tracking (Part 9).
-10. Morning encouragement messages (Part 10).
+10. Morning encouragement messages (Part 10) — **REMOVED**. Do not build them.
 11. Security, tests, Lighthouse check (Part 8).
 
 Start with step 1 after Part B is merged.

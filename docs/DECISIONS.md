@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-17 — Bubbles, daily words, and celebration effects are out
+
+The owner removed them in Round 2. The treasurer's register is a table. The member home has no daily word. Goal photos, confetti, and floating circles are not to be added again. Savings goals stay: a title, a target, and a date.
+
 ## 2026-10-17 — The treasurer and the member use different doors
 
 The front page sends the treasurer to the full desk and the member to their own dashboard and goals. A treasurer can add one member by name and phone so that person can sign in. The one-time code is still shown on the sign-in page, because no phone text service is connected.
@@ -16,9 +20,9 @@ The home counts an on-time streak from published payments. Room to borrow is the
 
 Imported payments are saved with no publish time. The treasurer's desk can see them. A member's home, months, and statement only count payments that have been shared. **Member positions** is the separate step that sets the publish time and tells each member, without amounts or other names, that their position is ready.
 
-## 2026-10-17 — The day's word is chosen in Nairobi, and goals follow shared savings
+## 2026-10-17 — Goals follow shared savings
 
-The encouragement line changes on the Nairobi calendar date and does not repeat for the length of the library. Goal progress is current shared savings divided by the member's target. A member cannot enter a balance, and cannot open another member's goals.
+Goal progress is current shared savings divided by the member's target. A member cannot enter a balance, and cannot open another member's goals. The daily word that used to sit above this was removed.
 
 ## 2026-10-17 — Text codes stay on the screen until a phone gateway exists
 

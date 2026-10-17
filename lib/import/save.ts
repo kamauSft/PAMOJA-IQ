@@ -1,7 +1,7 @@
 import { randomInt } from "node:crypto";
 import type { MembershipRole } from "@prisma/client";
 import { appendAuditInTransaction } from "@/lib/audit/log";
-import { importFileLabel } from "@/lib/chama/bubbles";
+import { importFileLabel } from "@/lib/chama/import-label";
 import { hashPin } from "@/lib/auth/pin";
 import { prismaRaw } from "@/lib/db";
 import type { WorkbookRead } from "./workbook";

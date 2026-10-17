@@ -74,8 +74,6 @@ export default async function DeskPage() {
         members={register}
         periodLabel={desk.periodLabel}
         labels={{
-          bubbles: deskText.bubbles,
-          table: deskText.table,
           member: deskText.members,
           savings: text.home.savings,
           loan: text.home.loan,

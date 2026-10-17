@@ -14,7 +14,7 @@ import {
 } from "../finance";
 import { assertOfficial } from "../tenancy/context";
 import { parseChamaSettings } from "./rules";
-import { importFileLabel, importWhen } from "./bubbles";
+import { importFileLabel, importWhen } from "./import-label";
 import {
   contributionCell,
   formatRateBps,
