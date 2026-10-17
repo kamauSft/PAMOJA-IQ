@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-17 — The practice website is not a host
+
+GitHub Pages served a second app that checked a PIN in the browser and published practice balances. That site is unpublished. Pamoja IQ is only the Next.js app with a database. A person's phone number is not written into the sign-in page. Older instruction files are superseded by `docs/PAMOJA-IQ-MASTER.md`, except `docs/SPEC.md`.
+
 ## 2026-10-17 — Bubbles, daily words, and celebration effects are out
 
 The owner removed them in Round 2. The treasurer's register is a table. The member home has no daily word. Goal photos, confetti, and floating circles are not to be added again. Savings goals stay: a title, a target, and a date.

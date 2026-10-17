@@ -1,3 +1,5 @@
+> **Superseded.** Do not follow this file. The current instructions are `docs/PAMOJA-IQ-MASTER.md`. This copy is kept only so older notes can be found.
+
 # Pamoja IQ — Round 2 Changes (overrides docs/SPEC.md)
 
 **How Thomas uses this file:**

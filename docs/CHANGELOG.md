@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### The public practice page is gone
+
+- The GitHub Pages site is unpublished. Member names, phone numbers, and balances are no longer on a page anyone can download.
+- The sign-in page does not fill in a phone number. A person types their own.
+- The official Excel upload file is `docs/pamoja-iq-upload-template.xlsx`. The importer does not read it yet.
+
 ### Removed by the owner
 
 - Member circles are gone from the treasurer's desk. The register is a table.
@@ -11,7 +17,7 @@
 ### Two doors, and a member the treasurer adds
 
 - The front page is only two doors: Treasurer and Member. The sections that sat underneath are gone.
-- The treasurer door opens with the treasurer's own number. The member door is separate.
+- The treasurer door and the member door are separate. Neither door fills in a phone number.
 - A member's menu is the dashboard and goals. They can change a goal. The other member pages send them back to the dashboard.
 - The sign-in code is still shown on the page. It is not sent to a phone.
 

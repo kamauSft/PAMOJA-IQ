@@ -4,7 +4,8 @@ This is the target shape. Do not deploy the demo database.
 
 ## Host
 
-- App: Vercel (or any host that runs Next.js).
+- App: Vercel (or any host that runs Next.js). GitHub Pages cannot run this app, and it must not be used.
+
 - Database: Neon or Supabase Postgres. Local development stays on SQLite. Production must not use `file:./dev.db`.
 - After the database exists, set `DATABASE_URL` to the Postgres connection string and run `npx prisma migrate deploy` once migrations exist. Until then, apply `prisma/rls.sql` as the database owner, then point the app role at a user who cannot bypass row-level security.
 
