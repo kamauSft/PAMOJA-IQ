@@ -1,7 +1,7 @@
 import { auditIsIntact } from "../audit/intact";
+import { openingPeriod, periodsBetween, periodLabel } from "../chama/picture";
 import { parseChamaSettings } from "../chama/rules";
 import { getDb } from "../db";
-import { contributionCell, periodLabel } from "../chama/picture";
 import {
   arrears,
   finesDue,
@@ -15,6 +15,7 @@ import {
 } from "../finance";
 import { goalProgress } from "../goals/progress";
 import { assertCanReadMembership, TenantIsolationError } from "../tenancy/context";
+import { borrowRoomCents, groupOnTimeLabel, monthMarks, onTimeStreak, recentPeriods, savingsBars } from "./stats";
 
 export async function loadMemberHome(membershipId: string, asOf = new Date()) {
   assertCanReadMembership(membershipId);
@@ -25,15 +26,31 @@ export async function loadMemberHome(membershipId: string, asOf = new Date()) {
   });
   if (!membership) throw new TenantIsolationError("Membership is not in this chama");
 
-  const [contributions, fines, loans, goals, auditIntact, shared, activeMembers] = await Promise.all([
-    db.contribution.findMany({ where: { membershipId, publishedAt: { not: null } } }),
-    db.fine.findMany({ where: { membershipId } }),
-    db.loan.findMany({ where: { membershipId }, include: { installments: true } }),
-    db.savingsGoal.findMany({ where: { membershipId }, orderBy: { createdAt: "desc" } }),
-    auditIsIntact(),
-    db.contribution.findMany({ where: { publishedAt: { not: null } }, select: { amountCents: true } }),
-    db.membership.count({ where: { status: "ACTIVE" } }),
-  ]);
+  const period = periodOf(asOf);
+  const [contributions, fines, loans, goals, auditIntact, shared, activeMembers, roster, groupInstallments] =
+    await Promise.all([
+      db.contribution.findMany({ where: { membershipId, publishedAt: { not: null } } }),
+      db.fine.findMany({ where: { membershipId } }),
+      db.loan.findMany({ where: { membershipId }, include: { installments: true } }),
+      db.savingsGoal.findMany({ where: { membershipId }, orderBy: { createdAt: "desc" } }),
+      auditIsIntact(),
+      db.contribution.findMany({ where: { publishedAt: { not: null } }, select: { amountCents: true } }),
+      db.membership.count({ where: { status: "ACTIVE" } }),
+      db.membership.findMany({
+        where: { status: "ACTIVE" },
+        select: {
+          joinDate: true,
+          exitDate: true,
+          contributions: {
+            where: { publishedAt: { not: null }, period },
+            select: { amountCents: true, datePaid: true },
+          },
+        },
+      }),
+      db.loanInstallment.findMany({
+        select: { principalDueCents: true, interestDueCents: true, paidAmountCents: true },
+      }),
+    ]);
 
   const settings = parseChamaSettings(membership.chama.settings);
   const openLoans = loans.filter((loan) => ["DISBURSED", "ACTIVE", "DEFAULTED"].includes(loan.status));
@@ -54,16 +71,69 @@ export async function loadMemberHome(membershipId: string, asOf = new Date()) {
     asOf,
   });
   const lateInstallments = overdueInstallments(installments, asOf);
-  const period = periodOf(asOf);
-  const thisMonth = contributionCell({
-    period,
+  const thisMonth = monthMarks({
+    periods: [period],
     dueDay: settings.contributionDueDay,
     monthlyCents: settings.monthlyContributionCents,
     joinDate: membership.joinDate,
     exitDate: membership.exitDate,
-    payments: contributions
-      .filter((row) => row.period === period)
-      .map((row) => ({ amountCents: row.amountCents, date: row.datePaid })),
+    payments: contributions.map((row) => ({
+      period: row.period,
+      amountCents: row.amountCents,
+      date: row.datePaid,
+    })),
+    asOf,
+  })[0]!.cell;
+  const history = monthMarks({
+    periods: periodsBetween(openingPeriod(membership.joinDate, settings.contributionDueDay), period),
+    dueDay: settings.contributionDueDay,
+    monthlyCents: settings.monthlyContributionCents,
+    joinDate: membership.joinDate,
+    exitDate: membership.exitDate,
+    payments: contributions.map((row) => ({
+      period: row.period,
+      amountCents: row.amountCents,
+      date: row.datePaid,
+    })),
+    asOf,
+  });
+  const window = recentPeriods(asOf, 12);
+  const bars = savingsBars(
+    window,
+    contributions.map((row) => ({ period: row.period, amountCents: row.amountCents })),
+  );
+  const room = borrowRoomCents({
+    savingsCents,
+    loanBalanceCents,
+    savingsMultiple: settings.maxLoanSavingsMultiple,
+  });
+  const onTimeCells = roster.map(
+    (member) =>
+      monthMarks({
+        periods: [period],
+        dueDay: settings.contributionDueDay,
+        monthlyCents: settings.monthlyContributionCents,
+        joinDate: member.joinDate,
+        exitDate: member.exitDate,
+        payments: member.contributions.map((row) => ({
+          period,
+          amountCents: row.amountCents,
+          date: row.datePaid,
+        })),
+        asOf,
+      })[0]!.cell,
+  );
+  const shown = monthMarks({
+    periods: window,
+    dueDay: settings.contributionDueDay,
+    monthlyCents: settings.monthlyContributionCents,
+    joinDate: membership.joinDate,
+    exitDate: membership.exitDate,
+    payments: contributions.map((row) => ({
+      period: row.period,
+      amountCents: row.amountCents,
+      date: row.datePaid,
+    })),
     asOf,
   });
   const groupCents = shared.reduce((sum, row) => sum + row.amountCents, 0);
@@ -125,5 +195,19 @@ export async function loadMemberHome(membershipId: string, asOf = new Date()) {
       };
     }),
     shareLabel: activeMembers >= 5 && groupCents > 0 ? `${((savingsCents * 100) / groupCents).toFixed(1)}%` : null,
+    streak: onTimeStreak(history.map((mark) => mark.cell)),
+    months: shown,
+    bars: bars.map((bar) => ({ period: bar.period, height: bar.height, label: formatKes(bar.cents) })),
+    borrowRoomCents: room,
+    borrowLabel: formatKes(room),
+    oneLoan: openLoans.length > 0,
+    group:
+      activeMembers >= 5
+        ? {
+            savingsLabel: formatKes(groupCents),
+            loansLabel: formatKes(loanBalance(groupInstallments)),
+            onTimeLabel: groupOnTimeLabel(onTimeCells),
+          }
+        : null,
   };
 }

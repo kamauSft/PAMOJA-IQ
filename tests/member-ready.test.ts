@@ -107,6 +107,10 @@ describe("goals and published books", () => {
       () => loadMemberHome(membership.id, new Date("2026-10-16T00:00:00.000Z")),
     );
     expect(visible.position.savingsCents).toBe(200_000);
+    expect(visible.group).toBeNull();
+    expect(visible.borrowRoomCents).toBe(600_000);
+    expect(visible.streak).toBe(1);
+    expect(visible.months).toHaveLength(12);
 
     const created = await createSavingsGoal({
       chamaId: chama.id,

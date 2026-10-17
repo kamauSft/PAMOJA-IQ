@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Member statistics
+
+- The member home shows the last 12 months, how many were paid on time in a row, and savings growing across those months.
+- Room to borrow is three times the member's savings, less the loan still open.
+- Group savings, loans out, and this month's on-time rate appear only as totals, and only when at least five members are in the chama.
+- A statement can be printed or opened in WhatsApp with that member's own figures.
+
 ### Member position, daily word, and goals
 
 - After Excel is uploaded, the treasurer opens **Member positions** and shares the books. Until then, members do not see the new payments.
