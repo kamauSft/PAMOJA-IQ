@@ -1,42 +1,133 @@
-# PAMOJA IQ — Master Build Spec for Cursor
+# PAMOJA IQ — Complete Instructions for Cursor Agent
 
-Save this file in your project as `docs/SPEC.md` (inside `C:\Users\USER\kikapu\docs\`). Then, in Cursor Agent mode, paste the short kickoff prompt from Part A below.
+> **For Thomas (the human), 3 steps only:**
+> 1. Save this file as `C:\Users\USER\kikapu\CURSOR-START.md`.
+> 2. Open the Cursor app → **File → Open Folder** → `C:\Users\USER\kikapu`. Open chat with **Ctrl + I** and choose **Agent** (not Ask, not cloud/background).
+> 3. Type: **`Read @CURSOR-START.md and do everything in it. Start with Phase 1.`**
+>
+> Click **Run/Allow** when Cursor asks to run commands. If a GitHub sign-in window opens in your browser, approve it as **kamauSft**. When Cursor tells you to, open the folder `C:\Users\USER\pamoja-iq` in Cursor and type: **`Read @docs/SPEC.md and continue with Phase 2.`**
 
-This file has four parts:
-- **Part A: Kickoff prompt** to paste into Cursor
-- **Part B: Repo setup and working rules** (do this first)
-- **Part C: Current round**, the features to build now (Smart Kikapu spec, rebranded to Pamoja IQ)
-- **Part D: Full product vision**, the later phases (agents, M-Pesa, billing). Use it as the roadmap and don't build it all now.
+---
+
+## Instructions for the Cursor Agent
+
+You are setting up and building **Pamoja IQ** ("Intelligent Chama Solution"), a Next.js + TypeScript + Prisma web app for Kenyan savings groups (chamas), for the user Thomas (GitHub: **kamauSft**). He is not a developer: run every command yourself, explain briefly in plain language, and only ask him when you truly need him (a sign-in, a secret key, a decision, or testing in the browser).
+
+The machine is **Windows** (Command Prompt / PowerShell). This whole file is the source of truth. The product spec is further down (Parts B, C, D).
+
+### Absolute rules
+- **Never run git commands in `C:\Users\USER`** (the Windows user folder). Only inside a project folder.
+- **Never commit** `.env` files, `*.db` files, `node_modules`, `.next`, or any secret.
+- **Never push to the `celestara` repo.** It is a different project; we only copy from it.
+- If GitHub asks for sign-in, stop and tell Thomas to approve the browser window.
+- If something unexpected happens (folder already exists, branch missing, merge conflict), stop, explain in one or two sentences, and ask.
 
 ---
 
-## Part A: Kickoff prompt (paste this into Cursor Agent)
+## Phase 1: Move the app into the PAMOJA-IQ repo
 
-```
-Read docs/SPEC.md completely before doing anything.
+Background: an earlier Cursor cloud agent built the app inside GitHub repo `kamauSft/celestara` on branch `cursor/chama-ai-phase-1-57f2`. The empty private repo `kamauSft/PAMOJA-IQ` has been created for it. Move the code there.
 
-1. Do Part B first: set up .gitignore, .env.example, README, git remote 
-   https://github.com/kamauSft/PAMOJA-IQ.git, and push the existing code to main. 
-   Show me `git status` before the first commit and stop if any secret, 
-   .env, database file or node_modules would be committed.
-2. Rebrand the whole app to "Pamoja IQ" (tagline "Intelligent Chama Solution") 
-   using a single brand config file, as described in Part B.
-3. Then build Part C step by step, in the order listed at the end of Part C. 
-   Fix login first and tell me the root cause.
-4. Use Part D only as the roadmap so today's data model and code structure 
-   don't block those features later. Do not build Part D yet.
+1. **Check tools:** `git --version`, `node --version`, `npm --version`.
+   - If Node is missing, look in `C:\Users\USER\nodejs-portable`; tell Thomas how to add it to PATH, or to install Node LTS from nodejs.org, and wait.
+2. **Check the source branch exists online:**
+   `git ls-remote --heads https://github.com/kamauSft/celestara.git cursor/chama-ai-phase-1-57f2`
+   - If nothing is returned, stop and tell Thomas: "Open the old cloud agent chat and ask it to run `git push -u origin cursor/chama-ai-phase-1-57f2`, then tell me when done."
+3. **Clone into a new folder:**
+   ```
+   cd /d C:\Users\USER
+   git clone --branch cursor/chama-ai-phase-1-57f2 --single-branch https://github.com/kamauSft/celestara.git pamoja-iq
+   ```
+   - If `C:\Users\USER\pamoja-iq` already exists, show what's in it and ask before touching it.
+4. **Point it at PAMOJA-IQ** (inside `C:\Users\USER\pamoja-iq`):
+   ```
+   git remote set-url origin https://github.com/kamauSft/PAMOJA-IQ.git
+   git branch -M main
+   ```
+5. **Add this file as the spec:** copy `C:\Users\USER\kikapu\CURSOR-START.md` to `C:\Users\USER\pamoja-iq\docs\SPEC.md` (create `docs`; replace any older `SPEC.md`).
+6. **Check `.gitignore`** contains at least:
+   ```
+   node_modules/
+   .next/
+   out/
+   build/
+   coverage/
+   .env
+   .env.local
+   .env*.local
+   *.db
+   *.db-journal
+   *.log
+   .vercel/
+   .DS_Store
+   /uploads/
+   /tmp/
+   ```
+   If any `.env` or `.db` file is already tracked, run `git rm --cached <file>` (keep the local file) and tell Thomas which keys to change later.
+7. **Commit:** `git add .` → show `git status` → `git commit -m "chore: move app to PAMOJA-IQ and add full spec"`.
+8. **Push:** `git push -u origin main`.
+9. **Verify:** `git ls-remote https://github.com/kamauSft/PAMOJA-IQ.git` and confirm the commit matches the local `git log -1`.
+10. **Hand over.** Tell Thomas exactly:
+    "Done. Your code is on GitHub in PAMOJA-IQ. Now go to **File → Open Folder → C:\Users\USER\pamoja-iq**, open a new Agent chat (Ctrl + I), and type: **Read @docs/SPEC.md and continue with Phase 2.**"
 
-After every step: run lint, type-check and tests, commit on a feature branch, 
-push, open a pull request, and tell me exactly what to test in the browser. 
-Wait for my OK before the next step.
-```
+Do not do Phase 2 in this window.
 
 ---
+
+## Phase 2: Get the app running, then build it step by step
+
+You are now in `C:\Users\USER\pamoja-iq`, connected to `kamauSft/PAMOJA-IQ` on `main`.
+
+### Step 0: Run it and report (then wait for Thomas)
+1. Create `.env` from `.env.example` (create both if missing):
+   ```
+   DATABASE_URL="file:./dev.db"
+   SESSION_SECRET="<generate a random 48-character string>"
+   DEMO_MODE=true
+   ```
+   `.env.example` gets the same names with placeholder values. Never commit `.env`.
+2. `npm install` → `npx prisma generate` → `npx prisma db push` → `npm run seed`.
+   Add or fix missing package.json scripts: `dev`, `build`, `start`, `lint`, `typecheck` (`tsc --noEmit`), `test`, `test:e2e`, `seed`, `db:reset`, `format`.
+3. Start `npm run dev` and give Thomas the `http://localhost:3000` link and the demo logins.
+4. Report in a short table what exists vs **Part C** below: **done / partly done / missing**.
+5. Wait for his "OK".
+
+### Then build, in this order
+1. **Part B** (brand config, renames, README, `.env.example`, CI, CHANGELOG).
+2. **Part C**, in the exact order listed under "Order of work". **Fix login first** and explain the root cause.
+3. **Part D** is the roadmap only. Keep today's design compatible with it, but don't build it.
+
+### Rules for every step
+- One branch per step: `feat/brand-setup`, `fix/login`, `feat/mobile-otp`, `feat/landing-bubbles`, `feat/excel-import`, `feat/member-privacy`, `feat/member-portal`, `feat/treasurer-bubbles`, `feat/goals`, `feat/morning-quotes`, `chore/hardening`.
+- Small commits using `feat:`, `fix:`, `chore:`, `test:` prefixes.
+- Before each commit: `npm run lint`, `npm run typecheck`, `npm test`. Never commit failing code.
+- Push the branch and open a pull request into `main` (use `gh pr create` if GitHub CLI is installed and logged in; otherwise give Thomas the GitHub "compare" link and tell him the one button to click).
+- **Members must never see another member's numbers** (Part 11). Write and pass the tests listed there.
+- **All money maths** lives in deterministic, tested functions in `/lib/finance`; never in the UI or AI.
+- Update `docs/CHANGELOG.md` at the end of each step.
+- After each step: restart the app, then give Thomas:
+  1. the localhost link,
+  2. a short checklist of exactly what to click and what he should see,
+  3. the PR link.
+  Then **wait for "OK"**.
+- When Thomas says **OK**: merge the PR (`gh pr merge --squash --delete-branch`, or tell him the button), `git checkout main`, `git pull`, and start the next step.
+- When Thomas reports a problem: fix it on the same branch, add a test for it, and give him the link and checklist again.
+- If the conversation gets long, tell Thomas to open a new Agent chat in the same folder and type: **"Read @docs/SPEC.md and @docs/CHANGELOG.md, check what's merged into main, and continue with the next step."**
+
+### Demo logins (keep working throughout)
+- Treasurer **Peter Otieno**: `0712345002`
+- Member **Amina Hassan**: `0712345005`
+- Chair **Grace**: see seed
+- PIN for all: `2580` (officials also get a demo OTP code shown on screen when `DEMO_MODE=true`)
+
+---
+
+# PRODUCT SPEC
 
 ## Part B: Repo setup, branding and working rules (do first)
 
-### B1. Git and GitHub
-- The project lives in `C:\Users\USER\kikapu`. **Never** run git commands in `C:\Users\USER` (the Windows user folder).
+### B1. Git and GitHub (already handled in Phase 1; keep these rules)
+- The project lives in `C:\Users\USER\pamoja-iq`. **Never** run git commands in `C:\Users\USER` (the Windows user folder).
 - Create `.gitignore` for Next.js + Prisma:
   ```
   node_modules/
@@ -207,7 +298,7 @@ Route: `/` (the current "Two doors" page becomes part of this or moves to `/demo
 Route: `/treasurer/import`. Only treasurer and chair can open it.
 
 ### Download a template
-Provide a button **"Download Excel template"** that generates `smart-kikapu-template.xlsx` with these sheets and example rows:
+Provide a button **"Download Excel template"** that generates `pamoja-iq-template.xlsx` with these sheets and example rows:
 
 **Sheet `Members`**
 | Member No | Full Name | Phone | Role | Join Date | Status |
@@ -451,7 +542,7 @@ The treasurer uploads **one Excel file for the whole group**. Pamoja IQ splits i
 10. Morning encouragement messages (Part 10).
 11. Security, tests, Lighthouse check (Part 8).
 
-Start with step 1 (after Part B is done).
+Start with step 1 after Part B is merged.
 
 
 ---
