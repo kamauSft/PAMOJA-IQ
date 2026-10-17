@@ -4,12 +4,20 @@ import { getSession, type ActiveSession } from "../auth/service";
 import { SESSION_COOKIE } from "../auth/session";
 import { isOfficial, type TenantContext } from "../tenancy/context";
 
-export async function requireSession(): Promise<ActiveSession> {
+export async function readSession(): Promise<ActiveSession | null> {
   const jar = await cookies();
   const token = jar.get(SESSION_COOKIE)?.value;
-  const session = token ? await getSession(token) : null;
+  return token ? getSession(token) : null;
+}
+
+export async function requireSession(): Promise<ActiveSession> {
+  const session = await readSession();
   if (!session) redirect("/login");
   return session;
+}
+
+export function canBringInBooks(role: ActiveSession["role"]): boolean {
+  return role === "TREASURER" || role === "CHAIR";
 }
 
 export function tenantFromSession(session: ActiveSession): TenantContext {

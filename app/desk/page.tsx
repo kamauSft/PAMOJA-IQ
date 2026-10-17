@@ -5,7 +5,7 @@ import { Shell } from "@/components/shell";
 import { Stat } from "@/components/stat";
 import { booksAsOf } from "@/lib/chama/clock";
 import { loadDesk } from "@/lib/chama/load-desk";
-import { requireSession, tenantFromSession } from "@/lib/chama/page-session";
+import { canBringInBooks, requireSession, tenantFromSession } from "@/lib/chama/page-session";
 import { isOfficial, runWithTenant } from "@/lib/tenancy/context";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +27,19 @@ export default async function DeskPage() {
       <p className="mt-2 max-w-2xl text-sm text-stone-600">
         Every member is on this page. A member who signs in is sent away from it. Books as of {desk.asOf}. Audit {desk.auditIntact ? "intact" : "needs review"}.
       </p>
+      {canBringInBooks(session.role) ? (
+        <section className="card mt-6 flex flex-wrap items-center justify-between gap-4 p-4">
+          <div>
+            <h2 className="font-serif text-2xl">Upload Excel</h2>
+            <p className="mt-1 max-w-xl text-sm text-muted">
+              Add members and the months they paid from a spreadsheet. Download a blank file on the next page if you do not have one yet.
+            </p>
+          </div>
+          <Link href="/import" className="tap rounded-full bg-sisal px-5 text-sm font-semibold text-ink">
+            Upload Excel
+          </Link>
+        </section>
+      ) : null}
       <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Paid this month" value={String(desk.monthTally.PAID)} hint={`of ${desk.monthTally.PAID + desk.monthTally.LATE + desk.monthTally.MISSED} who owe`} />
         <Stat label="Missed this month" value={String(desk.monthTally.MISSED)} hint={`${desk.monthTally.LATE} paid late`} />

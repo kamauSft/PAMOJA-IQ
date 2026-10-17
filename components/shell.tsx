@@ -2,6 +2,7 @@ import Link from "next/link";
 import { brand } from "@/config/brand";
 import { copy } from "@/content/ui";
 import { getLocale } from "@/lib/locale";
+import { canBringInBooks } from "@/lib/chama/page-session";
 import { isOfficial } from "@/lib/tenancy/context";
 import { BrandMark } from "./brand-mark";
 import { Preferences } from "./preferences";
@@ -22,7 +23,9 @@ export async function Shell({
 }) {
   const locale = await getLocale();
   const text = copy(locale);
-  const links = isOfficial(role) ? text.shell.official : text.shell.member;
+  const links = (isOfficial(role) ? text.shell.official : text.shell.member).filter(
+    ([, href]) => href !== "/import" || canBringInBooks(role),
+  );
   return (
     <div className="mx-auto min-h-screen max-w-6xl px-4 py-6 sm:px-6">
       <header className="no-print flex flex-wrap items-end justify-between gap-4 border-b border-ink/10 pb-4">
