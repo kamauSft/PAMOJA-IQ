@@ -207,6 +207,7 @@ export function LoginForm({
       {demoCode ? (
         <div className="mt-3 rounded-xl border border-sisal bg-sisal/15 px-3 py-2 text-sm text-ink" data-testid="demo-banner">
           <p className="font-semibold">{labels.demo}</p>
+          <p className="mt-1">{labels.demoNote}</p>
           <p className="mt-1">
             {labels.demoCode}: <strong data-testid="demo-code">{demoCode}</strong>
           </p>

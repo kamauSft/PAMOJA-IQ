@@ -1,5 +1,13 @@
 # Decisions
 
+## 2026-10-17 — Text codes stay on the screen until a phone gateway exists
+
+Sign-in still creates a one-time code and logs it on the server. Demo mode shows that code on the page. Nothing sends it to a handset, because no SMS account is connected. The sign-in page says so. A real send can sit behind the existing `SmsProvider` later, without changing the sign-in steps.
+
+## 2026-10-17 — A treasurer starts a chama, then brings the register in from Excel
+
+`/start` creates one person, one chama, and a treasurer membership. The same phone cannot start a second profile. Excel upload is limited to the treasurer and the chair. It reads the Members sheet and month columns, including a messy sheet with Swahili headers, and writes members plus contributions. New people from a file join as members. Loans, fines, and an undo button are not in this step.
+
 ## 2026-10-17 — Whole shillings hide the cents
 
 `formatKes` prints `KES 2,000` when the amount is a whole number of shillings, and `KES 1.50` when there are cents. The figures stay integer cents in the database. The trailing `.00` was exact, but it looked like a floating-point leftover on a phone.

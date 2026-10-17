@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
 import { LoginForm } from "@/components/login-form";
 import { Preferences } from "@/components/preferences";
 import { brand } from "@/config/brand";
 import { copy } from "@/content/ui";
 import { getLocale } from "@/lib/locale";
+import { normalizePhone } from "@/lib/phone";
 
 const WHO = {
   treasurer: {
@@ -29,12 +31,14 @@ const WHO = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ who?: string }>;
+  searchParams: Promise<{ who?: string; phone?: string }>;
 }) {
   const query = await searchParams;
   const locale = await getLocale();
   const text = copy(locale);
-  const who = query.who === "treasurer" || query.who === "member" || query.who === "chair" ? WHO[query.who] : null;
+  const freshPhone = query.phone && normalizePhone(query.phone) ? query.phone : null;
+  const whoKey = query.who === "treasurer" || query.who === "member" || query.who === "chair" ? query.who : null;
+  const who = freshPhone || !whoKey ? null : WHO[whoKey];
   const title = who ? text.shell.roles[who === WHO.member ? "MEMBER" : who === WHO.chair ? "CHAIR" : "TREASURER"] : text.login.signIn;
 
   return (
@@ -48,15 +52,20 @@ export default async function LoginPage({
       </div>
       <p className="mt-2 text-xs text-muted">{brand.tagline}</p>
       <h1 className="mt-3 font-display text-4xl">{title}</h1>
-      <p className="mt-2 text-sm text-muted">{who ? who[locale] : text.login.fallback}</p>
+      <p className="mt-2 text-sm text-muted">{freshPhone ? text.login.fresh : who ? who[locale] : text.login.fallback}</p>
       <div className="mt-6">
         <LoginForm
-          initialPhone={who?.phone ?? "0712345005"}
-          initialPin={who?.pin ?? ""}
-          startWithPin={Boolean(who?.pin)}
+          initialPhone={freshPhone ?? who?.phone ?? "0712345005"}
+          initialPin={freshPhone ? "" : (who?.pin ?? "")}
+          startWithPin={freshPhone ? true : Boolean(who?.pin)}
           labels={text.login}
         />
       </div>
+      <p className="mt-6 text-sm text-muted">
+        <Link className="underline" href="/start">
+          {text.login.create}
+        </Link>
+      </p>
     </main>
   );
 }

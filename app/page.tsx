@@ -50,6 +50,12 @@ export default async function LandingPage() {
       </section>
 
       <p className="mt-6 text-sm text-muted">
+        <Link className="font-semibold text-leaf underline" href="/start">
+          {page.startCta}
+        </Link>
+        . {page.startBody}
+      </p>
+      <p className="mt-3 text-sm text-muted">
         {page.chair}{" "}
         <Link className="underline" href="/login?who=chair">
           {page.chairAction}

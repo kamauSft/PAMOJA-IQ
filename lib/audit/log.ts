@@ -1,4 +1,4 @@
-import type { AuditSource } from "@prisma/client";
+import { Prisma, type AuditSource } from "@prisma/client";
 import { getDb } from "../db";
 import { currentTenant, TenantIsolationError } from "../tenancy/context";
 import { GENESIS_HASH, auditHash, type AuditBody } from "./chain";
@@ -53,4 +53,55 @@ export async function appendAuditLog(input: {
     },
   });
   return { seq, hash };
+}
+
+/** Write the next audit row inside the same database transaction as the change. */
+export async function appendAuditInTransaction(
+  tx: Prisma.TransactionClient,
+  input: {
+    chamaId: string;
+    membershipId: string;
+    personId: string;
+    action: string;
+    entityType: string;
+    entityId: string;
+    after?: unknown;
+  },
+): Promise<void> {
+  const last = await tx.auditLog.findFirst({
+    where: { chamaId: input.chamaId },
+    orderBy: { seq: "desc" },
+  });
+  const seq = (last?.seq ?? 0) + 1;
+  const prevHash = last?.hash ?? GENESIS_HASH;
+  const createdAt = new Date();
+  const body: AuditBody = {
+    chamaId: input.chamaId,
+    seq,
+    actorMembershipId: input.membershipId,
+    actorPersonId: input.personId,
+    source: "MANUAL",
+    action: input.action,
+    entityType: input.entityType,
+    entityId: input.entityId,
+    before: null,
+    after: input.after ?? null,
+    createdAt: createdAt.toISOString(),
+  };
+  await tx.auditLog.create({
+    data: {
+      chamaId: input.chamaId,
+      seq,
+      prevHash,
+      hash: auditHash(prevHash, body),
+      actorMembershipId: input.membershipId,
+      actorPersonId: input.personId,
+      source: "MANUAL",
+      action: input.action,
+      entityType: input.entityType,
+      entityId: input.entityId,
+      after: input.after === undefined ? undefined : (input.after as Prisma.InputJsonValue),
+      createdAt,
+    },
+  });
 }
