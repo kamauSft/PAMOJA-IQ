@@ -93,7 +93,7 @@ export function ImportForm({ labels = english }: { labels?: typeof english }) {
             ))}
           </ul>
         ) : null}
-        <Link href="/publish" className="tap mt-6 rounded-full bg-sisal px-5 text-sm font-semibold text-ink">
+        <Link href="/publish" className="btn mt-6">
           {labels.open}
         </Link>
       </div>
@@ -118,7 +118,7 @@ export function ImportForm({ labels = english }: { labels?: typeof english }) {
       </label>
       <div className="mt-4 flex flex-wrap gap-3">
         <button
-          className="tap rounded-full bg-leaf px-5 text-sm font-semibold text-ivory disabled:opacity-60"
+          className="btn disabled:opacity-60"
           type="button"
           disabled={pending}
           onClick={() => send("preview")}
@@ -127,7 +127,7 @@ export function ImportForm({ labels = english }: { labels?: typeof english }) {
         </button>
         {preview ? (
           <button
-            className="tap rounded-full bg-sisal px-5 text-sm font-semibold text-ink disabled:opacity-60"
+            className="btn disabled:opacity-60"
             type="button"
             disabled={pending}
             onClick={() => send("save")}

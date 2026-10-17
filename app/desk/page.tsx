@@ -50,10 +50,10 @@ export default async function DeskPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link href="/import" className="tap rounded-full bg-sisal px-5 text-sm font-semibold text-ink">
+            <Link href="/import" className="btn">
               {text.upload.title}
             </Link>
-            <Link href="/publish" className="tap rounded-full bg-leaf px-5 text-sm font-semibold text-ivory">
+            <Link href="/publish" className="btn">
               {text.publish.title}
             </Link>
           </div>

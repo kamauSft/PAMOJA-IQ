@@ -23,42 +23,87 @@ export async function Shell({
 }) {
   const locale = await getLocale();
   const text = copy(locale);
-  const links = (isOfficial(role) ? text.shell.official : text.shell.member).filter(
+  const official = isOfficial(role);
+  const links = (official ? text.shell.official : text.shell.member).filter(
     ([, href]) => (href !== "/import" && href !== "/publish") || canBringInBooks(role),
   );
+
   return (
-    <div className="mx-auto min-h-screen max-w-6xl px-4 py-6 sm:px-6">
-      <header className="no-print flex flex-wrap items-end justify-between gap-4 border-b border-ink/10 pb-4">
-        <div>
-          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-leaf">
-            <BrandMark className="h-6 w-6" />
-            {brand.name} · {chamaName}
-          </p>
-          <p className="mt-1 text-sm text-muted">
-            {personName} · {text.shell.roles[role]}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Preferences locale={locale} languageLabel={text.language} lightLabel={text.themeLight} darkLabel={text.themeDark} />
-          <SignOut signOutLabel={text.shell.signOut} signOutAllLabel={text.shell.signOutAll} />
-        </div>
-      </header>
-      <nav className="no-print mt-4 flex flex-wrap gap-2">
-        {links.map(([label, href]) => (
-          <Link
-            key={href}
-            href={href}
-            className={
-              href === current
-                ? "tap rounded-full bg-leaf px-4 text-sm font-semibold text-ivory"
-                : "tap rounded-full border border-ink/15 bg-paper px-4 text-sm text-ink"
-            }
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
-      <div className="mt-6">{children}</div>
+    <div className={official ? "min-h-screen md:grid md:grid-cols-[15rem_1fr]" : "min-h-screen"}>
+      {official ? (
+        <aside className="no-print hidden border-r border-line bg-navy text-[var(--on-navy)] md:flex md:flex-col">
+          <div className="flex items-center gap-2 px-4 py-5 text-sm font-semibold">
+            <BrandMark className="h-7 w-7" />
+            {brand.name}
+          </div>
+          <nav className="flex flex-1 flex-col gap-1 px-2">
+            {links.map(([label, href]) => (
+              <Link
+                key={href}
+                href={href}
+                className={
+                  href === current
+                    ? "tap justify-start rounded-lg bg-white/10 px-3 text-sm font-semibold"
+                    : "tap justify-start rounded-lg px-3 text-sm text-white/80 hover:bg-white/10"
+                }
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </aside>
+      ) : null}
+      <div className="min-w-0">
+        <header className="no-print flex flex-wrap items-center justify-between gap-3 border-b border-line bg-surface px-4 py-3">
+          <div>
+            <p className="text-[13px] font-semibold text-ink">
+              {brand.name} · {chamaName}
+            </p>
+            <p className="text-[13px] text-muted">
+              {personName} · {text.shell.roles[role]}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Preferences locale={locale} languageLabel={text.language} lightLabel={text.themeLight} darkLabel={text.themeDark} />
+            <SignOut signOutLabel={text.shell.signOut} signOutAllLabel={text.shell.signOutAll} />
+          </div>
+        </header>
+        {official ? (
+          <nav className="no-print flex gap-2 overflow-x-auto border-b border-line bg-surface px-3 py-2 md:hidden">
+            {links.map(([label, href]) => (
+              <Link
+                key={href}
+                href={href}
+                className={
+                  href === current
+                    ? "tap shrink-0 rounded-lg bg-navy px-3 text-[13px] font-semibold text-[var(--on-navy)]"
+                    : "tap shrink-0 rounded-lg border border-line px-3 text-[13px]"
+                }
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        ) : null}
+        <main className={official ? "px-4 py-6 sm:px-6" : "px-4 py-6 pb-24 sm:px-6"}>{children}</main>
+        {official ? null : (
+          <nav className="no-print fixed inset-x-0 bottom-0 flex border-t border-line bg-surface">
+            {links.map(([label, href]) => (
+              <Link
+                key={href}
+                href={href}
+                className={
+                  href === current
+                    ? "tap flex-1 text-[13px] font-semibold text-accent"
+                    : "tap flex-1 text-[13px] text-muted"
+                }
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        )}
+      </div>
     </div>
   );
 }

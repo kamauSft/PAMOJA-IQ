@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### A quieter, banking look
+
+- The pages use a navy, white, and deep green palette, with IBM Plex for words and figures.
+- The treasurer has a left-hand menu. A member has a top bar and tabs along the bottom of the phone.
+- The front page is a short statement, two buttons, and three plain lines.
+
 ### Removed by the owner
 
 - Member circles are gone from the treasurer's desk. The register is a table.

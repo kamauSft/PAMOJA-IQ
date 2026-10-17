@@ -66,7 +66,7 @@ export default async function LoginPage({
         <Preferences locale={locale} languageLabel={text.language} lightLabel={text.themeLight} darkLabel={text.themeDark} />
       </div>
       <p className="mt-2 text-xs text-muted">{brand.tagline}</p>
-      <h1 className="mt-3 font-display text-4xl">{title}</h1>
+      <h1 className="mt-3 text-[2rem]">{title}</h1>
       <p className="mt-2 text-sm text-muted">{intro}</p>
       <div className="mt-6">
         <LoginForm

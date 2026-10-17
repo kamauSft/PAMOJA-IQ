@@ -65,7 +65,7 @@ export function AddMemberForm({
         {labels.addPhone}
         <input className="field" name="phone" inputMode="tel" value={phone} onChange={(event) => setPhone(event.target.value)} />
       </label>
-      <button className="tap rounded-full bg-leaf px-5 text-sm font-semibold text-ivory disabled:opacity-60" disabled={pending} type="submit">
+      <button className="btn disabled:opacity-60" disabled={pending} type="submit">
         {pending ? labels.addWorking : labels.addSave}
       </button>
       {done ? <p className="text-sm text-leaf">{done}</p> : null}

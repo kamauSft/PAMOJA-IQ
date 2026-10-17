@@ -36,6 +36,7 @@ export function LoginForm({
   const [phone, setPhone] = useState(initialPhone);
   const [pin, setPin] = useState(initialPin);
   const [showPin, setShowPin] = useState(startWithPin);
+  const [pinVisible, setPinVisible] = useState(false);
   const [chamaId, setChamaId] = useState("");
   const [choices, setChoices] = useState<ChamaChoice[]>([]);
   const [challengeId, setChallengeId] = useState("");
@@ -137,15 +138,20 @@ export function LoginForm({
             {showPin ? (
               <label className="block text-sm font-medium">
                 {labels.pin}
-                <input
-                  className="field"
-                  value={pin}
-                  onChange={(event) => setPin(event.target.value)}
-                  type="password"
-                  inputMode="numeric"
-                  autoComplete="current-password"
-                  name="pin"
-                />
+                <span className="mt-1 flex gap-2">
+                  <input
+                    className="field mt-0"
+                    value={pin}
+                    onChange={(event) => setPin(event.target.value)}
+                    type={pinVisible ? "text" : "password"}
+                    inputMode="numeric"
+                    autoComplete="current-password"
+                    name="pin"
+                  />
+                  <button className="tap shrink-0 rounded-lg border border-line px-3 text-[13px]" type="button" onClick={() => setPinVisible((current) => !current)}>
+                    {pinVisible ? labels.hidePin : labels.showPin}
+                  </button>
+                </span>
               </label>
             ) : null}
             {choices.length > 0 ? (
@@ -180,7 +186,7 @@ export function LoginForm({
           </label>
         )}
         <button
-          className="tap w-full rounded-full bg-sisal px-4 font-semibold text-ink disabled:opacity-60"
+          className="btn w-full disabled:opacity-60"
           disabled={pending}
           type="submit"
         >
@@ -199,13 +205,14 @@ export function LoginForm({
           {showPin ? labels.useCode : labels.usePin}
         </button>
       ) : null}
+      {!challengeId ? <p className="mt-4 text-[13px] text-muted">{labels.forgot}</p> : null}
       {message ? (
         <p className="mt-4 text-sm text-clay" role="alert" data-testid="login-error">
           {message}
         </p>
       ) : null}
       {demoCode ? (
-        <div className="mt-3 rounded-xl border border-sisal bg-sisal/15 px-3 py-2 text-sm text-ink" data-testid="demo-banner">
+        <div className="mt-3 rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-ink" data-testid="demo-banner">
           <p className="font-semibold">{labels.demo}</p>
           <p className="mt-1">{labels.demoNote}</p>
           <p className="mt-1">

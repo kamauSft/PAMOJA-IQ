@@ -1,10 +1,10 @@
 import type { ContributionCell } from "@/lib/chama/picture";
 
 const TONE: Record<ContributionCell, string> = {
-  PAID: "bg-emerald-100 text-emerald-950",
-  LATE: "bg-amber-100 text-amber-950",
-  MISSED: "bg-red-100 text-red-950",
-  NOT_DUE: "bg-stone-100 text-stone-500",
+  PAID: "bg-accent/10 text-accent",
+  LATE: "bg-due/10 text-due",
+  MISSED: "bg-overdue/10 text-overdue",
+  NOT_DUE: "bg-line text-muted",
 };
 
 const WORD: Record<ContributionCell, string> = {
@@ -16,7 +16,7 @@ const WORD: Record<ContributionCell, string> = {
 
 export function MonthPill({ cell, label }: { cell: ContributionCell; label?: string }) {
   return (
-    <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${TONE[cell]}`}>
+    <span className={`inline-block rounded-md px-2 py-1 text-[13px] font-semibold ${TONE[cell]}`}>
       {label ?? WORD[cell]}
     </span>
   );

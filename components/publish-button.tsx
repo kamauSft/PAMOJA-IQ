@@ -42,7 +42,7 @@ export function PublishButton({
   return (
     <div>
       <button
-        className="tap rounded-full bg-sisal px-5 text-sm font-semibold text-ink disabled:opacity-60"
+        className="btn disabled:opacity-60"
         type="button"
         disabled={disabled || pending}
         onClick={publish}

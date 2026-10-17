@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-17 — The screens follow a private-bank layout
+
+Navy is the header and the main button. Green is only for a positive figure or a paid mark. Cards are flat, with a hairline and an 8px corner. IBM Plex Sans carries the words and IBM Plex Mono carries the figures. Fines, Reminders, Settings, Notifications, and Profile are named in the brief and are not menus yet, because those screens are later changes.
+
 ## 2026-10-17 — Bubbles, daily words, and celebration effects are out
 
 The owner removed them in Round 2. The treasurer's register is a table. The member home has no daily word. Goal photos, confetti, and floating circles are not to be added again. Savings goals stay: a title, a target, and a date.
