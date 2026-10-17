@@ -107,6 +107,8 @@ const en = {
     myLoan: "My loan",
     statement: "Statement",
     position: "Your position",
+    today: "Today",
+    reminders: "Reminders",
     share: "of the group's savings",
     setGoal: "Set a goal",
     pace: {
@@ -242,6 +244,7 @@ const en = {
     of: "of",
     members: "Members",
     chase: "Still to chase",
+    reminders: "Reminders ready to show members",
     nobodyBehind: "Nobody is behind.",
     overdueLoan: "overdue loan",
     receipts: "Payments to match",
@@ -365,6 +368,8 @@ const sw: typeof en = {
     myLoan: "Mkopo wangu",
     statement: "Taarifa",
     position: "Nafasi yako",
+    today: "Leo",
+    reminders: "Vikumbusho",
     share: "ya akiba ya kundi",
     setGoal: "Weka lengo",
     pace: {
@@ -500,6 +505,7 @@ const sw: typeof en = {
     of: "kati ya",
     members: "Wanachama",
     chase: "Bado kufuatilia",
+    reminders: "Vikumbusho tayari kwa wanachama",
     nobodyBehind: "Hakuna aliyeko nyuma.",
     overdueLoan: "mkopo uliochelewa",
     receipts: "Malipo ya kulinganisha",

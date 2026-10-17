@@ -9,6 +9,7 @@ import { requireSession, tenantFromSession } from "@/lib/chama/page-session";
 import { getLocale } from "@/lib/locale";
 import { loadMemberHome } from "@/lib/member/home";
 import { shortMonth } from "@/lib/member/stats";
+import { memberReminders } from "@/lib/quotes/daily";
 import { runWithTenant } from "@/lib/tenancy/context";
 
 export const dynamic = "force-dynamic";
@@ -19,15 +20,36 @@ export default async function HomePage() {
   const text = copy(locale).home;
   const pin = copy(locale).pin;
   const home = await runWithTenant(tenantFromSession(session), () =>
-    loadMemberHome(session.membershipId, booksAsOf()),
+    loadMemberHome(session.membershipId, booksAsOf(), locale),
   );
   const first = home.personName.split(" ")[0];
   const month =
     home.thisMonth === "PAID" || home.thisMonth === "LATE" ? text.recorded : home.thisMonth === "MISSED" ? text.missed : text.notDue;
+  const reminders = memberReminders({
+    locale,
+    periodLabel: home.periodLabel,
+    thisMonth: home.thisMonth,
+    monthlyDueLabel: home.monthlyDueLabel,
+    loan: home.nextInstallment,
+  });
 
   return (
     <Shell chamaName={home.chamaName} personName={home.personName} role={session.role} current="/home">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-leaf">{text.position}</p>
+      <section className="card p-5">
+        <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-accent">{text.today}</p>
+        <p className="mt-2 text-2xl font-semibold">{home.motivation.message}</p>
+        {home.motivation.proverb ? <p className="mt-2 text-sm text-muted">{home.motivation.proverb}</p> : null}
+        <p className="mt-3 text-xs text-muted">On a phone, this would read: {home.motivation.push}</p>
+      </section>
+      <section className="card mt-4 p-5">
+        <h2 className="text-2xl">{text.reminders}</h2>
+        <ul className="mt-3 space-y-2 text-sm">
+          {reminders.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      </section>
+      <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-leaf">{text.position}</p>
       <h1 className="mt-1 font-display text-4xl">
         {first}&apos;s {text.money}
       </h1>

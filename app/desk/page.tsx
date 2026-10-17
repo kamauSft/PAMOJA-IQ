@@ -81,6 +81,17 @@ export default async function DeskPage() {
           mark: text.home.mark,
         }}
       />
+      <section className="card mt-8 p-4">
+        <h2 className="text-2xl">{deskText.reminders}</h2>
+        {desk.behind.length === 0 ? <p className="mt-3 text-sm text-muted">{deskText.nobodyBehind}</p> : null}
+        <ul className="mt-3 space-y-2 text-sm">
+          {desk.behind.map((row) => (
+            <li key={row.membershipId}>
+              {row.name}: {desk.periodLabel} {text.home.missed}. {text.home.arrears} {row.arrearsLabel}.
+            </li>
+          ))}
+        </ul>
+      </section>
       <section className="mt-8 grid gap-4 lg:grid-cols-2">
         <article className="card p-4">
           <h2 className="font-display text-2xl">{deskText.chase}</h2>

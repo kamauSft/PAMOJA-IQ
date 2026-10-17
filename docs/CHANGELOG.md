@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### A line that follows the member's own figures
+
+- The member home opens with one sentence about that member: a cleared loan, a savings step, a goal, a streak, or a quiet proverb.
+- The same idea can be shown on a phone alert. The alert does not include amounts unless the member later asks for them.
+- The wording does not name other members, and it does not suggest borrowing.
+
 ### A quieter, banking look
 
 - The pages use a navy, white, and deep green palette, with IBM Plex for words and figures.

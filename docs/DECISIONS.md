@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-17 — The morning line follows one member's own figures
+
+The random daily word stays out. In its place, the home picks the highest situation that is true for that member, from a cleared loan down to a proverb plus their savings. Numbers come from the finance functions. A phone alert uses a separate sentence with no amounts. The member can later choose to show amounts. Swahili uses the same situations.
+
 ## 2026-10-17 — The screens follow a private-bank layout
 
 Navy is the header and the main button. Green is only for a positive figure or a paid mark. Cards are flat, with a hairline and an 8px corner. IBM Plex Sans carries the words and IBM Plex Mono carries the figures. Fines, Reminders, Settings, Notifications, and Profile are named in the brief and are not menus yet, because those screens are later changes.
