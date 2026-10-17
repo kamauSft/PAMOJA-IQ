@@ -8,9 +8,13 @@ The owner asked for the public page to stay up. Reset PIN is not on the front pa
 
 GitHub Pages served a second app that checked a PIN in the browser and published practice balances. That site is unpublished. Pamoja IQ is only the Next.js app with a database. A person's phone number is not written into the sign-in page. Older instruction files are superseded by `docs/PAMOJA-IQ-MASTER.md`, except `docs/SPEC.md`.
 
-## 2026-10-17 — Bubbles, daily words, and celebration effects are out
+## 2026-10-17 — The real product is the Next.js app
 
-The owner removed them in Round 2. The treasurer's register is a table. The member home has no daily word. Goal photos, confetti, and floating circles are not to be added again. Savings goals stay: a title, a target, and a date.
+Pamoja IQ is the Next.js app with a database. The `web/` folder is only a demo. Sign-in, PINs, and member records do not belong there. The owner's phone number is not written in the project. The sign-in page does not fill in a phone number.
+
+## 2026-10-17 — Bubbles, confetti, and goal photos are out; the daily message stays
+
+Bubbles, confetti, and goal photos stay removed. The daily motivational message is wanted. It is calm, in Kiswahili and English, and it uses only that member's own figures.
 
 ## 2026-10-17 — The treasurer and the member use different doors
 
@@ -30,7 +34,7 @@ Imported payments are saved with no publish time. The treasurer's desk can see t
 
 ## 2026-10-17 — Goals follow shared savings
 
-Goal progress is current shared savings divided by the member's target. A member cannot enter a balance, and cannot open another member's goals. The daily word that used to sit above this was removed.
+Goal progress is current shared savings divided by the member's target. A member cannot enter a balance, and cannot open another member's goals. The daily message belongs above this again.
 
 ## 2026-10-17 — Text codes stay on the screen until a phone gateway exists
 
