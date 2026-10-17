@@ -2,11 +2,11 @@
 
 ## Unreleased
 
-### A public page with a photograph, light, and a PIN reset
+### The treasurer sets the PIN and uploads Excel
 
-- The public GitHub page is a serious front: three photographs, slow gold and green light, sign-in, and Reset PIN.
-- The PIN is chosen on that page and kept in the browser. It is not written in the program or on the screen.
-- The same PIN opens a member door and a treasurer door.
+- Only the treasurer can set or reset a PIN on the public page. The starting PIN is not written on the page.
+- The treasurer desk has Upload Excel. The official template downloads from that desk. The register stays in that browser.
+- A member door opens only after the treasurer has set that member's PIN.
 
 ### The public practice page is gone
 

@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-17 — Only the treasurer resets a PIN, and Excel is on that desk
+
+The owner asked for the public page to stay up. Reset PIN is not on the front page. The treasurer signs in with a starting PIN that is not written in the page, then sets other PINs and uploads the official Excel on the desk. That upload stays in the browser. The computer app at `/import` remains the private books.
+
 ## 2026-10-17 — The practice website is not a host
 
 GitHub Pages served a second app that checked a PIN in the browser and published practice balances. That site is unpublished. Pamoja IQ is only the Next.js app with a database. A person's phone number is not written into the sign-in page. Older instruction files are superseded by `docs/PAMOJA-IQ-MASTER.md`, except `docs/SPEC.md`.
