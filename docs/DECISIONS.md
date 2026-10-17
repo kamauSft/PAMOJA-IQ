@@ -1,5 +1,13 @@
 # Decisions
 
+## 2026-10-17 — New Excel stays private until the treasurer shares positions
+
+Imported payments are saved with no publish time. The treasurer's desk can see them. A member's home, months, and statement only count payments that have been shared. **Member positions** is the separate step that sets the publish time and tells each member, without amounts or other names, that their position is ready.
+
+## 2026-10-17 — The day's word is chosen in Nairobi, and goals follow shared savings
+
+The encouragement line changes on the Nairobi calendar date and does not repeat for the length of the library. Goal progress is current shared savings divided by the member's target. A member cannot enter a balance, and cannot open another member's goals.
+
 ## 2026-10-17 — Text codes stay on the screen until a phone gateway exists
 
 Sign-in still creates a one-time code and logs it on the server. Demo mode shows that code on the page. Nothing sends it to a handset, because no SMS account is connected. The sign-in page says so. A real send can sit behind the existing `SmsProvider` later, without changing the sign-in steps.

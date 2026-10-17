@@ -130,6 +130,7 @@ export async function seedDatabase() {
         method: contribution.method,
         reference: contribution.reference,
         source: contribution.method === "MPESA" ? "MPESA" : "IMPORT",
+        publishedAt: new Date(`${contribution.datePaid}T00:00:00.000Z`),
       },
     });
   }

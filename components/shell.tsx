@@ -24,7 +24,7 @@ export async function Shell({
   const locale = await getLocale();
   const text = copy(locale);
   const links = (isOfficial(role) ? text.shell.official : text.shell.member).filter(
-    ([, href]) => href !== "/import" || canBringInBooks(role),
+    ([, href]) => (href !== "/import" && href !== "/publish") || canBringInBooks(role),
   );
   return (
     <div className="mx-auto min-h-screen max-w-6xl px-4 py-6 sm:px-6">

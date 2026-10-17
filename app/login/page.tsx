@@ -11,20 +11,20 @@ const WHO = {
   treasurer: {
     phone: "0712345002",
     pin: "2580",
-    en: "Peter Otieno, treasurer of Umoja. Number, PIN 2580, then the text code on this page. After it, you are in the treasurer's books.",
-    sw: "Peter Otieno, mweka hazina wa Umoja. Nambari, PIN 2580, kisha msimbo ulio kwenye ukurasa huu. Baada yake unaingia kwenye daftari.",
+    en: "Enter the number and PIN, then the code shown on this page.",
+    sw: "Weka nambari na PIN, kisha msimbo ulio kwenye ukurasa huu.",
   },
   member: {
     phone: "0712345005",
     pin: "",
-    en: "Amina Hassan, member of Umoja. Enter her number. The text code appears on this page in demo mode. She sees only her own money. Use a PIN instead, with 2580, to skip the code.",
-    sw: "Amina Hassan, mwanachama wa Umoja. Weka nambari yake. Msimbo unaonekana hapa katika hali ya mfano. Anaona pesa zake tu. Tumia PIN 2580 kuruka msimbo.",
+    en: "Enter the number. The code appears on this page. A PIN can skip the code.",
+    sw: "Weka nambari. Msimbo unaonekana kwenye ukurasa huu. PIN inaweza kuruka msimbo.",
   },
   chair: {
     phone: "0712345001",
     pin: "2580",
-    en: "Grace Wanjiku, chair of Umoja. Number, PIN 2580, then the text code. The chair opens the same treasurer's books.",
-    sw: "Grace Wanjiku, mwenyekiti wa Umoja. Nambari, PIN 2580, kisha msimbo. Mwenyekiti anafungua daftari lile lile la mweka hazina.",
+    en: "Enter the number and PIN, then the code shown on this page.",
+    sw: "Weka nambari na PIN, kisha msimbo ulio kwenye ukurasa huu.",
   },
 } as const;
 
@@ -55,7 +55,7 @@ export default async function LoginPage({
       <p className="mt-2 text-sm text-muted">{freshPhone ? text.login.fresh : who ? who[locale] : text.login.fallback}</p>
       <div className="mt-6">
         <LoginForm
-          initialPhone={freshPhone ?? who?.phone ?? "0712345005"}
+          initialPhone={freshPhone ?? who?.phone ?? ""}
           initialPin={freshPhone ? "" : (who?.pin ?? "")}
           startWithPin={freshPhone ? true : Boolean(who?.pin)}
           labels={text.login}

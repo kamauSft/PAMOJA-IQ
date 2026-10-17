@@ -35,9 +35,14 @@ export default async function DeskPage() {
               Add members and the months they paid from a spreadsheet. Download a blank file on the next page if you do not have one yet.
             </p>
           </div>
-          <Link href="/import" className="tap rounded-full bg-sisal px-5 text-sm font-semibold text-ink">
-            Upload Excel
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/import" className="tap rounded-full bg-sisal px-5 text-sm font-semibold text-ink">
+              Upload Excel
+            </Link>
+            <Link href="/publish" className="tap rounded-full bg-leaf px-5 text-sm font-semibold text-ivory">
+              Member positions
+            </Link>
+          </div>
         </section>
       ) : null}
       <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

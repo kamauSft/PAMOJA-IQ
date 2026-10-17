@@ -8,6 +8,7 @@ import { booksAsOf } from "@/lib/chama/clock";
 import { requireSession, tenantFromSession } from "@/lib/chama/page-session";
 import { getLocale } from "@/lib/locale";
 import { loadMemberHome } from "@/lib/member/home";
+import { personalLine, quoteForDay } from "@/lib/quotes/daily";
 import { runWithTenant } from "@/lib/tenancy/context";
 
 export const dynamic = "force-dynamic";
@@ -23,10 +24,23 @@ export default async function HomePage() {
   const first = home.personName.split(" ")[0];
   const month =
     home.thisMonth === "PAID" || home.thisMonth === "LATE" ? text.recorded : home.thisMonth === "MISSED" ? text.missed : text.notDue;
+  const quote = quoteForDay(new Date(), locale);
+  const nearest = home.goals.find((goal) => goal.remainingCents > 0);
+  const line = personalLine({
+    locale,
+    thisMonth: home.thisMonth,
+    goalTitle: nearest?.title,
+    remainingCents: nearest?.remainingCents,
+  });
 
   return (
     <Shell chamaName={home.chamaName} personName={home.personName} role={session.role} current="/home">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-leaf">{text.kicker}</p>
+      <section className="card p-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-leaf">{text.quote}</p>
+        <p className="mt-2 font-display text-2xl">{quote.text}</p>
+        <p className="mt-2 text-sm text-muted">{line}</p>
+      </section>
+      <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-leaf">{text.position}</p>
       <h1 className="mt-1 font-display text-4xl">
         {first}&apos;s {text.money}
       </h1>
@@ -58,21 +72,31 @@ export default async function HomePage() {
         <Stat label={text.fines} value={home.finesLabel} />
         <Stat label={text.net} value={home.netLabel} hint={`${text.arrears} ${home.arrearsLabel}`} />
       </section>
-      {home.goals.length > 0 ? (
-        <section className="card mt-4 p-4">
-          <h2 className="font-display text-2xl">{text.goal}</h2>
-          {home.goals.map((goal) => (
-            <div key={goal.title} className="mt-3">
-              <p className="text-sm text-muted">
-                {goal.title}: {goal.savedLabel} {text.of} {goal.targetLabel}
-              </p>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-leaf/20">
-                <div className="h-full bg-leaf" style={{ width: `${goal.progressBps / 100}%` }} />
-              </div>
-            </div>
-          ))}
-        </section>
+      {home.shareLabel ? (
+        <p className="mt-3 text-sm text-muted">
+          {home.savingsLabel} · {home.shareLabel} {text.share}
+        </p>
       ) : null}
+      <section className="card mt-4 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-display text-2xl">{text.goal}</h2>
+          {session.role === "MEMBER" ? (
+            <Link href="/goals" className="text-sm font-semibold text-leaf underline">
+              {text.setGoal}
+            </Link>
+          ) : null}
+        </div>
+        {home.goals.slice(0, 2).map((goal) => (
+          <div key={goal.id} className="mt-3">
+            <p className="text-sm text-muted">
+              {goal.title}: {goal.savedLabel} {text.of} {goal.targetLabel} · {text.pace[goal.pace]}
+            </p>
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-leaf/20">
+              <div className="h-full bg-leaf" style={{ width: `${goal.percent}%` }} />
+            </div>
+          </div>
+        ))}
+      </section>
       {session.role === "MEMBER" ? <MemberPinForm labels={pin} /> : null}
       <div className="mt-6 flex flex-wrap gap-3">
         <Link href="/mine" className="tap rounded-full border border-ink/20 px-4 text-sm">
