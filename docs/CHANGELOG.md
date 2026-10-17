@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### The public page is only a sample
+
+- Sign-in, PIN reset, and Excel upload are gone from the public page.
+- Two buttons open sample screens. Every screen says Demo · sample data.
+- The names and phone numbers on that page are made up.
+
 ### Rules, and the owner's number taken out
 
 - The permanent rules are saved for every session. The real product is the Next.js app. The public page is a demo.

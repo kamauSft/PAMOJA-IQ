@@ -8,6 +8,10 @@ The owner asked for the public page to stay up. Reset PIN is not on the front pa
 
 GitHub Pages served a second app that checked a PIN in the browser and published practice balances. That site is unpublished. Pamoja IQ is only the Next.js app with a database. A person's phone number is not written into the sign-in page. Older instruction files are superseded by `docs/PAMOJA-IQ-MASTER.md`, except `docs/SPEC.md`.
 
+## 2026-10-17 — The public page shows sample screens only
+
+The public page has no sign-in, no PIN, and no Excel upload. It opens a member sample and a treasurer sample, both marked as demo data, with made-up phone numbers. The real books stay in the Next.js app.
+
 ## 2026-10-17 — The real product is the Next.js app
 
 Pamoja IQ is the Next.js app with a database. The `web/` folder is only a demo. Sign-in, PINs, and member records do not belong there. The owner's phone number is not written in the project. The sign-in page does not fill in a phone number.
