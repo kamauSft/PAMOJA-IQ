@@ -5,6 +5,7 @@
 ### The treasurer sets the PIN and uploads Excel
 
 - Only the treasurer can set or reset a PIN on the public page. The starting PIN is not written on the page.
+- The treasurer's starting PIN still opens the door when this browser saved an older PIN or locked the number.
 - The treasurer desk has Upload Excel. The official template downloads from that desk. The register stays in that browser.
 - A member door opens only after the treasurer has set that member's PIN.
 
