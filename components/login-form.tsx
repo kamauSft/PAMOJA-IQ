@@ -26,12 +26,14 @@ export function LoginForm({
   initialPin = "",
   startWithPin = false,
   afterSignIn,
+  preferredRole,
   labels = english,
 }: {
   initialPhone?: string;
   initialPin?: string;
   startWithPin?: boolean;
   afterSignIn?: "/home" | "/desk";
+  preferredRole?: "MEMBER" | "TREASURER" | "CHAIR" | "SECRETARY" | "AUDITOR";
   labels?: typeof english;
 }) {
   const router = useRouter();
@@ -59,7 +61,7 @@ export function LoginForm({
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ phone, pin: showPin ? pin : undefined, chamaId: chamaId || undefined }),
+        body: JSON.stringify({ phone, pin: showPin ? pin : undefined, chamaId: chamaId || undefined, role: preferredRole }),
       });
       const body = (await response.json().catch(() => null)) as LoginBody | null;
       if (!body?.status) {

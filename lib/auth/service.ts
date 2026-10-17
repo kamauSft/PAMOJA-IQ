@@ -172,6 +172,7 @@ export async function loginWithPin(input: {
   phone: string;
   pin?: string;
   chamaId?: string;
+  role?: MembershipRole;
   now?: Date;
   ip?: string;
   userAgent?: string;
@@ -199,10 +200,11 @@ export async function loginWithPin(input: {
     person.failedLoginAttempts = 0;
   }
 
-  const memberships = await prismaRaw.membership.findMany({
+  const found = await prismaRaw.membership.findMany({
     where: { personId: person.id, status: "ACTIVE" },
     include: { chama: true },
   });
+  const memberships = input.role ? found.filter((membership) => membership.role === input.role) : found;
   if (memberships.length === 0) return unknownNumber();
 
   if (!pin) {

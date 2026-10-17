@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### The owner's member record
+
+- The same phone can be a member and a treasurer. The member door opens the member books. The treasurer door opens the desk.
+- `OWNER_PHONE` in `.env` is how that account is added. The number is not written in the program.
+
 ### Sign-in does not fill in a phone number
 
 - The treasurer door and the member door open empty. A person types their own number.

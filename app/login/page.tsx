@@ -38,7 +38,8 @@ export default async function LoginPage({
   const freshPhone = query.phone && normalizePhone(query.phone) ? query.phone : null;
   const whoKey = query.who === "treasurer" || query.who === "member" || query.who === "chair" ? query.who : null;
   const who = freshPhone || !whoKey ? null : WHO[whoKey];
-  const door = query.door === "treasurer" || query.door === "member" ? query.door : null;
+  const doorName = query.door?.toLowerCase();
+  const door = doorName === "treasurer" || doorName === "member" ? doorName : null;
   const title = who
     ? text.shell.roles[who === WHO.member ? "MEMBER" : who === WHO.chair ? "CHAIR" : "TREASURER"]
     : door === "treasurer"
@@ -74,6 +75,7 @@ export default async function LoginPage({
           initialPin={freshPhone ? "" : (who?.pin ?? "")}
           startWithPin={freshPhone ? true : door === "treasurer" ? true : Boolean(who?.pin)}
           afterSignIn={door === "member" ? "/home" : door === "treasurer" ? "/desk" : undefined}
+          preferredRole={door === "member" ? "MEMBER" : door === "treasurer" ? "TREASURER" : undefined}
           labels={text.login}
         />
       </div>

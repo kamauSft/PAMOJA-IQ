@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-17 — One phone may hold a member record and a treasurer post
+
+The books had the owner only as a treasurer, so the member door had nothing to open. A person may now have both records in the same chama. Each door asks for its own record. The phone number stays in `.env`, not in the source.
+
 ## 2026-10-17 — Local testing stays on http, and the internet site gets the padlock
 
 Strict-Transport-Security is sent only when NODE_ENV is production. The session cookie is Secure only then. Development does not register a service worker. Thomas starts the app by double-clicking start-pamoja.bat so it does not depend on an agent terminal.
