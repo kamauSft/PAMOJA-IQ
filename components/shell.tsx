@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { brand } from "@/config/brand";
+import { BrandMark } from "./brand-mark";
 import { SignOut } from "./sign-out";
 import { isOfficial } from "@/lib/tenancy/context";
 import { roleLabel } from "@/lib/chama/picture";
@@ -36,7 +38,10 @@ export function Shell({
     <div className="mx-auto min-h-screen max-w-6xl px-4 py-6 sm:px-6">
       <header className="no-print flex flex-wrap items-end justify-between gap-4 border-b border-stone-300 pb-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-moss">Kikapu · {chamaName}</p>
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-moss">
+            <BrandMark className="h-6 w-6" />
+            {brand.name} · {chamaName}
+          </p>
           <p className="mt-1 text-sm text-stone-600">
             {personName} · {roleLabel(role)}
           </p>

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { BrandMark } from "@/components/brand-mark";
+import { brand } from "@/config/brand";
 import { monthlyPriceCents } from "@/lib/chama/picture";
 import { formatKes } from "@/lib/finance";
 
@@ -9,7 +11,11 @@ const pro = formatKes(monthlyPriceCents("PRO", EXAMPLE_MEMBERS));
 export default function LandingPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-16">
-      <p className="text-sm font-semibold uppercase tracking-[0.22em] text-moss">Kikapu · Umoja Savings Group</p>
+      <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.22em] text-moss">
+        <BrandMark />
+        {brand.name} · {brand.demoChama}
+      </p>
+      <p className="mt-2 text-sm text-stone-600">{brand.tagline}</p>
       <h1 className="mt-3 max-w-3xl font-serif text-5xl leading-tight text-ink">
         Two doors. The treasurer sees the group. A member sees only herself.
       </h1>
@@ -50,6 +56,9 @@ export default function LandingPage() {
           Standard is the higher of KES 500 and KES 30 an active member. Pro is the higher of KES 1,000 and KES 60. Umoja&apos;s {EXAMPLE_MEMBERS} active members are {standard} on Standard and {pro} on Pro.
         </p>
       </section>
+      <p className="mt-10 text-sm text-stone-600">
+        {brand.meaning} Questions: {brand.supportEmail}
+      </p>
     </main>
   );
 }

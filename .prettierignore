@@ -1,0 +1,8 @@
+.next
+node_modules
+coverage
+package-lock.json
+prisma/*.db
+playwright-report
+test-results
+fixtures/*.xlsx

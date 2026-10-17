@@ -1,10 +1,10 @@
 import { cookies } from "next/headers";
+import { demoCodesVisible } from "../demo";
 import { consumeRateLimit } from "./rate-limit";
 import { SESSION_COOKIE, sessionCookieOptions, sessionLifetimeMs } from "./session";
 
 export function demoMode(): boolean {
-  if (process.env.NODE_ENV === "production") return false;
-  return process.env.DEMO_MODE === "true" || process.env.DEMO_OTP_VISIBLE === "true";
+  return demoCodesVisible();
 }
 
 export function demoOtpVisible(): boolean {

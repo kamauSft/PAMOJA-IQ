@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { otpSmsBody } from "@/config/brand";
 import { hashPin } from "@/lib/auth/pin";
 import { maskPhone, normalizePhone } from "@/lib/auth/phone";
 import { consumeRateLimit, resetRateLimits } from "@/lib/auth/rate-limit";
@@ -179,7 +180,7 @@ describe("auth", () => {
     const pending = await loginWithPin({ phone: "0712345005", now, messaging, demoOtpVisible: true });
     expect(pending.status).toBe("otp_required");
     if (pending.status !== "otp_required") return;
-    expect(messaging.sent.at(-1)?.body).toContain(`Smart Kikapu code: ${pending.demoCode}`);
+    expect(messaging.sent.at(-1)?.body).toBe(otpSmsBody(pending.demoCode ?? ""));
     expect((await verifyOtp({ challengeId: pending.challengeId, code: pending.demoCode ?? "", now })).status).toBe(
       "authenticated",
     );
