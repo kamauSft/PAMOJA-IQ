@@ -1,10 +1,15 @@
 import { useState } from "react";
-import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useNavigate, useSearchParams } from "react-router-dom";
 import meeting from "./photos/chama-meeting.jpg";
 import morning from "./photos/member-morning.jpg";
 import treasurer from "./photos/treasurer-desk.jpg";
 import { currentSession, savePin, signIn, signOut } from "./auth";
 import { Bubbles } from "./bubbles";
+import { desk, memberBooks } from "./data";
+
+function chosenDoor(value) {
+  return value?.toLowerCase() === "treasurer" ? "treasurer" : "member";
+}
 
 function Brand() {
   return (
@@ -31,8 +36,11 @@ function Landing() {
         <Brand />
         <nav>
           <Link to="/reset">Reset PIN</Link>
-          <Link to="/login" className="solid">
-            Sign in
+          <Link to="/login?door=member" className="solid">
+            Member
+          </Link>
+          <Link to="/login?door=treasurer" className="line">
+            Treasurer
           </Link>
         </nav>
       </header>
@@ -44,11 +52,11 @@ function Landing() {
             Pamoja IQ is the serious face of a savings group: the meeting, the treasurer’s desk, and a PIN each person sets for themselves.
           </p>
           <div className="actions">
-            <Link to="/login" className="solid">
-              Sign in
+            <Link to="/login?door=member" className="solid">
+              Member
             </Link>
-            <Link to="/reset" className="line">
-              Reset PIN
+            <Link to="/login?door=treasurer" className="line">
+              Treasurer
             </Link>
           </div>
         </div>
@@ -70,7 +78,7 @@ function Landing() {
         </article>
       </section>
       <footer>
-        <p>Set the public PIN on this browser. The full books stay on the chama computer.</p>
+        <p>One PIN opens either door. Reset it on this page if this browser does not have one yet.</p>
       </footer>
     </Frame>
   );
@@ -93,6 +101,8 @@ function PinField({ label, value, onChange }) {
 
 function Login() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const door = chosenDoor(params.get("door"));
   const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
   const [message, setMessage] = useState("");
@@ -103,7 +113,7 @@ function Login() {
     setPending(true);
     const result = await signIn(phone, pin);
     setPending(false);
-    if (result.ok) navigate("/welcome");
+    if (result.ok) navigate(door === "treasurer" ? "/desk" : "/home");
     else setMessage(result.message);
   }
 
@@ -116,8 +126,8 @@ function Login() {
         </nav>
       </header>
       <form className="card" onSubmit={submit}>
-        <p className="kicker">Sign in</p>
-        <h1>Your phone and your PIN.</h1>
+        <p className="kicker">{door === "treasurer" ? "Treasurer" : "Member"}</p>
+        <h1>{door === "treasurer" ? "Open the desk." : "Open your own books."}</h1>
         <label>
           Phone number
           <input value={phone} onChange={(event) => setPhone(event.target.value)} inputMode="tel" autoComplete="tel" />
@@ -179,42 +189,116 @@ function Reset() {
   );
 }
 
-function Welcome() {
+function leave(door) {
+  signOut();
+  location.href = `${import.meta.env.BASE_URL}login?door=${door}`;
+}
+
+function Gate({ children }) {
   if (!currentSession()) return <Navigate to="/login" replace />;
+  return children;
+}
+
+function MemberHome() {
+  const months = ["May", "Jun", "Jul", "Aug", "Sep", "Oct"];
   return (
-    <Frame>
-      <header className="bar">
-        <Brand />
-        <nav>
-          <button
-            type="button"
-            className="ghost"
-            onClick={() => {
-              signOut();
-              location.href = `${import.meta.env.BASE_URL}login`;
-            }}
-          >
-            Sign out
-          </button>
-        </nav>
-      </header>
-      <section className="hero">
-        <div>
-          <p className="kicker">Signed in on this browser</p>
-          <h1>The door is open.</h1>
-          <p className="lead">Your PIN is stored here, not on the page. The full member books and the treasurer desk open on the chama computer.</p>
-          <div className="actions">
-            <Link to="/reset" className="line">
-              Reset PIN
-            </Link>
+    <Gate>
+      <Frame>
+        <header className="bar">
+          <Brand />
+          <nav>
+            <Link to="/desk">Treasurer desk</Link>
+            <button type="button" className="ghost" onClick={() => leave("member")}>
+              Sign out
+            </button>
+          </nav>
+        </header>
+        <section className="banner">
+          <img src={morning} alt="A member reading a message on a phone beside a window" />
+        </section>
+        <section className="card flat">
+          <p className="kicker">Today</p>
+          <h2>{memberBooks.line}</h2>
+          <p className="quiet">{memberBooks.proverb}</p>
+        </section>
+        <section className="card flat">
+          <h2>Reminders</h2>
+          <p>{memberBooks.month}</p>
+          <p>{memberBooks.reminder}</p>
+        </section>
+        <p className="kicker">Your position</p>
+        <h1>Your money</h1>
+        <p className="quiet">This page shows only this member. Books as of 2026-10-16.</p>
+        <section className="stats">
+          <article><p>Savings</p><strong>{memberBooks.savings}</strong></article>
+          <article><p>Loan still due</p><strong>{memberBooks.loan}</strong></article>
+          <article><p>Unpaid fines</p><strong>{memberBooks.fines}</strong></article>
+          <article><p>Net</p><strong>{memberBooks.net}</strong></article>
+        </section>
+        <section className="card flat">
+          <h2>Your months</h2>
+          <p>{memberBooks.streak}</p>
+          <div className="months">
+            {months.map((month) => (
+              <span key={month}><i />{month}</span>
+            ))}
           </div>
+        </section>
+        <section className="card flat">
+          <h2>Goal</h2>
+          <p>{memberBooks.goal}</p>
+          <div className="bar"><div /></div>
+        </section>
+      </Frame>
+    </Gate>
+  );
+}
+
+function DeskPage() {
+  return (
+    <Gate>
+      <Frame>
+        <header className="bar">
+          <Brand />
+          <nav>
+            <Link to="/home">Member account</Link>
+            <button type="button" className="ghost" onClick={() => leave("treasurer")}>
+              Sign out
+            </button>
+          </nav>
+        </header>
+        <section className="banner">
+          <img src={treasurer} alt="A treasurer comparing a handwritten register with a laptop" />
+        </section>
+        <p className="kicker">Treasurer desk</p>
+        <h1>Oct 2026 meeting</h1>
+        <p className="quiet">{desk.chama}. Books as of 2026-10-16. 3 still to pay.</p>
+        <section className="stats">
+          <article><p>Savings</p><strong>{desk.savings}</strong></article>
+          <article><p>Loans out</p><strong>{desk.loans}</strong></article>
+          <article><p>Collected</p><strong>{desk.collected}</strong></article>
+          <article><p>On time</p><strong>{desk.onTime}</strong></article>
+        </section>
+        <section className="card flat">
+          <h2>Still to pay</h2>
+          {desk.behind.map((row) => (
+            <p key={row.name}><strong>{row.name}.</strong> {row.detail}</p>
+          ))}
+        </section>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr><th>No.</th><th>Name</th><th>Phone</th><th>Savings</th><th>October</th></tr>
+            </thead>
+            <tbody>
+              {desk.rows.map((row) => (
+                <tr key={row[0]}>{row.map((cell) => <td key={`${row[0]}-${cell}`}>{cell}</td>)}</tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <figure>
-          <img src={morning} alt="A member checking the phone by a window" />
-          <figcaption>Your own page, when the books are on the computer.</figcaption>
-        </figure>
-      </section>
-    </Frame>
+      </Frame>
+    </Gate>
   );
 }
 
@@ -224,7 +308,9 @@ export function App() {
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/reset" element={<Reset />} />
-      <Route path="/welcome" element={<Welcome />} />
+      <Route path="/home" element={<MemberHome />} />
+      <Route path="/desk" element={<DeskPage />} />
+      <Route path="/welcome" element={<Navigate to="/home" replace />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
