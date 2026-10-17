@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### A public page with a photograph, light, and a PIN reset
+
+- The public GitHub page is a serious front: three photographs, slow gold and green light, sign-in, and Reset PIN.
+- The PIN is chosen on that page and kept in the browser. It is not written in the program or on the screen.
+- The full books stay on the chama computer.
+
 ### The public practice page is gone
 
 - The GitHub Pages site is unpublished. Member names, phone numbers, and balances are no longer on a page anyone can download.
