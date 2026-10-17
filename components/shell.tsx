@@ -13,17 +13,19 @@ export async function Shell({
   personName,
   role,
   current,
+  asMember = false,
   children,
 }: {
   chamaName: string;
   personName: string;
   role: "CHAIR" | "TREASURER" | "SECRETARY" | "MEMBER" | "AUDITOR";
   current: string;
+  asMember?: boolean;
   children: React.ReactNode;
 }) {
   const locale = await getLocale();
   const text = copy(locale);
-  const official = isOfficial(role);
+  const official = asMember ? false : isOfficial(role);
   const links = (official ? text.shell.official : text.shell.member).filter(
     ([, href]) => (href !== "/import" && href !== "/publish") || canBringInBooks(role),
   );

@@ -25,11 +25,13 @@ export function LoginForm({
   initialPhone = "",
   initialPin = "",
   startWithPin = false,
+  afterSignIn,
   labels = english,
 }: {
   initialPhone?: string;
   initialPin?: string;
   startWithPin?: boolean;
+  afterSignIn?: "/home" | "/desk";
   labels?: typeof english;
 }) {
   const router = useRouter();
@@ -46,7 +48,7 @@ export function LoginForm({
   const [pending, setPending] = useState(false);
 
   function goHome(role?: string) {
-    router.push(role && role !== "MEMBER" ? "/desk" : "/home");
+    router.push(afterSignIn ?? (role && role !== "MEMBER" ? "/desk" : "/home"));
   }
 
   async function submitPhone(event: React.FormEvent) {

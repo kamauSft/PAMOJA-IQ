@@ -70,9 +70,10 @@ export default async function LoginPage({
       <p className="mt-2 text-sm text-muted">{intro}</p>
       <div className="mt-6">
         <LoginForm
-          initialPhone={freshPhone ?? who?.phone ?? (door === "treasurer" ? "0707436816" : "")}
+          initialPhone={freshPhone ?? who?.phone ?? (door ? "0707436816" : "")}
           initialPin={freshPhone ? "" : (who?.pin ?? "")}
           startWithPin={freshPhone ? true : door === "treasurer" ? true : Boolean(who?.pin)}
+          afterSignIn={door === "member" ? "/home" : door === "treasurer" ? "/desk" : undefined}
           labels={text.login}
         />
       </div>

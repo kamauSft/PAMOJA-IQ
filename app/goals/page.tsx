@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { GoalForm } from "@/components/goal-form";
 import { Shell } from "@/components/shell";
 import { copy } from "@/content/ui";
@@ -19,14 +18,13 @@ const paceClass = {
 
 export default async function GoalsPage() {
   const session = await requireSession();
-  if (session.role !== "MEMBER") redirect("/desk");
   const locale = await getLocale();
   const text = copy(locale);
   const page = text.goals;
   const home = await runWithTenant(tenantFromSession(session), () => loadMemberHome(session.membershipId, booksAsOf()));
 
   return (
-    <Shell chamaName={home.chamaName} personName={home.personName} role={session.role} current="/goals">
+    <Shell chamaName={home.chamaName} personName={home.personName} role={session.role} current="/goals" asMember>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-leaf">{page.kicker}</p>
       <h1 className="mt-1 font-display text-4xl">{page.title}</h1>
       <p className="mt-2 max-w-2xl text-sm text-muted">

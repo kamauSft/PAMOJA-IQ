@@ -34,7 +34,7 @@ export default async function HomePage() {
   });
 
   return (
-    <Shell chamaName={home.chamaName} personName={home.personName} role={session.role} current="/home">
+    <Shell chamaName={home.chamaName} personName={home.personName} role={session.role} current="/home" asMember>
       <section className="card p-5">
         <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-accent">{text.today}</p>
         <p className="mt-2 text-2xl font-semibold">{home.motivation.message}</p>

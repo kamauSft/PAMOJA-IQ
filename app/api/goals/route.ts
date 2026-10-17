@@ -3,7 +3,7 @@ import { createSavingsGoal, updateSavingsGoal } from "@/lib/goals/create";
 
 export async function POST(request: Request) {
   const session = await readSession();
-  if (!session || session.role !== "MEMBER") {
+  if (!session) {
     return Response.json({ message: "Not found." }, { status: 404 });
   }
   const body = (await request.json().catch(() => null)) as {
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   const session = await readSession();
-  if (!session || session.role !== "MEMBER") {
+  if (!session) {
     return Response.json({ message: "Not found." }, { status: 404 });
   }
   const body = (await request.json().catch(() => null)) as {
