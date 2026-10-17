@@ -3,24 +3,24 @@
 @tailwind utilities;
 
 :root {
-  --ink: #0e1f1a;
-  --sisal: #d9a441;
-  --leaf: #1f6b4f;
-  --clay: #c2643b;
-  --ivory: #f6f1e7;
-  --paper: #fffdf8;
-  --muted: #3e564b;
+  --ink: #14202b;
+  --sisal: #1e6f5c;
+  --leaf: #0f2a3d;
+  --clay: #a33a2b;
+  --ivory: #f5f7f9;
+  --paper: #ffffff;
+  --muted: #5b6b78;
   color-scheme: light;
 }
 
 .dark {
-  --ink: #f6f1e7;
-  --sisal: #e0b45a;
-  --leaf: #7dcea0;
+  --ink: #f5f7f9;
+  --sisal: #8fbfae;
+  --leaf: #d7e2ea;
   --clay: #e08a66;
-  --ivory: #0e1f1a;
-  --paper: #163028;
-  --muted: #c5d5cc;
+  --ivory: #0f2a3d;
+  --paper: #173244;
+  --muted: #c5d0d8;
   color-scheme: dark;
 }
 
@@ -28,7 +28,6 @@ body {
   min-height: 100vh;
   background-color: var(--ivory);
   color: var(--ink);
-  background-image: radial-gradient(circle at top left, color-mix(in srgb, var(--sisal) 22%, transparent), transparent 34rem);
 }
 
 .field {
@@ -43,10 +42,9 @@ body {
 }
 
 .card {
-  border-radius: 16px;
-  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
   background: var(--paper);
-  box-shadow: 0 10px 28px color-mix(in srgb, var(--ink) 7%, transparent);
 }
 
 .tap {

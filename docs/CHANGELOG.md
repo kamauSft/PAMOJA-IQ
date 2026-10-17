@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Photographs in the real app
+
+- The front page shows the meeting photograph, with Sign in and For treasurers.
+- The treasurer screens show the desk photograph. The member screens show the morning photograph.
+- The type is plain, and the page is navy and white. The pictures are illustrative.
+
 ### The public page is only a sample
 
 - Sign-in, PIN reset, and Excel upload are gone from the public page.

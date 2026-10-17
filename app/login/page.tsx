@@ -1,6 +1,7 @@
 import { BrandMark } from "@/components/brand-mark";
 import { LoginForm } from "@/components/login-form";
 import { Preferences } from "@/components/preferences";
+import { ScenePhoto } from "@/components/scene-photo";
 import { brand } from "@/config/brand";
 import { copy } from "@/content/ui";
 import { getLocale } from "@/lib/locale";
@@ -56,8 +57,20 @@ export default async function LoginPage({
           ? text.login.doorMember
           : text.login.fallback;
 
+  const treasurerDoor = door === "treasurer" || whoKey === "treasurer" || whoKey === "chair";
+
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-5 py-10">
+    <main>
+      <ScenePhoto
+        name={treasurerDoor ? "treasurer-desk" : "member-morning"}
+        alt={treasurerDoor ? "A treasurer comparing a handwritten register with a laptop" : "A member reading a message on a phone beside a window"}
+      >
+        <div className="text-white">
+          <p className="text-xs uppercase tracking-[0.16em] text-white/80">{treasurerDoor ? text.shell.roles.TREASURER : text.login.todayTitle}</p>
+          <p className="mt-1 text-2xl font-semibold">{treasurerDoor ? brand.name : text.login.todayLine}</p>
+        </div>
+      </ScenePhoto>
+      <div className="mx-auto flex max-w-md flex-col px-5 py-8">
       <div className="flex items-center justify-between gap-3">
         <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-leaf">
           <BrandMark />
@@ -75,6 +88,7 @@ export default async function LoginPage({
           startWithPin={freshPhone ? true : door === "treasurer" ? true : Boolean(who?.pin)}
           labels={text.login}
         />
+      </div>
       </div>
     </main>
   );
