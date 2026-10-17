@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Sign-in does not fill in a phone number
+
+- The treasurer door and the member door open empty. A person types their own number.
+
 ### The app stays up on this computer
 
 - Double-click `start-pamoja.bat` to open Pamoja IQ. Leave that window open. `stop-pamoja.bat` closes it.
@@ -30,7 +34,7 @@
 ### Two doors, and a member the treasurer adds
 
 - The front page is only two doors: Treasurer and Member. The sections that sat underneath are gone.
-- The treasurer door opens with the treasurer's own number. The member door is separate.
+- The treasurer door and the member door are separate. Neither door fills in a phone number.
 - A member's menu is the dashboard and goals. They can change a goal. The other member pages send them back to the dashboard.
 - The sign-in code is still shown on the page. It is not sent to a phone.
 
