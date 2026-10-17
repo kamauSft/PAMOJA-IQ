@@ -84,6 +84,16 @@ input {
 .pin-row { display: flex; gap: 0.5rem; }
 .pin-row input { flex: 1; }
 .note { color: var(--gold); }
+.demo {
+  margin: 0;
+  color: var(--gold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.track { height: 0.4rem; border-radius: 999px; background: rgba(212, 176, 122, 0.25); margin-top: 0.6rem; }
+.track div { width: 60%; height: 100%; border-radius: inherit; background: var(--gold); }
 footer { margin-top: 3rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1rem; }
 .banner { margin: 1rem 0 1.4rem; }
 .banner img { height: 16rem; border-radius: 1.2rem; }
@@ -95,16 +105,17 @@ footer { margin-top: 3rem; color: var(--muted); border-top: 1px solid var(--line
 .months { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; margin-top: 0.8rem; }
 .months span { display: flex; flex-direction: column; align-items: center; color: var(--muted); font-size: 0.75rem; }
 .months i { width: 0.7rem; height: 0.7rem; border-radius: 999px; background: var(--gold); margin-bottom: 0.3rem; }
-.bar { height: 0.4rem; border-radius: 999px; background: rgba(212, 176, 122, 0.25); margin-top: 0.6rem; }
-.bar div { width: 60%; height: 100%; border-radius: inherit; background: var(--gold); }
 .table-wrap { overflow-x: auto; margin-top: 1rem; }
 table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
 th, td { text-align: left; padding: 0.55rem 0.4rem; border-bottom: 1px solid var(--line); }
 th { color: var(--muted); font-weight: 500; }
 
 @media (max-width: 800px) {
+  .bar { flex-direction: column; align-items: flex-start; }
+  nav { flex-wrap: wrap; }
   .hero, .pair { grid-template-columns: 1fr; }
   .hero { min-height: 0; padding-top: 1rem; }
+  .actions { flex-direction: column; align-items: stretch; }
   figure img, .pair img, .banner img { height: 16rem; }
   .stats, .months { grid-template-columns: 1fr 1fr; }
 }
