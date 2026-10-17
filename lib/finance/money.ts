@@ -46,5 +46,6 @@ export function formatKes(cents: number): string {
   const major = Math.floor(abs / 100);
   const minor = (abs % 100).toString().padStart(2, "0");
   const grouped = major.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  if (minor === "00") return `${sign}KES ${grouped}`;
   return `${sign}KES ${grouped}.${minor}`;
 }

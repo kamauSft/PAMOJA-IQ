@@ -1,26 +1,13 @@
 import Link from "next/link";
 import { brand } from "@/config/brand";
-import { BrandMark } from "./brand-mark";
-import { SignOut } from "./sign-out";
+import { copy } from "@/content/ui";
+import { getLocale } from "@/lib/locale";
 import { isOfficial } from "@/lib/tenancy/context";
-import { roleLabel } from "@/lib/chama/picture";
+import { BrandMark } from "./brand-mark";
+import { Preferences } from "./preferences";
+import { SignOut } from "./sign-out";
 
-const OFFICIAL_LINKS = [
-  ["Treasurer", "/desk"],
-  ["Register", "/members"],
-  ["Months", "/contributions"],
-  ["Loans", "/loans"],
-  ["Receipts", "/receipts"],
-] as const;
-
-const MEMBER_LINKS = [
-  ["My money", "/home"],
-  ["My months", "/mine"],
-  ["My loan", "/loan"],
-  ["Statement", "/statement"],
-] as const;
-
-export function Shell({
+export async function Shell({
   chamaName,
   personName,
   role,
@@ -33,20 +20,25 @@ export function Shell({
   current: string;
   children: React.ReactNode;
 }) {
-  const links = isOfficial(role) ? OFFICIAL_LINKS : MEMBER_LINKS;
+  const locale = await getLocale();
+  const text = copy(locale);
+  const links = isOfficial(role) ? text.shell.official : text.shell.member;
   return (
     <div className="mx-auto min-h-screen max-w-6xl px-4 py-6 sm:px-6">
-      <header className="no-print flex flex-wrap items-end justify-between gap-4 border-b border-stone-300 pb-4">
+      <header className="no-print flex flex-wrap items-end justify-between gap-4 border-b border-ink/10 pb-4">
         <div>
-          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-moss">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-leaf">
             <BrandMark className="h-6 w-6" />
             {brand.name} · {chamaName}
           </p>
-          <p className="mt-1 text-sm text-stone-600">
-            {personName} · {roleLabel(role)}
+          <p className="mt-1 text-sm text-muted">
+            {personName} · {text.shell.roles[role]}
           </p>
         </div>
-        <SignOut />
+        <div className="flex flex-wrap items-center gap-2">
+          <Preferences locale={locale} languageLabel={text.language} lightLabel={text.themeLight} darkLabel={text.themeDark} />
+          <SignOut signOutLabel={text.shell.signOut} signOutAllLabel={text.shell.signOutAll} />
+        </div>
       </header>
       <nav className="no-print mt-4 flex flex-wrap gap-2">
         {links.map(([label, href]) => (
@@ -55,8 +47,8 @@ export function Shell({
             href={href}
             className={
               href === current
-                ? "rounded-full bg-moss px-3 py-1.5 text-sm font-semibold text-white"
-                : "rounded-full border border-stone-300 bg-white/70 px-3 py-1.5 text-sm text-stone-700"
+                ? "tap rounded-full bg-leaf px-4 text-sm font-semibold text-ivory"
+                : "tap rounded-full border border-ink/15 bg-paper px-4 text-sm text-ink"
             }
           >
             {label}

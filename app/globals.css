@@ -2,17 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --ink: #0e1f1a;
+  --sisal: #d9a441;
+  --leaf: #1f6b4f;
+  --clay: #c2643b;
+  --ivory: #f6f1e7;
+  --paper: #fffdf8;
+  --muted: #3e564b;
+  color-scheme: light;
+}
+
+.dark {
+  --ink: #f6f1e7;
+  --sisal: #e0b45a;
+  --leaf: #7dcea0;
+  --clay: #e08a66;
+  --ivory: #0e1f1a;
+  --paper: #163028;
+  --muted: #c5d5cc;
+  color-scheme: dark;
+}
+
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(20, 92, 69, 0.12), transparent 28rem),
-    #f4efe6;
-  color: #1c1915;
+  background-color: var(--ivory);
+  color: var(--ink);
+  background-image: radial-gradient(circle at top left, color-mix(in srgb, var(--sisal) 22%, transparent), transparent 34rem);
+}
+
+.field {
+  margin-top: 0.25rem;
+  width: 100%;
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.75rem;
+}
+
+.card {
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  background: var(--paper);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--ink) 7%, transparent);
+}
+
+.tap {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @media print {
   body {
     background: white;
+    color: black;
   }
   .no-print {
     display: none !important;

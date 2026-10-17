@@ -56,8 +56,8 @@ describe("money", () => {
     expect(() => assertCents(Number.MAX_SAFE_INTEGER + 1, "amount")).toThrow(/integer/);
     expect(() => assertCents(10_000_000_001, "amount")).toThrow(/exceeds/);
     expect(() => assertCents(50, "amount", { max: 10 })).toThrow(/exceeds/);
-    expect(formatKes(0)).toBe("KES 0.00");
-    expect(formatKes(200_000)).toBe("KES 2,000.00");
+    expect(formatKes(0)).toBe("KES 0");
+    expect(formatKes(200_000)).toBe("KES 2,000");
     expect(formatKes(-150)).toBe("-KES 1.50");
     expect(() => formatKes(1.2)).toThrow(MoneyError);
   });

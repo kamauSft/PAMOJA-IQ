@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { copy } from "@/content/ui";
+
+const english = copy("en").login;
 
 interface ChamaChoice {
   chamaId: string;
@@ -22,10 +25,12 @@ export function LoginForm({
   initialPhone = "",
   initialPin = "",
   startWithPin = false,
+  labels = english,
 }: {
   initialPhone?: string;
   initialPin?: string;
   startWithPin?: boolean;
+  labels?: typeof english;
 }) {
   const router = useRouter();
   const [phone, setPhone] = useState(initialPhone);
@@ -55,7 +60,7 @@ export function LoginForm({
       });
       const body = (await response.json().catch(() => null)) as LoginBody | null;
       if (!body?.status) {
-        setMessage("Sign-in could not be completed. Try again.");
+        setMessage(labels.failed);
         return;
       }
       if (body.status === "authenticated") {
@@ -64,27 +69,23 @@ export function LoginForm({
       }
       if (body.status === "choose_chama") {
         setChoices(body.chamas ?? []);
-        setMessage("Choose which chama to open.");
+        setMessage(labels.choose);
         return;
       }
       if (body.status === "pin_required") {
         setShowPin(true);
-        setMessage(body.message || "Enter your PIN. Officials also confirm with a text message.");
+        setMessage(labels.pinRequired);
         return;
       }
       if (body.status === "otp_required") {
         setChallengeId(body.challengeId ?? "");
         setDemoCode(body.demoCode ?? "");
-        setMessage(
-          body.demoCode
-            ? "Enter the text code. Demo mode shows it on this page."
-            : "Enter the text code sent to your phone.",
-        );
+        setMessage(body.demoCode ? labels.enterDemo : labels.enterSms);
         return;
       }
-      setMessage(body.message || "That phone or PIN was not recognised.");
+      setMessage(body.message || labels.unrecognised);
     } catch {
-      setMessage("Sign-in could not be completed. Check your connection and try again.");
+      setMessage(labels.offline);
     } finally {
       setPending(false);
     }
@@ -102,32 +103,30 @@ export function LoginForm({
       });
       const body = (await response.json().catch(() => null)) as LoginBody | null;
       if (!body?.status) {
-        setMessage("Sign-in could not be completed. Try again.");
+        setMessage(labels.failed);
         return;
       }
       if (body.status === "authenticated") {
         goHome(body.role);
         return;
       }
-      setMessage(
-        body.message || (body.status === "otp_expired" ? "That code has expired." : "That code was not accepted."),
-      );
+      setMessage(body.message || (body.status === "otp_expired" ? labels.expired : labels.rejected));
     } catch {
-      setMessage("Sign-in could not be completed. Check your connection and try again.");
+      setMessage(labels.offline);
     } finally {
       setPending(false);
     }
   }
 
   return (
-    <div className="rounded-3xl border border-stone-300 bg-white/80 p-6 shadow-sm">
+    <div className="card p-6">
       <form onSubmit={challengeId ? submitCode : submitPhone} className="space-y-4">
         {!challengeId ? (
           <>
             <label className="block text-sm font-medium">
-              Phone
+              {labels.phone}
               <input
-                className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-3"
+                className="field"
                 value={phone}
                 onChange={(event) => setPhone(event.target.value)}
                 inputMode="tel"
@@ -137,9 +136,9 @@ export function LoginForm({
             </label>
             {showPin ? (
               <label className="block text-sm font-medium">
-                PIN
+                {labels.pin}
                 <input
-                  className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-3"
+                  className="field"
                   value={pin}
                   onChange={(event) => setPin(event.target.value)}
                   type="password"
@@ -151,13 +150,13 @@ export function LoginForm({
             ) : null}
             {choices.length > 0 ? (
               <label className="block text-sm font-medium">
-                Chama
+                {labels.chama}
                 <select
-                  className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-3"
+                  className="field"
                   value={chamaId}
                   onChange={(event) => setChamaId(event.target.value)}
                 >
-                  <option value="">Select</option>
+                  <option value="">{labels.select}</option>
                   {choices.map((choice) => (
                     <option key={choice.chamaId} value={choice.chamaId}>
                       {choice.chamaName} · {choice.role}
@@ -169,9 +168,9 @@ export function LoginForm({
           </>
         ) : (
           <label className="block text-sm font-medium">
-            SMS code
+            {labels.code}
             <input
-              className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-3 tracking-[0.3em]"
+              className="field font-mono tracking-[0.3em]"
               value={code}
               onChange={(event) => setCode(event.target.value)}
               inputMode="numeric"
@@ -181,11 +180,11 @@ export function LoginForm({
           </label>
         )}
         <button
-          className="w-full rounded-full bg-moss px-4 py-3 font-semibold text-white disabled:opacity-60"
+          className="tap w-full rounded-full bg-sisal px-4 font-semibold text-ink disabled:opacity-60"
           disabled={pending}
           type="submit"
         >
-          {pending ? "Checking…" : challengeId ? "Confirm code" : "Continue"}
+          {pending ? labels.checking : challengeId ? labels.confirm : labels.continue}
         </button>
       </form>
       {!challengeId && !startWithPin ? (
@@ -197,7 +196,7 @@ export function LoginForm({
             setMessage("");
           }}
         >
-          {showPin ? "Use a text code instead" : "Use a PIN instead"}
+          {showPin ? labels.useCode : labels.usePin}
         </button>
       ) : null}
       {message ? (
@@ -206,13 +205,13 @@ export function LoginForm({
         </p>
       ) : null}
       {demoCode ? (
-        <div className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-stone-700" data-testid="demo-banner">
-          <p className="font-semibold">Demo mode</p>
+        <div className="mt-3 rounded-xl border border-sisal bg-sisal/15 px-3 py-2 text-sm text-ink" data-testid="demo-banner">
+          <p className="font-semibold">{labels.demo}</p>
           <p className="mt-1">
-            Text message code: <strong data-testid="demo-code">{demoCode}</strong>
+            {labels.demoCode}: <strong data-testid="demo-code">{demoCode}</strong>
           </p>
-          <button className="mt-2 underline" type="button" onClick={() => setCode(demoCode)}>
-            Use demo code
+          <button className="tap mt-2 underline" type="button" onClick={() => setCode(demoCode)}>
+            {labels.useDemo}
           </button>
         </div>
       ) : null}
