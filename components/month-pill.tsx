@@ -14,8 +14,12 @@ const WORD: Record<ContributionCell, string> = {
   NOT_DUE: "Not due",
 };
 
-export function MonthPill({ cell }: { cell: ContributionCell }) {
-  return <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${TONE[cell]}`}>{WORD[cell]}</span>;
+export function MonthPill({ cell, label }: { cell: ContributionCell; label?: string }) {
+  return (
+    <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${TONE[cell]}`}>
+      {label ?? WORD[cell]}
+    </span>
+  );
 }
 
 export function monthWord(cell: ContributionCell): string {

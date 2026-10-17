@@ -81,6 +81,7 @@ describe("treasurer profile and import", () => {
       chamaId: treasurer.chamaId,
       actor: { membershipId: treasurer.id, personId: treasurer.personId, role: "TREASURER" },
       workbook,
+      fileName: "C:\\books\\messy.xlsx",
     });
     expect(saved.membersAdded).toBe(2);
     expect(saved.contributionsAdded).toBe(4);
@@ -96,5 +97,7 @@ describe("treasurer profile and import", () => {
     expect(again.contributionsAdded).toBe(0);
     expect(again.contributionsSkipped).toBe(4);
     expect(await prismaRaw.contribution.count()).toBe(4);
+    const logged = await prismaRaw.auditLog.findFirst({ where: { action: "import.excel" }, orderBy: { seq: "asc" } });
+    expect(logged?.after).toMatchObject({ fileName: "messy.xlsx" });
   });
 });

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Treasurer bubbles
+
+- The treasurer's desk opens with each member as a circle. The size is their savings, and the colour is this month. A table is one tap away.
+- The top row shows total savings, loans out, cash safe to lend, and what was collected against what was expected.
+- After an Excel upload, the desk names that file and the Nairobi date it was added.
+
 ### Member statistics
 
 - The member home shows the last 12 months, how many were paid on time in a row, and savings growing across those months.

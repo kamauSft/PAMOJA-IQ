@@ -154,6 +154,7 @@ describe("Umoja seed", () => {
     expect(jamesRow?.cells.at(-1)).toBe("MISSED");
     expect(desk.monthTally.MISSED).toBe(3);
     expect(desk.members.find((row) => row.memberNo === "M006")?.thisMonth).toBe("MISSED");
+    expect(desk.latestImport).toBeNull();
     expect(desk.receipts).toHaveLength(3);
     expect(desk.loans.filter((loan) => loan.status === "ACTIVE")).toHaveLength(4);
     expect(desk.loans.filter((loan) => loan.status === "DEFAULTED")).toHaveLength(1);

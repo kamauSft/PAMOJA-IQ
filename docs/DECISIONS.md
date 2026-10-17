@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-17 — The treasurer sees members as circles, and the file they last uploaded
+
+Circle size follows savings. Colour follows this month, with the status written under the name. The same list can be opened as a table. The desk stores the spreadsheet name on the import audit line and shows that name with the Nairobi date.
+
 ## 2026-10-17 — A member sees their own months, and the group only as totals
 
 The home counts an on-time streak from published payments. Room to borrow is the chama's savings multiple minus the open loan, and it does not change the books. Group savings, loans out, and the on-time rate are totals. The on-time rate stays hidden when fewer than five members were due. A WhatsApp share contains only that member's name and figures.
