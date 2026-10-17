@@ -1,0 +1,15 @@
+---
+description: Permanent rules for Pamoja IQ
+alwaysApply: true
+---
+
+1. `docs/PAMOJA-IQ-MASTER.md` is the plan. Follow **Part 0's order**. Never skip ahead or start unrequested features.
+2. **One step at a time.** Before a step: a 3–5 line plan, wait for "OK". After a step: tests pass, plain-words summary, screenshots (phone + desktop) when anything visible changed, a 3–6 point checklist, then **stop and wait for "OK"**.
+3. **The product is the Next.js app in `app/` with a database.** Never put sign-in, PIN checks, sessions, locks, uploads or member data in browser-only code, `localStorage`, or static hosting (GitHub Pages). The `web/` folder may only be a **demo with sample data and no login**.
+4. **PINs are checked on the server only** (argon2id + pepper). Members 6 digits, officials 8 digits, weak PINs rejected. **3 wrong tries locks the account until the treasurer or chair unlocks it.** No built-in PIN that bypasses locks or resets.
+5. **A member sees only their own numbers.** Never show one member another member's name, phone or figures. The `?door=` link only changes labels; the signed-in account decides access, on the server.
+6. **Design:** serious, bank-grade (navy, white, hairline borders, IBM Plex, aligned money), **with warm photographs where Step C says**. No bubbles, no floating circles, no confetti, no cartoon illustrations, no goal photos.
+7. **Keep the daily motivational message**: calm, Kiswahili and English, based on the member's own figures, never shaming, never encouraging borrowing, no amounts on the phone lock screen.
+8. **Never hard-code real phone numbers, PINs or secrets.** Secrets only in `.env` (local) or Vercel environment variables. The owner's account comes from `OWNER_NAME` / `OWNER_PHONE`.
+9. If Thomas asks for something that conflicts with these rules, **say so in one sentence, offer the safe way, and ask** before acting. Example: he asks for "a link" → give the Vercel link, never GitHub Pages for the real app.
+10. If a step breaks something, **revert first, fix second**.

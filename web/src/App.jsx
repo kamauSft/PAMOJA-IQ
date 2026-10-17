@@ -3,8 +3,7 @@ import { Link, Navigate, Route, Routes, useNavigate, useSearchParams } from "rea
 import meeting from "./photos/chama-meeting.jpg";
 import morning from "./photos/member-morning.jpg";
 import treasurer from "./photos/treasurer-desk.jpg";
-import { currentSession, isTreasurerSession, savePin, signIn, signOut, TREASURER_PHONE } from "./auth";
-import { Bubbles } from "./bubbles";
+import { currentSession, isTreasurerSession, savePin, signIn, signOut } from "./auth";
 import { desk, memberBooks } from "./data";
 import { kes, loadBooks, readWorkbook, saveBooks } from "./excel";
 
@@ -23,10 +22,7 @@ function Brand() {
 
 function Frame({ children, narrow = false }) {
   return (
-    <>
-      <Bubbles />
-      <div className={narrow ? "shell shell-narrow" : "shell"}>{children}</div>
-    </>
+    <div className={narrow ? "shell shell-narrow" : "shell"}>{children}</div>
   );
 }
 
@@ -205,7 +201,7 @@ function MemberHome() {
   const line = uploaded ? `${uploaded.name}, your savings stand at ${kes(uploaded.savings)}.` : memberBooks.line;
   const reminder = uploaded ? `October is ${uploaded.october.toLowerCase()}.` : memberBooks.reminder;
   const savings = uploaded ? kes(uploaded.savings) : memberBooks.savings;
-  const missing = !uploaded && session?.phone !== TREASURER_PHONE;
+  const missing = Boolean(loadBooks()?.rows) && !uploaded;
   return (
     <Gate>
       <Frame>

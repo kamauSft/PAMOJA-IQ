@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Rules, and the owner's number taken out
+
+- The permanent rules are saved for every session. The real product is the Next.js app. The public page is a demo.
+- The owner's phone number is not in the project. Sign-in does not fill in a phone number.
+- The moving bubbles are gone from the public page. The daily message is wanted. Bubbles, confetti, and goal photos stay out.
+
 ### The treasurer sets the PIN and uploads Excel
 
 - Only the treasurer can set or reset a PIN on the public page. The starting PIN is not written on the page.

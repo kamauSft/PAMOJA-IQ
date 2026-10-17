@@ -1,13 +1,14 @@
-# PAMOJA IQ — MASTER INSTRUCTIONS FOR CURSOR (one file)
+# PAMOJA IQ — MASTER INSTRUCTIONS FOR CURSOR (one file, version 2)
 
 **How Thomas uses this file:**
 1. Save it as `C:\Users\USER\pamoja-iq\docs\PAMOJA-IQ-MASTER.md`.
 2. In Cursor (folder `C:\Users\USER\pamoja-iq`), press **Ctrl + I**, choose **Agent**, and type:
-   **`Stop all other work. Read @docs/PAMOJA-IQ-MASTER.md and do it step by step, starting with Part 1 Step 0. Never use GitHub Pages again. After each step tell me in plain words what changed and wait for my OK.`**
+   **`Stop all other work. Read @docs/PAMOJA-IQ-MASTER.md completely. Start with Part 0, Step A. Do one step at a time, explain in plain words, and wait for my OK after each.`**
 
-**For the Cursor Agent:** this one file replaces every other instruction file except `docs/SPEC.md` (the long-term product spec). Where they disagree, the order of authority is: **Part 1 > Part 2 > Part 4 > Part 3 > Part 5 > SPEC.md**. Part 1 tells you the order of work; the other parts hold the detail for each step.
+**For the Cursor Agent:** this one file replaces every other instruction file except `docs/SPEC.md` (the long-term product spec). Where they disagree, the order of authority is: **Part 0 > Part 1 > Part 2 > Part 4 > Part 3 > Part 5 > SPEC.md**. **Part 0 sets the order of work**; the other parts hold the detail for each step.
 
 **Contents**
+- Part 0: Permanent rules, current state, and the ORDER OF WORK (start here)
 - Part 1: Repair plan (what's wrong, and the order of work)
 - Part 2: Stability (no more "insecure"/"offline", real HTTPS staging site)
 - Part 3: Fixes (member sign-in, 3 attempts + treasurer unlock, daily message)
@@ -18,7 +19,109 @@
 
 ---
 
-# PART 1: REPAIR PLAN (start here)
+# PART 0: PERMANENT RULES, CURRENT STATE, AND ORDER OF WORK (start here)
+
+## 0.1 Who you are working for
+Thomas Kamau (GitHub `kamauSft`) is building **Pamoja IQ**, "Intelligent Chama Solution", as his business: a secure web app where a chama treasurer uploads the group's records and **each member sees only their own** savings, loans, fines and statements. This is his livelihood. He is not a developer. Speak plainly, keep answers short, run every command yourself, and never leave him to debug.
+
+## 0.2 Permanent rules (also save them as a Cursor rules file in Step A)
+1. `docs/PAMOJA-IQ-MASTER.md` is the plan. Follow **Part 0's order**. Never skip ahead or start unrequested features.
+2. **One step at a time.** Before a step: a 3–5 line plan, wait for "OK". After a step: tests pass, plain-words summary, screenshots (phone + desktop) when anything visible changed, a 3–6 point checklist, then **stop and wait for "OK"**.
+3. **The product is the Next.js app in `app/` with a database.** Never put sign-in, PIN checks, sessions, locks, uploads or member data in browser-only code, `localStorage`, or static hosting (GitHub Pages). The `web/` folder may only be a **demo with sample data and no login**.
+4. **PINs are checked on the server only** (argon2id + pepper). Members 6 digits, officials 8 digits, weak PINs rejected. **3 wrong tries locks the account until the treasurer or chair unlocks it.** No built-in PIN that bypasses locks or resets.
+5. **A member sees only their own numbers.** Never show one member another member's name, phone or figures. The `?door=` link only changes labels; the signed-in account decides access, on the server.
+6. **Design:** serious, bank-grade (navy, white, hairline borders, IBM Plex, aligned money), **with warm photographs where Step C says**. No bubbles, no floating circles, no confetti, no cartoon illustrations, no goal photos.
+7. **Keep the daily motivational message**: calm, Kiswahili and English, based on the member's own figures, never shaming, never encouraging borrowing, no amounts on the phone lock screen.
+8. **Never hard-code real phone numbers, PINs or secrets.** Secrets only in `.env` (local) or Vercel environment variables. The owner's account comes from `OWNER_NAME` / `OWNER_PHONE`.
+9. If Thomas asks for something that conflicts with these rules, **say so in one sentence, offer the safe way, and ask** before acting. Example: he asks for "a link" → give the Vercel link, never GitHub Pages for the real app.
+10. If a step breaks something, **revert first, fix second**.
+
+## 0.3 Current state (from an independent code review of commit `373e14d`, 17 Oct 2026)
+- **Real app (`app/`, Next.js + Prisma):** money maths in `lib/finance` (integer cents), sign-in with server sessions, `?door=` only changes labels (good). Still wrong: lockout 5 tries / 15 minutes (`lib/auth/session.ts`), demo PIN 4 digits, daily message removed, not deployed anywhere, owner's number pre-filled in `app/login/page.tsx`.
+- **Static site (`web/`, published to `kamausft.github.io/PAMOJA-IQ`):** unsafe and must not be used for real people:
+  - the treasurer PIN is an unsalted SHA-256 of 8 digits in public code (cracked in about 2 minutes on one laptop core);
+  - the session is a `sessionStorage` flag anyone can forge;
+  - all names, phones and balances are in the public bundle;
+  - a hard-coded "start PIN" overrides any reset or lock;
+  - PINs, locks and Excel uploads exist only in one browser;
+  - `bubbles.jsx` is back.
+- **Repo is public.** The owner's phone number is in the code. No `.env` or database was ever committed.
+- `docs/DECISIONS.md` and `docs/CHANGELOG.md` wrongly say "no daily word". Correct them in Step A.
+- Thomas likes the **photographs** in `web/src/photos/` (`chama-meeting.jpg`, `treasurer-desk.jpg`, `member-morning.jpg`). They look AI-generated; they may be used as illustrative images (Step C).
+
+## 0.4 ORDER OF WORK (each step: plan → OK → build → test → summary → OK)
+
+### Step A: Rules, notes and containment
+1. Create `.cursor/rules/pamoja.mdc`:
+   ```
+   ---
+   description: Permanent rules for Pamoja IQ
+   alwaysApply: true
+   ---
+   (paste the 10 permanent rules from Part 0.2 of docs/PAMOJA-IQ-MASTER.md here, word for word)
+   ```
+2. Correct `docs/DECISIONS.md` and `docs/CHANGELOG.md`: the daily motivational message is **wanted**; only bubbles, confetti and goal photos stay removed; the real product is the Next.js app; `web/` is demo-only.
+3. Remove the owner's phone from the whole repo (code, docs, tests). Nothing pre-fills a phone number on sign-in.
+4. Delete `web/src/bubbles.jsx` and its use.
+5. Commit and push.
+
+### Step B: Turn the GitHub site into a safe demo (or remove it)
+1. Strip `web/` of **all** sign-in, PIN, reset, lock, session and upload code (`auth.js`, `excel.js`, reset pages).
+2. The demo has: the landing page with photographs, and two buttons **"See the member demo"** and **"See the treasurer demo"** that open sample screens directly, with a visible **"Demo · sample data"** label on every screen and a button **"Open the real app"** (the Vercel link, once it exists).
+3. Only invented names and numbers. Use clearly fake phone numbers in the `0700 000 0xx` style, never real-looking customer numbers.
+4. Serious design from Part 5 Change 2, with photos per Step C.
+5. Guide Thomas to make the repo **Private** (Settings → General → Danger Zone → Change visibility). If his GitHub plan can't serve Pages from a private repo, move the demo into the real app at `/demo`, delete `.github/workflows/pages.yml`, and guide him to **Settings → Pages → Unpublish**.
+
+### Step C: Photographs and the appealing look in the REAL app (`app/`)
+1. Copy the three photos into `public/images/`, converted to WebP, each under 200 KB, with phone and desktop sizes; display with `next/image`, lazy-loaded except the landing hero.
+2. Placement:
+   - **Landing page:** `chama-meeting` as a full-width hero with a dark navy overlay (≥ 60% opacity behind text for contrast), headline "Clear, private records for every chama member.", one sentence, buttons **Sign in** and **For treasurers**; then three feature rows; a security note; footer.
+   - **Treasurer sign-in and treasurer desk:** slim `treasurer-desk` banner (about 160 px on phone, 220 px on desktop) with the chama name.
+   - **Member sign-in and member home:** slim `member-morning` banner with the member's first name and the daily **"Today"** message over it.
+   - **No photos** inside tables, statements, forms, the Excel preview or settings.
+3. Meaningful `alt` text for every photo. Record each photo's source in `docs/ASSETS.md` and that it is illustrative/AI-generated; plan to replace with real pilot-chama photos (with written consent) later.
+4. Keep everything else from Part 5 Change 2 (navy/white, IBM Plex, tables, sidebar for treasurer, bottom tabs for members, dark mode, 375 px phone width, AA contrast).
+5. Screenshots of landing, treasurer desk and member home, phone and desktop. Wait for "OK".
+
+### Step D: Stability and the real HTTPS link (Part 2)
+1. `start-pamoja.bat`, `stop-pamoja.bat`, `/health`, production-only HTTPS/secure cookies/HSTS, no service-worker "offline" page in development.
+2. Switch Prisma to **PostgreSQL** for staging/production with migrations.
+3. **Deploy the real app to Vercel + Neon Postgres** as **staging** (demo data, `DEMO_MODE=true`). Guide Thomas click by click: vercel.com → Continue with GitHub → Add New Project → PAMOJA-IQ → Storage → Neon → Environment Variables (you generate values; he pastes them only into Vercel) → Deploy.
+4. Playwright sign-in tests against localhost and the staging URL in GitHub Actions.
+5. Give Thomas the staging link (padlock), demo logins, and a checklist. Update the demo's "Open the real app" button to this link.
+
+### Step E: Sign-in and members done right (Part 3 Fix A + Fix B, Part 5 Change 3)
+1. Members 6-digit PIN, officials 8-digit; weak-PIN blocklist; argon2id + `PIN_PEPPER`.
+2. **3 wrong tries → locked until treasurer/chair unlocks** (step-up PIN; "Unlock only" or "Unlock and issue temporary PIN"); dashboard alert for locked accounts; audit log.
+3. Treasurer adds members one at a time or from the Excel Members sheet; temporary PIN shown once with **Copy invite message** and **Download invite slips (PDF)**; forced PIN change at first sign-in; reset PIN; login status per member.
+4. Owner account from `.env`/Vercel variables; demo accounts only on staging.
+5. Tests: member can never open treasurer pages by door or URL (404 or redirect to `/me`); member never sees another member's data.
+
+### Step F: Excel upload and publishing to members (Part 5 Change 5, SPEC Part 11)
+Official template (Part 6) served by "Download template"; importer reads exactly its sheets and headers; preview → fix → **Publish to members**; each member gets only their own figures; undo; audit.
+
+### Step G: Personal daily motivation and reminders (Part 4A, Part 3 Fix C, Part 5 Change 4)
+Daily "Today" message from each member's own figures (Kiswahili + English, calm, never encourages borrowing); reminders before/on/after due dates; notification centre; web push on the HTTPS site (no amounts on the lock screen by default).
+
+### Step H: Security hardening (Part 5 Change 6) and `docs/SECURITY-REVIEW.md` in plain words.
+
+### Step I: Production go-live (Part 4B), only after Thomas approves staging
+Separate production project/database, `DEMO_MODE=false`, no demo accounts, privacy notice and terms pages, backups, pilot with one real chama.
+
+## 0.5 Definition of done (every step)
+- Works on the **staging HTTPS link on Thomas's phone** (from Step D onward), not only on localhost.
+- Automated tests pass in GitHub Actions.
+- `docs/CHANGELOG.md` updated in plain words.
+- Thomas receives: link, demo logins (never his real PIN), screenshots if visual, a 3–6 point checklist; you wait for "OK".
+
+## 0.6 How to talk to Thomas
+- Short, plain, no jargon. Say what changed, what to click, what he should see.
+- Never ask him to paste PINs or secrets into chat.
+- If something can't be done safely the way he asked, say why in one sentence and offer the safe way.
+
+---
+
+# PART 1: REPAIR PLAN (background and detail; Part 0 sets the order)
 
 ### Instructions for the Cursor Agent
 
@@ -45,10 +148,10 @@ An independent review of the public repo `kamauSft/PAMOJA-IQ` (commit `f672ef0`)
 
 ---
 
-### Step 0: Contain the exposure (today, before anything else)
+### Step 0: Contain the exposure (SUPERSEDED by Part 0 Steps A–B: keep `web/` only as a no-login demo instead of deleting it)
 
 1. **Take the static site down.** Delete `.github/workflows/pages.yml` and the whole `web/` folder. Then guide Thomas: GitHub repo → **Settings → Pages → Unpublish site** (or set Source to "None"). Confirm `kamausft.github.io/PAMOJA-IQ` no longer loads.
-2. **Remove the owner's phone number from the code.** `app/login/page.tsx` must not pre-fill any number. The owner's account comes only from `.env` (`OWNER_NAME`, `OWNER_PHONE`), as in the earlier instruction. Search the whole repo for that phone number and remove every occurrence.
+2. **Remove the owner's phone number from the code.** `app/login/page.tsx` must not pre-fill any number. The owner's account comes only from `.env` (`OWNER_NAME`, `OWNER_PHONE`), as in the earlier instruction. Search the whole repo for the owner's phone number and remove every occurrence.
 3. **Make the repo private.** Guide Thomas: **Settings → General → Danger Zone → Change repository visibility → Private**. (The number remains in old commits; once private, only Thomas sees them. Tell him whether a history rewrite is worth it; default: not needed once private.)
 4. Tell Thomas: the practice PIN 4917 was public and is now dead; never reuse it; never paste PINs into chats.
 5. This single file contains every instruction (Parts 1–5 below). Keep it as `docs/PAMOJA-IQ-MASTER.md`. Create the template in Part 6 exactly as described in **Part 6** (or copy it from `C:\Users\USER\Downloads` if Thomas downloaded it), commit, push. Delete or mark as superseded any older instruction files in `docs/` except `SPEC.md`.
@@ -71,7 +174,7 @@ Rule from now on: **no app logic, PIN checks or member data ever in browser-only
 - **One account = one role per chama.** A member account must never open the treasurer desk, whichever door or URL is used (test it).
 
 ### Step 3: Look and feel (Part 5 Change 2)
-Serious, bank-grade design exactly as written in Part 5 Change 2 (navy, white, hairline borders, IBM Plex, tabular money, sidebar for treasurer, bottom tabs for members). Real photos are fine on the public landing page only if licensed for commercial use; record the source and licence of every photo in `docs/ASSETS.md` (or remove them). No photos inside the member and treasurer screens.
+Serious, bank-grade design exactly as written in Part 5 Change 2 (navy, white, hairline borders, IBM Plex, tabular money, sidebar for treasurer, bottom tabs for members). Photographs are wanted: follow **Part 0, Step C** exactly (hero on the landing page, slim banners on sign-in, treasurer desk and member home; none inside tables, statements or forms).
 
 ### Step 4: Excel (Part 5 Change 5)
 Use the template in Part 6 as the official format, "Download template" serves it, importer reads exactly its sheets and headers, preview → Publish to members, privacy rules (Part 11).
@@ -478,7 +581,7 @@ The current look is "not premium". Redesign every screen to feel like a **privat
 - **Components:** flat white panels with 1px `--line` borders, 8px radius, **no heavy shadows, no gradients**. Dense, well-aligned tables with right-aligned numbers. Clear labels above inputs.
 - **Money format:** `KES 24,000.00` in tables, `KES 24,000` in summaries; tabular figures; negatives in parentheses on statements.
 - **Motion:** only subtle 150ms transitions on hover/focus. Nothing bouncing or floating.
-- **Landing page (`/`):** short and serious. Logo wordmark "Pamoja IQ" with small "Intelligent Chama Solution" under it; one headline ("Clear, private records for every chama member."); one sentence; buttons "Sign in" and "For treasurers"; three plain feature rows (Upload records · Members see only their own account · Reminders before due dates); security note; footer. No animation, no illustrations.
+- **Landing page (`/`):** short and serious. Logo wordmark "Pamoja IQ" with small "Intelligent Chama Solution" under it; one headline ("Clear, private records for every chama member."); one sentence; buttons "Sign in" and "For treasurers"; three plain feature rows (Upload records · Members see only their own account · Reminders before due dates); security note; footer. Full-width hero photograph (Part 0, Step C). No animation, no cartoon illustrations.
 - **Login screen:** centred card, logo, "Phone number", "PIN" (masked, show/hide toggle), "Sign in", "Forgot PIN? Ask your treasurer to reset it." Demo hint only when `DEMO_MODE=true`.
 - Accessibility: contrast AA, visible focus rings, 44px tap targets, works at 375px width.
 
