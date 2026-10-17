@@ -10,7 +10,7 @@ import {
 } from "../chama/picture";
 import { formatKes, installmentRemaining, periodOf } from "../finance";
 import { parseChamaSettings } from "../chama/rules";
-import { assertCanReadMembership, TenantIsolationError } from "../tenancy/context";
+import { assertCanReadMembership, currentTenant, isOfficial, TenantIsolationError } from "../tenancy/context";
 
 export async function loadMemberFile(membershipId: string, asOf: Date) {
   assertCanReadMembership(membershipId);
@@ -20,7 +20,10 @@ export async function loadMemberFile(membershipId: string, asOf: Date) {
     include: {
       person: true,
       chama: true,
-      contributions: { orderBy: { datePaid: "asc" } },
+      contributions: {
+        where: isOfficial(currentTenant()?.role) ? {} : { publishedAt: { not: null } },
+        orderBy: { datePaid: "asc" },
+      },
       fines: { orderBy: { date: "asc" } },
       loans: { include: { installments: { orderBy: { dueDate: "asc" } } } },
     },

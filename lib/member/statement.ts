@@ -1,6 +1,6 @@
 import { getDb } from "../db";
 import { formatKes, memberStatement } from "../finance";
-import { assertCanReadMembership, TenantIsolationError } from "../tenancy/context";
+import { assertCanReadMembership, currentTenant, isOfficial, TenantIsolationError } from "../tenancy/context";
 
 export async function loadStatement(membershipId: string) {
   assertCanReadMembership(membershipId);
@@ -10,7 +10,7 @@ export async function loadStatement(membershipId: string) {
     include: {
       person: true,
       chama: true,
-      contributions: true,
+      contributions: isOfficial(currentTenant()?.role) ? true : { where: { publishedAt: { not: null } } },
       fines: true,
       loans: { include: { installments: true, repayments: true } },
     },

@@ -13,6 +13,7 @@ import {
   overdueInstallments,
   periodOf,
 } from "../finance";
+import { goalProgress } from "../goals/progress";
 import { assertCanReadMembership, TenantIsolationError } from "../tenancy/context";
 
 export async function loadMemberHome(membershipId: string, asOf = new Date()) {
@@ -24,12 +25,14 @@ export async function loadMemberHome(membershipId: string, asOf = new Date()) {
   });
   if (!membership) throw new TenantIsolationError("Membership is not in this chama");
 
-  const [contributions, fines, loans, goals, auditIntact] = await Promise.all([
-    db.contribution.findMany({ where: { membershipId } }),
+  const [contributions, fines, loans, goals, auditIntact, shared, activeMembers] = await Promise.all([
+    db.contribution.findMany({ where: { membershipId, publishedAt: { not: null } } }),
     db.fine.findMany({ where: { membershipId } }),
     db.loan.findMany({ where: { membershipId }, include: { installments: true } }),
-    db.savingsGoal.findMany({ where: { membershipId } }),
+    db.savingsGoal.findMany({ where: { membershipId }, orderBy: { createdAt: "desc" } }),
     auditIsIntact(),
+    db.contribution.findMany({ where: { publishedAt: { not: null } }, select: { amountCents: true } }),
+    db.membership.count({ where: { status: "ACTIVE" } }),
   ]);
 
   const settings = parseChamaSettings(membership.chama.settings);
@@ -63,6 +66,7 @@ export async function loadMemberHome(membershipId: string, asOf = new Date()) {
       .map((row) => ({ amountCents: row.amountCents, date: row.datePaid })),
     asOf,
   });
+  const groupCents = shared.reduce((sum, row) => sum + row.amountCents, 0);
   const nextInstallment = openLoans
     .flatMap((loan) =>
       loan.installments.map((installment) => ({
@@ -101,11 +105,25 @@ export async function loadMemberHome(membershipId: string, asOf = new Date()) {
           remainingLabel: formatKes(nextInstallment.remainingCents),
         }
       : null,
-    goals: goals.map((goal) => ({
-      title: goal.title,
-      targetLabel: formatKes(goal.targetCents),
-      savedLabel: formatKes(savingsCents),
-      progressBps: goal.targetCents === 0 ? 10_000 : Math.min(10_000, Math.round((savingsCents * 10_000) / goal.targetCents)),
-    })),
+    goals: goals.map((goal) => {
+      const progress = goalProgress({
+        savedCents: savingsCents,
+        targetCents: goal.targetCents,
+        startedAt: goal.createdAt,
+        targetDate: goal.targetDate,
+        asOf,
+      });
+      return {
+        id: goal.id,
+        title: goal.title,
+        targetLabel: formatKes(goal.targetCents),
+        savedLabel: formatKes(savingsCents),
+        progressBps: progress.percent * 100,
+        percent: progress.percent,
+        pace: progress.pace,
+        remainingCents: progress.remainingCents,
+      };
+    }),
+    shareLabel: activeMembers >= 5 && groupCents > 0 ? `${((savingsCents * 100) / groupCents).toFixed(1)}%` : null,
   };
 }

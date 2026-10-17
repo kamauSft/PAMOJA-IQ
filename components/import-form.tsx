@@ -93,7 +93,7 @@ export function ImportForm({ labels = english }: { labels?: typeof english }) {
             ))}
           </ul>
         ) : null}
-        <Link href="/desk" className="tap mt-6 rounded-full bg-sisal px-5 text-sm font-semibold text-ink">
+        <Link href="/publish" className="tap mt-6 rounded-full bg-sisal px-5 text-sm font-semibold text-ink">
           {labels.open}
         </Link>
       </div>

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Member position, daily word, and goals
+
+- After Excel is uploaded, the treasurer opens **Member positions** and shares the books. Until then, members do not see the new payments.
+- Each member's home shows their own position, their share of the group when the chama has at least five members, and a fresh line each Nairobi day.
+- A member can set up to five goals. The bar uses the savings the treasurer has shared.
+- The front page no longer introduces sample people. A chama starts from **Start your chama** or **Sign in**.
+
 ### Treasurer profile and Excel
 
 - A treasurer can create their own chama at `/start`, then sign in with the PIN they chose.
