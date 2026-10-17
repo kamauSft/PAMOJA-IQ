@@ -1,4 +1,5 @@
 import type { MembershipRole } from "@prisma/client";
+import { otpSmsBody } from "@/config/brand";
 import { prismaRaw } from "../db";
 import { devMessaging, type MessagingProvider } from "../messaging/provider";
 import { hashPin, verifyPin } from "./pin";
@@ -158,7 +159,7 @@ async function sendLoginCode(input: {
   });
   await (input.messaging ?? devMessaging).sendSms({
     to: input.phone,
-    body: `Smart Kikapu code: ${code}. It expires in 5 minutes.`,
+    body: otpSmsBody(code),
   });
   return {
     status: "otp_required",

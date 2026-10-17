@@ -1,4 +1,6 @@
+import { BrandMark } from "@/components/brand-mark";
 import { LoginForm } from "@/components/login-form";
+import { brand } from "@/config/brand";
 
 const WHO = {
   treasurer: {
@@ -31,7 +33,11 @@ export default async function LoginPage({
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-12">
-      <p className="text-sm font-semibold uppercase tracking-[0.2em] text-moss">Kikapu</p>
+      <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-moss">
+        <BrandMark />
+        {brand.name}
+      </p>
+      <p className="mt-1 text-xs text-stone-500">{brand.tagline}</p>
       <h1 className="mt-2 font-serif text-4xl">{who?.title ?? "Sign in"}</h1>
       <p className="mt-2 text-sm text-stone-600">
         {who?.copy ??

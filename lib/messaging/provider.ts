@@ -1,3 +1,5 @@
+import { brand } from "@/config/brand";
+
 export interface SmsMessage {
   to: string;
   body: string;
@@ -23,7 +25,7 @@ export class DevSmsProvider extends MemoryMessagingProvider {
   override async sendSms(message: SmsMessage): Promise<{ providerMessageId: string }> {
     const result = await super.sendSms(message);
     if (process.env.NODE_ENV !== "test") {
-      console.info(`[Smart Kikapu demo SMS] to ${message.to}: ${message.body}`);
+      console.info(`[${brand.name} demo SMS] to ${message.to}: ${message.body}`);
     }
     return result;
   }

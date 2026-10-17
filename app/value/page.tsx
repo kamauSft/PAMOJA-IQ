@@ -1,4 +1,5 @@
 import { Shell } from "@/components/shell";
+import { brand } from "@/config/brand";
 import { Stat } from "@/components/stat";
 import { booksAsOf } from "@/lib/chama/clock";
 import { loadValueStory } from "@/lib/chama/load-desk";
@@ -14,7 +15,7 @@ export default async function ValuePage() {
 
   return (
     <Shell chamaName={story.chamaName} personName={session.personName} role={session.role} current="/value">
-      <h1 className="font-serif text-4xl">{official ? "Why the group pays" : "What Kikapu did"}</h1>
+      <h1 className="font-serif text-4xl">{official ? "Why the group pays" : `What ${brand.name} did`}</h1>
       <p className="mt-2 max-w-2xl text-stone-700">
         Through {story.latestPeriod}, on-time contributions are {story.onTimeLabel}, from {story.beforeLabel} before the desk.
         That is {story.minutesSaved.toLocaleString("en-KE")} minutes the officials did not spend chasing the register.

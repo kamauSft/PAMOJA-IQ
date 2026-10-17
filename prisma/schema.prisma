@@ -1,4 +1,4 @@
-// Chama AI — tenant-scoped ledger.
+// Pamoja IQ — tenant-scoped ledger.
 // Money is integer cents (KES × 100). Rates are basis points (1_000 = 10%).
 // Financial rows are corrected by reversal entries, not hard deletes.
 

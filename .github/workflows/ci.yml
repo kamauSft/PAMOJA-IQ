@@ -1,20 +1,26 @@
-# Runs when this app is the repository root, as on Kikapu-Intelligence.
-# GitHub does not read this file from inside chama-ai/ on the Celestara repo.
-name: Kikapu
+name: CI
 
 on:
   push:
     branches: [main]
   pull_request:
 
+env:
+  DATABASE_URL: file:./dev.db
+  SESSION_SECRET: ci-only-session-secret-not-a-real-key-0123456789abcd
+  DEMO_MODE: "false"
+
 jobs:
-  test:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run test:coverage
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
