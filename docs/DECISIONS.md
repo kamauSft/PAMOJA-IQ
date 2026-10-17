@@ -1,5 +1,13 @@
 # Decisions
 
+## 2026-10-17 — Whole shillings hide the cents
+
+`formatKes` prints `KES 2,000` when the amount is a whole number of shillings, and `KES 1.50` when there are cents. The figures stay integer cents in the database. The trailing `.00` was exact, but it looked like a floating-point leftover on a phone.
+
+## 2026-10-17 — Light, dark, and language are preferences
+
+Dark mode is a class on the page, chosen by the phone's setting until the person taps Light or Dark. English and Kiswahili are a `locale` cookie read by the server, so the first paint is already in the chosen language. The dictionaries cover the front page, sign-in, and the member home.
+
 ## 2026-10-17 — One brand file
 
 The name, tagline, colours, logo path, and support address live in `config/brand.ts`. Screens, the install manifest, and text messages read that file so a later rename does not hunt through the app.

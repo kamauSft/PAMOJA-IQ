@@ -2,17 +2,27 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        ink: "#1c1915",
-        paper: "#f4efe6",
-        moss: "#145c45",
-        clay: "#9a4d2e",
+        ink: "var(--ink)",
+        sisal: "var(--sisal)",
+        leaf: "var(--leaf)",
+        moss: "var(--leaf)",
+        clay: "var(--clay)",
+        ivory: "var(--ivory)",
+        paper: "var(--paper)",
+        muted: "var(--muted)",
       },
       fontFamily: {
-        serif: ['"Iowan Old Style"', "Palatino", "Georgia", "serif"],
-        sans: ['"Avenir Next"', '"Segoe UI"', "sans-serif"],
+        sans: ["var(--font-body)", "sans-serif"],
+        serif: ["var(--font-display)", "sans-serif"],
+        display: ["var(--font-display)", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+      },
+      boxShadow: {
+        soft: "0 10px 28px color-mix(in srgb, var(--ink) 7%, transparent)",
       },
     },
   },

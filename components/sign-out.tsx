@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-export function SignOut() {
+export function SignOut({ signOutLabel = "Sign out", signOutAllLabel = "Sign out everywhere" }: { signOutLabel?: string; signOutAllLabel?: string }) {
   const router = useRouter();
 
   async function signOut(all: boolean) {
@@ -13,11 +13,11 @@ export function SignOut() {
 
   return (
     <div className="flex gap-3">
-      <button className="rounded-full border border-stone-400 px-4 py-2 text-sm" onClick={() => signOut(false)} type="button">
-        Sign out
+      <button className="tap rounded-full border border-ink/20 px-4 text-sm" onClick={() => signOut(false)} type="button">
+        {signOutLabel}
       </button>
-      <button className="rounded-full border border-stone-400 px-4 py-2 text-sm" onClick={() => signOut(true)} type="button">
-        Sign out everywhere
+      <button className="tap rounded-full border border-ink/20 px-4 text-sm" onClick={() => signOut(true)} type="button">
+        {signOutAllLabel}
       </button>
     </div>
   );
