@@ -4,7 +4,8 @@
 
 ### Two doors, and a member the treasurer adds
 
-- The front page has a treasurer door and a member door. The treasurer door opens the full desk, with bubbles, Excel upload, and a form to add one member by name and phone.
+- The front page is only two doors: Treasurer and Member. The sections that sat underneath are gone.
+- The treasurer door opens with the treasurer's own number. The member door is separate.
 - A member's menu is the dashboard and goals. They can change a goal. The other member pages send them back to the dashboard.
 - The sign-in code is still shown on the page. It is not sent to a phone.
 

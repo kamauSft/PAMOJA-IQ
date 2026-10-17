@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
 import { LoginForm } from "@/components/login-form";
 import { Preferences } from "@/components/preferences";
@@ -71,17 +70,12 @@ export default async function LoginPage({
       <p className="mt-2 text-sm text-muted">{intro}</p>
       <div className="mt-6">
         <LoginForm
-          initialPhone={freshPhone ?? who?.phone ?? ""}
+          initialPhone={freshPhone ?? who?.phone ?? (door === "treasurer" ? "0707436816" : "")}
           initialPin={freshPhone ? "" : (who?.pin ?? "")}
           startWithPin={freshPhone ? true : door === "treasurer" ? true : Boolean(who?.pin)}
           labels={text.login}
         />
       </div>
-      <p className="mt-6 text-sm text-muted">
-        <Link className="underline" href="/start">
-          {text.login.create}
-        </Link>
-      </p>
     </main>
   );
 }

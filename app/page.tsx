@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
 import { Preferences } from "@/components/preferences";
-import { Rise } from "@/components/rise";
 import { brand } from "@/config/brand";
 import { copy } from "@/content/ui";
 import { getLocale } from "@/lib/locale";
@@ -33,19 +32,6 @@ export default async function LandingPage() {
           <p className="mt-2 text-sm text-muted">{page.memberHint}</p>
         </Link>
       </div>
-      <p className="mt-6 text-sm text-muted">
-        <Link className="font-semibold text-leaf underline" href="/start">
-          {page.startCta}
-        </Link>
-      </p>
-      <Rise className="card mt-12 p-6">
-        <h2 className="font-display text-3xl">{page.howTitle}</h2>
-        <p className="mt-3 max-w-2xl text-muted">{page.howBody}</p>
-      </Rise>
-      <section id="price" className="mt-12">
-        <h2 className="font-display text-3xl">{page.priceTitle}</h2>
-        <p className="mt-2 max-w-2xl text-muted">{page.priceBody}</p>
-      </section>
     </main>
   );
 }
