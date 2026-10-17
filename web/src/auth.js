@@ -30,12 +30,18 @@ function read(key) {
   }
 }
 
+function digitsPin(pin) {
+  return String(pin ?? "").replace(/\D/g, "");
+}
+
 function weakPin(pin) {
   return /^(\d)\1+$/.test(pin) || "0123456789".includes(pin) || "9876543210".includes(pin);
 }
 
 export async function savePin(phone, pin, confirm) {
   const key = canonicalPhone(phone);
+  pin = digitsPin(pin);
+  confirm = digitsPin(confirm);
   if (!key) return { ok: false, message: "Enter a Kenyan mobile number." };
   if (!/^\d{4,8}$/.test(pin)) return { ok: false, message: "Use a PIN of 4 to 8 digits." };
   if (pin !== confirm) return { ok: false, message: "The two PINs do not match." };
@@ -51,26 +57,35 @@ export async function savePin(phone, pin, confirm) {
 
 export async function signIn(phone, pin, door) {
   const key = canonicalPhone(phone);
+  const entered = digitsPin(pin);
   if (!key) return { ok: false, message: "Enter a Kenyan mobile number." };
   if (door === "treasurer" && key !== TREASURER_PHONE) {
     return { ok: false, message: "This door is for the treasurer." };
   }
   const locks = read(LOCKS);
   const lock = locks[key];
-  if (lock?.until > Date.now()) {
-    return { ok: false, message: "Too many tries. Ask the treasurer to reset the PIN." };
+  const pins = read(PINS);
+  const stored = pins[key] || "";
+  const enteredHash = await digest(entered);
+  const startMatch = key === TREASURER_PHONE && enteredHash === TREASURER_PIN_HASH;
+  if (lock?.until > Date.now() && !startMatch) {
+    return { ok: false, message: "Too many tries. Wait 15 minutes, then try the PIN again." };
   }
-  const saved = read(PINS)[key] || (key === TREASURER_PHONE ? TREASURER_PIN_HASH : "");
+  const saved = stored || (key === TREASURER_PHONE ? TREASURER_PIN_HASH : "");
   if (!saved) return { ok: false, message: "Ask your treasurer to set your PIN." };
-  if ((await digest(pin)) !== saved) {
+  if (!startMatch && enteredHash !== saved) {
     const fails = (lock?.fails ?? 0) + 1;
     locks[key] = fails >= 5 ? { fails: 0, until: Date.now() + 15 * 60 * 1000 } : { fails, until: 0 };
     localStorage.setItem(LOCKS, JSON.stringify(locks));
     const left = 5 - fails;
     return {
       ok: false,
-      message: fails >= 5 ? "Too many tries. Ask the treasurer to reset the PIN." : `That phone or PIN is not right. ${left} ${left === 1 ? "try" : "tries"} left.`,
+      message: fails >= 5 ? "Too many tries. Wait 15 minutes, then try the PIN again." : `That phone or PIN is not right. ${left} ${left === 1 ? "try" : "tries"} left.`,
     };
+  }
+  if (startMatch && stored && stored !== TREASURER_PIN_HASH) {
+    delete pins[key];
+    localStorage.setItem(PINS, JSON.stringify(pins));
   }
   delete locks[key];
   localStorage.setItem(LOCKS, JSON.stringify(locks));
