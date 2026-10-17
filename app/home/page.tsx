@@ -168,17 +168,6 @@ export default async function HomePage() {
         ))}
       </section>
       {session.role === "MEMBER" ? <MemberPinForm labels={pin} /> : null}
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Link href="/mine" className="tap rounded-full border border-ink/20 px-4 text-sm">
-          {text.months}
-        </Link>
-        <Link href="/loan" className="tap rounded-full border border-ink/20 px-4 text-sm">
-          {text.myLoan}
-        </Link>
-        <Link href="/statement" className="tap rounded-full bg-leaf px-4 text-sm font-semibold text-ivory">
-          {text.statement}
-        </Link>
-      </div>
     </Shell>
   );
 }

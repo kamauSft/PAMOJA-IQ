@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Two doors, and a member the treasurer adds
+
+- The front page has a treasurer door and a member door. The treasurer door opens the full desk, with bubbles, Excel upload, and a form to add one member by name and phone.
+- A member's menu is the dashboard and goals. They can change a goal. The other member pages send them back to the dashboard.
+- The sign-in code is still shown on the page. It is not sent to a phone.
+
 ### Treasurer bubbles
 
 - The treasurer's desk opens with each member as a circle. The size is their savings, and the colour is this month. A table is one tap away.

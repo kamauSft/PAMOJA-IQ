@@ -188,6 +188,8 @@ export async function loadMemberHome(membershipId: string, asOf = new Date()) {
         title: goal.title,
         targetLabel: formatKes(goal.targetCents),
         savedLabel: formatKes(savingsCents),
+        targetShillings: Math.round(goal.targetCents / 100),
+        targetDate: goal.targetDate.toISOString().slice(0, 10),
         progressBps: progress.percent * 100,
         percent: progress.percent,
         pace: progress.pace,

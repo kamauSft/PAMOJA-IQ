@@ -1,4 +1,5 @@
 import { MonthPill } from "@/components/month-pill";
+import { redirect } from "next/navigation";
 import { Shell } from "@/components/shell";
 import { booksAsOf } from "@/lib/chama/clock";
 import { requireSession, tenantFromSession } from "@/lib/chama/page-session";
@@ -9,6 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function MyMonthsPage() {
   const session = await requireSession();
+  if (session.role === "MEMBER") redirect("/home");
   const file = await runWithTenant(tenantFromSession(session), () =>
     loadMemberFile(session.membershipId, booksAsOf()),
   );

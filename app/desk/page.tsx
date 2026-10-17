@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AddMemberForm } from "@/components/add-member-form";
 import { MemberRegister } from "@/components/member-register";
 import { MonthPill } from "@/components/month-pill";
 import { Shell } from "@/components/shell";
@@ -58,6 +59,7 @@ export default async function DeskPage() {
           </div>
         </section>
       ) : null}
+      {canBringInBooks(session.role) ? <AddMemberForm labels={deskText} /> : null}
       <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label={deskText.savings} value={desk.savingsLabel} />
         <Stat label={deskText.loans} value={desk.loansOutstandingLabel} />

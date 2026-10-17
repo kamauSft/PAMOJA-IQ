@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { encouragement } from "@/content/encouragement";
 import { hashPin } from "@/lib/auth/pin";
 import { publishNotice, publishPositions } from "@/lib/chama/publish";
-import { createSavingsGoal } from "@/lib/goals/create";
+import { createSavingsGoal, updateSavingsGoal } from "@/lib/goals/create";
 import { goalProgress } from "@/lib/goals/progress";
 import { prismaRaw } from "@/lib/db";
 import { loadMemberHome } from "@/lib/member/home";
@@ -126,5 +126,23 @@ describe("goals and published books", () => {
     );
     expect(home.goals[0]?.title).toBe("School fees");
     expect(home.goals[0]?.percent).toBe(50);
+    const changed = await updateSavingsGoal({
+      chamaId: chama.id,
+      membershipId: membership.id,
+      goalId: home.goals[0]!.id,
+      title: "School fees for Asha",
+      targetShillings: 5000,
+      targetDate: "2027-08-01",
+    });
+    expect(changed).toEqual({ ok: true });
+    const blocked = await updateSavingsGoal({
+      chamaId: chama.id,
+      membershipId: office.id,
+      goalId: home.goals[0]!.id,
+      title: "Not yours",
+      targetShillings: 5000,
+      targetDate: "2027-08-01",
+    });
+    expect(blocked.ok).toBe(false);
   });
 });

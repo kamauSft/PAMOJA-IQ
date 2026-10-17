@@ -9,6 +9,10 @@ const en = {
     sub: "Upload the Excel register, review every member, then share the books. A member opens their savings, their month, and their goals.",
     startCta: "Start your chama",
     signIn: "Sign in",
+    treasurerCta: "Treasurer",
+    treasurerHint: "A separate door. Upload Excel, see every member as a bubble, and open the full desk.",
+    memberCta: "Member",
+    memberHint: "Your own dashboard, and your goals. You do not see the treasurer's desk.",
     howTitle: "How a month works",
     howBody: "The treasurer uploads Excel, checks each member's position, and shares it. From that moment every member sees their own numbers, a daily word, and how close they are to a goal.",
     priceTitle: "What a chama pays",
@@ -42,6 +46,8 @@ const en = {
     rejected: "That code was not accepted.",
     signIn: "Sign in",
     fallback: "Enter your phone number. Officials also enter their PIN. Your code appears on this page.",
+    doorTreasurer: "This door is for the treasurer. You will upload Excel and see the full desk, including every member as a bubble. The code appears on this page. It is not sent to a phone.",
+    doorMember: "This door is for a member. You will see your dashboard and your goals. The code appears on this page. It is not sent to a phone.",
   },
   shell: {
     signOut: "Sign out",
@@ -56,11 +62,8 @@ const en = {
       ["Upload", "/import"],
     ],
     member: [
-      ["My money", "/home"],
-      ["My months", "/mine"],
-      ["My loan", "/loan"],
+      ["Dashboard", "/home"],
       ["Goals", "/goals"],
-      ["Statement", "/statement"],
     ],
     roles: {
       CHAIR: "Chair",
@@ -202,6 +205,8 @@ const en = {
     save: "Save goal",
     working: "Saving…",
     failed: "The goal could not be saved.",
+    change: "Change this goal",
+    saveChange: "Save changes",
     pace: {
       reached: "Goal reached",
       on_track: "On track",
@@ -235,6 +240,14 @@ const en = {
     receipts: "Payments to match",
     noReceipts: "Every payment is matched.",
     openReceipts: "Open the receipt queue",
+    addTitle: "Add a member",
+    addBody: "Enter their name and phone. They sign in through the member door. The code appears on that page, not on a phone.",
+    addName: "Full name",
+    addPhone: "Phone",
+    addSave: "Add member",
+    addWorking: "Adding…",
+    addFailed: "The member could not be added.",
+    addDone: "Added. They can sign in on the member door with",
   },
 };
 
@@ -247,6 +260,10 @@ const sw: typeof en = {
     sub: "Pakia daftari la Excel, kagua kila mwanachama, kisha shiriki. Mwanachama anafungua akiba yake, mwezi wake, na malengo yake.",
     startCta: "Anzisha chama chako",
     signIn: "Ingia",
+    treasurerCta: "Mweka hazina",
+    treasurerHint: "Mlango tofauti. Pakia Excel, ona kila mwanachama kama duara, na fungua dawati kamili.",
+    memberCta: "Mwanachama",
+    memberHint: "Dashibodi yako na malengo yako. Huoni dawati la mweka hazina.",
     howTitle: "Mwezi unaendaje",
     howBody: "Mweka hazina anapakia Excel, anaangalia nafasi ya kila mwanachama, kisha anashiriki. Kuanzia hapo kila mtu anaona namba zake, neno la siku, na umbali wa lengo lake.",
     priceTitle: "Chama hulipa kiasi gani",
@@ -280,6 +297,8 @@ const sw: typeof en = {
     rejected: "Msimbo huo haukukubaliwa.",
     signIn: "Ingia",
     fallback: "Weka nambari yako ya simu. Viongozi wanaweka pia PIN. Msimbo unaonekana kwenye ukurasa huu.",
+    doorTreasurer: "Mlango huu ni wa mweka hazina. Utapakia Excel na kuona dawati kamili, pamoja na kila mwanachama kama duara. Msimbo unaonekana hapa. Hautumwi kwenye simu.",
+    doorMember: "Mlango huu ni wa mwanachama. Utaona dashibodi yako na malengo yako. Msimbo unaonekana hapa. Hautumwi kwenye simu.",
   },
   shell: {
     signOut: "Toka",
@@ -294,11 +313,8 @@ const sw: typeof en = {
       ["Pakia", "/import"],
     ],
     member: [
-      ["Pesa zangu", "/home"],
-      ["Miezi yangu", "/mine"],
-      ["Mkopo wangu", "/loan"],
+      ["Dashibodi", "/home"],
       ["Malengo", "/goals"],
-      ["Taarifa", "/statement"],
     ],
     roles: {
       CHAIR: "Mwenyekiti",
@@ -440,6 +456,8 @@ const sw: typeof en = {
     save: "Hifadhi lengo",
     working: "Inahifadhiwa…",
     failed: "Lengo halikuhifadhiwa.",
+    change: "Badilisha lengo hili",
+    saveChange: "Hifadhi mabadiliko",
     pace: {
       reached: "Lengo limefikiwa",
       on_track: "Uko sawa",
@@ -473,6 +491,14 @@ const sw: typeof en = {
     receipts: "Malipo ya kulinganisha",
     noReceipts: "Kila malipo yamepatana.",
     openReceipts: "Fungua foleni ya stakabadhi",
+    addTitle: "Ongeza mwanachama",
+    addBody: "Weka jina na simu. Wanaingia kupitia mlango wa mwanachama. Msimbo unaonekana kwenye ukurasa huo, si kwenye simu.",
+    addName: "Jina kamili",
+    addPhone: "Simu",
+    addSave: "Ongeza mwanachama",
+    addWorking: "Inaongezwa…",
+    addFailed: "Mwanachama hakuongezwa.",
+    addDone: "Ameongezwa. Anaweza kuingia kwenye mlango wa mwanachama kwa",
   },
 };
 

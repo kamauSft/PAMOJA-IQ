@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { afterEach, describe, expect, it } from "vitest";
 import { createTreasurerProfile } from "@/lib/chama/create-profile";
+import { addMember } from "@/lib/chama/add-member";
 import { loginWithPin } from "@/lib/auth/service";
 import { saveImport } from "@/lib/import/save";
 import { readUpload, shillingsToCents, templateWorkbook } from "@/lib/import/workbook";
@@ -99,5 +100,36 @@ describe("treasurer profile and import", () => {
     expect(await prismaRaw.contribution.count()).toBe(4);
     const logged = await prismaRaw.auditLog.findFirst({ where: { action: "import.excel" }, orderBy: { seq: "asc" } });
     expect(logged?.after).toMatchObject({ fileName: "messy.xlsx" });
+  });
+
+  it("adds one member the treasurer can send to the member door", async () => {
+    await createTreasurerProfile({
+      name: "Jane Wanjiku",
+      phone: "0712000222",
+      pin: "2468",
+      chamaName: "Mwanga",
+    });
+    const treasurer = await prismaRaw.membership.findFirstOrThrow({ include: { person: true } });
+    const added = await addMember({
+      chamaId: treasurer.chamaId,
+      actor: { membershipId: treasurer.id, personId: treasurer.personId, role: "TREASURER" },
+      name: "Asha Njeri",
+      phone: "0712555099",
+    });
+    expect(added).toMatchObject({ ok: true, memberNo: "M001", phone: "+254712555099" });
+    const duplicate = await addMember({
+      chamaId: treasurer.chamaId,
+      actor: { membershipId: treasurer.id, personId: treasurer.personId, role: "TREASURER" },
+      name: "Asha Njeri",
+      phone: "0712555099",
+    });
+    expect(duplicate.ok).toBe(false);
+    const refused = await addMember({
+      chamaId: treasurer.chamaId,
+      actor: { membershipId: treasurer.id, personId: treasurer.personId, role: "MEMBER" },
+      name: "Someone Else",
+      phone: "0712555088",
+    });
+    expect(refused.ok).toBe(false);
   });
 });

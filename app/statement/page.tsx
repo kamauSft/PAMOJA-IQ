@@ -16,6 +16,7 @@ export default async function StatementPage({
   searchParams: Promise<{ memberNo?: string }>;
 }) {
   const session = await requireSession();
+  if (session.role === "MEMBER") redirect("/home");
   const locale = await getLocale();
   const text = copy(locale).statement;
   const query = await searchParams;

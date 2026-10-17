@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-17 — The treasurer and the member use different doors
+
+The front page sends the treasurer to the full desk and the member to their own dashboard and goals. A treasurer can add one member by name and phone so that person can sign in. The one-time code is still shown on the sign-in page, because no phone text service is connected.
+
 ## 2026-10-17 — The treasurer sees members as circles, and the file they last uploaded
 
 Circle size follows savings. Colour follows this month, with the status written under the name. The same list can be opened as a table. The desk stores the spreadsheet name on the import audit line and shows that name with the Nairobi date.
