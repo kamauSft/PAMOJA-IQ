@@ -41,7 +41,6 @@ export function LoginForm({
 
   function goHome(role?: string) {
     router.push(role && role !== "MEMBER" ? "/desk" : "/home");
-    router.refresh();
   }
 
   async function submitPhone(event: React.FormEvent) {
