@@ -1,13 +1,14 @@
 # Deploying Pamoja IQ
 
-This is the target shape. Do not deploy the demo database.
+This computer uses a local records file. The internet staging copy may hold the demo chama. Production must not.
 
 ## Host
 
-- App: Vercel (or any host that runs Next.js). GitHub Pages cannot run this app, and it must not be used.
-
-- Database: Neon or Supabase Postgres. Local development stays on SQLite. Production must not use `file:./dev.db`.
-- After the database exists, set `DATABASE_URL` to the Postgres connection string and run `npx prisma migrate deploy` once migrations exist. Until then, apply `prisma/rls.sql` as the database owner, then point the app role at a user who cannot bypass row-level security.
+- App: Vercel. GitHub Pages cannot run this app, and it must not be used for the real books.
+- This computer: double-click `start-pamoja.bat`. It uses the local file in `DATABASE_URL`. `stop-pamoja.bat` frees port 3000.
+- Internet staging: Vercel plus Neon Postgres, with `DEMO_MODE=true`, `DEMO_OTP_VISIBLE=true`, and `ALLOW_DEMO_IN_PROD=true`. The build command in `vercel.json` switches Prisma to Postgres, runs the migrations, and adds the demo chama only when the records are empty.
+- Set `DATABASE_URL` and `DATABASE_URL_UNPOOLED` to the direct Neon address, not the pooled one. Secrets stay in Vercel, not in git.
+- Production, later, uses a separate database with `DEMO_MODE` unset. Apply `prisma/rls.sql` as the database owner, then point the app role at a user who cannot bypass row-level security.
 
 ## Environment
 

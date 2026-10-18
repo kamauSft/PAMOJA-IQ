@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Start and stop on this computer
+
+- Double-click `start-pamoja.bat` to open Pamoja IQ. Leave that window open. `stop-pamoja.bat` closes it.
+- `/health` says whether the app and the records are running.
+- On this computer the address stays http. The padlock, the secure cookie, and the strict transport header turn on only for the internet copy.
+- An old offline worker is cleared on this computer. A problem page says what to do. It does not say the site is offline.
+
 ### Photographs in the real app
 
 - The front page shows the meeting photograph, with Sign in and For treasurers.

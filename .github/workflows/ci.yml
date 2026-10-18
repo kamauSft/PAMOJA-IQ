@@ -24,3 +24,20 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+
+  sign-in:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: file:./prisma/e2e.db
+      SESSION_SECRET: ci-only-session-secret-not-a-real-key-0123456789abcd
+      DEMO_MODE: "true"
+      DEMO_OTP_VISIBLE: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
