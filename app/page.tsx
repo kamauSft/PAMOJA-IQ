@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
 import { Preferences } from "@/components/preferences";
+import { ScenePhoto } from "@/components/scene-photo";
 import { brand } from "@/config/brand";
 import { copy } from "@/content/ui";
 import { getLocale } from "@/lib/locale";
@@ -9,29 +10,48 @@ export default async function LandingPage() {
   const locale = await getLocale();
   const text = copy(locale);
   const page = text.landing;
+  const features = [
+    [page.feature1, page.feature1Body],
+    [page.feature2, page.feature2Body],
+    [page.feature3, page.feature3Body],
+  ];
 
   return (
-    <main className="mx-auto max-w-5xl px-5 py-10 sm:px-6 sm:py-16">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-leaf">
+    <main className="relative">
+      <header className="absolute z-10 flex w-full items-center justify-between gap-3 px-5 py-4 text-white sm:px-8">
+        <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em]">
           <BrandMark />
           {brand.name}
         </p>
         <Preferences locale={locale} languageLabel={text.language} lightLabel={text.themeLight} darkLabel={text.themeDark} />
-      </div>
-      <p className="mt-3 text-sm text-muted">{brand.tagline}</p>
-      <h1 className="mt-4 max-w-3xl font-display text-4xl leading-tight text-ink sm:text-5xl">{page.headline}</h1>
-      <p className="mt-4 max-w-2xl text-lg text-muted">{page.sub}</p>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        <Link href="/login?door=treasurer" className="card block p-5">
-          <span className="font-display text-2xl">{page.treasurerCta}</span>
-          <p className="mt-2 text-sm text-muted">{page.treasurerHint}</p>
-        </Link>
-        <Link href="/login?door=member" className="card block p-5">
-          <span className="font-display text-2xl">{page.memberCta}</span>
-          <p className="mt-2 text-sm text-muted">{page.memberHint}</p>
-        </Link>
-      </div>
+      </header>
+      <ScenePhoto name="chama-meeting" alt="Six chama members reviewing papers around a wooden table" priority tall>
+        <div className="max-w-3xl text-white">
+          <p className="text-xs uppercase tracking-[0.16em] text-white/80">{brand.tagline}</p>
+          <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">{page.headline}</h1>
+          <p className="mt-4 max-w-2xl text-lg text-white/85">{page.sub}</p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link href="/login?door=member" className="tap rounded-lg bg-white px-5 text-sm font-semibold text-[#0F2A3D]">
+              {page.signIn}
+            </Link>
+            <Link href="/login?door=treasurer" className="tap rounded-lg border border-white px-5 text-sm font-semibold text-white">
+              {page.forTreasurers}
+            </Link>
+          </div>
+        </div>
+      </ScenePhoto>
+      <section className="mx-auto grid max-w-5xl gap-4 px-5 py-10 sm:grid-cols-3 sm:px-8">
+        {features.map(([title, body]) => (
+          <article key={title} className="card p-5">
+            <h2 className="text-lg font-semibold">{title}</h2>
+            <p className="mt-2 text-sm text-muted">{body}</p>
+          </article>
+        ))}
+      </section>
+      <footer className="mx-auto max-w-5xl border-t border-[#DCE2E7] px-5 py-8 text-sm text-muted sm:px-8">
+        <p>{page.security}</p>
+        <p className="mt-2">{brand.name} · {brand.tagline}</p>
+      </footer>
     </main>
   );
 }

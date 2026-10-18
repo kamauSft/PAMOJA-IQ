@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-17 — Photographs sit behind the title, and they are not a real chama
+
+The front page, the treasurer desk, and the member home show a photograph behind a navy overlay. The pictures are illustrative. They are not photographs of a real chama. A later replacement needs written consent from every person in the picture. The register, statements, and forms stay plain.
+
 ## 2026-10-17 — Only the treasurer resets a PIN, and Excel is on that desk
 
 The owner asked for the public page to stay up. Reset PIN is not on the front page. The treasurer signs in with a starting PIN that is not written in the page, then sets other PINs and uploads the official Excel on the desk. That upload stays in the browser. The computer app at `/import` remains the private books.
