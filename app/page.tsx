@@ -28,10 +28,10 @@ export default async function LandingPage() {
       <ScenePhoto name="chama-meeting" alt="Six chama members reviewing papers around a wooden table" priority tall>
         <div className="max-w-3xl text-white">
           <p className="text-xs uppercase tracking-[0.16em] text-white/80">{brand.tagline}</p>
-          <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">{page.headline}</h1>
-          <p className="mt-4 max-w-2xl text-lg text-white/85">{page.sub}</p>
+          <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">{page.bankHeadline}</h1>
+          <p className="mt-4 max-w-2xl text-lg text-white/85">{page.bankSentence}</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/login?door=member" className="tap rounded-lg bg-white px-5 text-sm font-semibold text-[#0F2A3D]">
+            <Link href="/login?door=member" className="btn bg-white text-navy">
               {page.signIn}
             </Link>
             <Link href="/login?door=treasurer" className="tap rounded-lg border border-white px-5 text-sm font-semibold text-white">
@@ -48,9 +48,11 @@ export default async function LandingPage() {
           </article>
         ))}
       </section>
-      <footer className="mx-auto max-w-5xl border-t border-[#DCE2E7] px-5 py-8 text-sm text-muted sm:px-8">
+      <footer className="mx-auto max-w-5xl border-t border-line px-5 py-8 text-sm text-muted sm:px-8">
         <p>{page.security}</p>
-        <p className="mt-2">{brand.name} · {brand.tagline}</p>
+        <p className="mt-2">
+          {brand.name} · {brand.tagline}
+        </p>
       </footer>
     </main>
   );

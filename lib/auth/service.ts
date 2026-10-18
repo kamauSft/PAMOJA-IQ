@@ -143,7 +143,7 @@ async function sendLoginCode(input: {
   const sent = await prismaRaw.otpChallenge.count({
     where: { personId: input.personId, createdAt: { gt: since } },
   });
-  if (sent >= OTP_MAX_SENDS) {
+  if (!input.demoOtpVisible && sent >= OTP_MAX_SENDS) {
     return { status: "rate_limited", message: "Too many codes. Try again in 15 minutes." };
   }
   const code = newOtpCode();
@@ -172,6 +172,7 @@ export async function loginWithPin(input: {
   phone: string;
   pin?: string;
   chamaId?: string;
+  role?: MembershipRole;
   now?: Date;
   ip?: string;
   userAgent?: string;
@@ -199,10 +200,11 @@ export async function loginWithPin(input: {
     person.failedLoginAttempts = 0;
   }
 
-  const memberships = await prismaRaw.membership.findMany({
+  const found = await prismaRaw.membership.findMany({
     where: { personId: person.id, status: "ACTIVE" },
     include: { chama: true },
   });
+  const memberships = input.role ? found.filter((membership) => membership.role === input.role) : found;
   if (memberships.length === 0) return unknownNumber();
 
   if (!pin) {

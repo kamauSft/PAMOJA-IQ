@@ -13,10 +13,10 @@ export function SignOut({ signOutLabel = "Sign out", signOutAllLabel = "Sign out
 
   return (
     <div className="flex gap-3">
-      <button className="tap rounded-full border border-ink/20 px-4 text-sm" onClick={() => signOut(false)} type="button">
+      <button className="tap rounded-lg border border-line px-3 text-[13px]" onClick={() => signOut(false)} type="button">
         {signOutLabel}
       </button>
-      <button className="tap rounded-full border border-ink/20 px-4 text-sm" onClick={() => signOut(true)} type="button">
+      <button className="tap rounded-lg border border-line px-3 text-[13px]" onClick={() => signOut(true)} type="button">
         {signOutAllLabel}
       </button>
     </div>

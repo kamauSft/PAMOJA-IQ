@@ -1,16 +1,14 @@
 "use client";
 
-export default function GlobalError({ reset }: { error: Error; reset: () => void }) {
+export default function GlobalError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased">
-        <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center px-5 py-16">
-          <h1 className="text-3xl font-semibold">Pamoja IQ hit a problem.</h1>
-          <p className="mt-4 text-sm">Double-click start-pamoja.bat and leave that window open.</p>
-          <button type="button" onClick={() => reset()}>
-            Try again
-          </button>
-        </main>
+      <body style={{ fontFamily: "sans-serif", margin: "2rem" }}>
+        <h1>Pamoja IQ hit a problem</h1>
+        <p>Double-click start-pamoja.bat, wait until that window says it is running, then try again.</p>
+        <button type="button" onClick={() => reset()}>
+          Try again
+        </button>
       </body>
     </html>
   );

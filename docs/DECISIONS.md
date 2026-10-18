@@ -4,6 +4,26 @@
 
 Thomas starts the app by double-clicking `start-pamoja.bat`. That copy uses the local records file. The internet copy uses Postgres, and its build switches the database type only when the address starts with `postgres`. The padlock settings stay off on this computer. Demo data can be added on the internet copy only when that copy is marked as a demo. The public sample page does not point at the real app until that internet address exists.
 
+## 2026-10-17 — One phone may hold a member record and a treasurer post
+
+The books had the owner only as a treasurer, so the member door had nothing to open. A person may now have both records in the same chama. Each door asks for its own record. The phone number stays in `.env`, not in the source.
+
+## 2026-10-17 — Local testing stays on http, and the internet site gets the padlock
+
+Strict-Transport-Security is sent only when NODE_ENV is production. The session cookie is Secure only then. Development does not register a service worker. Thomas starts the app by double-clicking start-pamoja.bat so it does not depend on an agent terminal.
+
+## 2026-10-17 — The morning line follows one member's own figures
+
+The random daily word stays out. In its place, the home picks the highest situation that is true for that member, from a cleared loan down to a proverb plus their savings. Numbers come from the finance functions. A phone alert uses a separate sentence with no amounts. The member can later choose to show amounts. Swahili uses the same situations.
+
+## 2026-10-17 — The screens follow a private-bank layout
+
+Navy is the header and the main button. Green is only for a positive figure or a paid mark. Cards are flat, with a hairline and an 8px corner. IBM Plex Sans carries the words and IBM Plex Mono carries the figures. Fines, Reminders, Settings, Notifications, and Profile are named in the brief and are not menus yet, because those screens are later changes.
+
+## 2026-10-17 — Bubbles, daily words, and celebration effects are out
+
+The owner removed them in Round 2. The treasurer's register is a table. The member home has no random daily word. The morning line that uses that member's own figures stays. Goal photos, confetti, and floating circles are not to be added again. Savings goals stay: a title, a target, and a date.
+
 ## 2026-10-17 — Photographs sit behind the title, and they are not a real chama
 
 The front page, the treasurer desk, and the member home show a photograph behind a navy overlay. The pictures are illustrative. They are not photographs of a real chama. A later replacement needs written consent from every person in the picture. The register, statements, and forms stay plain.

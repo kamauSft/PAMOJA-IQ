@@ -252,7 +252,7 @@ model Membership {
   supportGrants    SupportAccess[]
   mpesaMatches     MpesaTransaction[]
 
-  @@unique([chamaId, personId])
+  @@unique([chamaId, personId, role])
   @@unique([chamaId, memberNo])
   @@index([chamaId])
 }

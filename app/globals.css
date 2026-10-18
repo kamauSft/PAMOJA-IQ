@@ -3,48 +3,76 @@
 @tailwind utilities;
 
 :root {
+  --navy: #0f2a3d;
   --ink: #14202b;
-  --sisal: #1e6f5c;
-  --leaf: #0f2a3d;
-  --clay: #a33a2b;
-  --ivory: #f5f7f9;
-  --paper: #ffffff;
   --muted: #5b6b78;
+  --line: #dce2e7;
+  --surface: #ffffff;
+  --canvas: #f5f7f9;
+  --accent: #1e6f5c;
+  --due: #9a6b00;
+  --overdue: #a33a2b;
+  --on-navy: #ffffff;
+  --ivory: var(--canvas);
+  --paper: var(--surface);
+  --leaf: var(--accent);
+  --sisal: var(--due);
+  --clay: var(--overdue);
   color-scheme: light;
 }
 
 .dark {
-  --ink: #f5f7f9;
-  --sisal: #8fbfae;
-  --leaf: #d7e2ea;
-  --clay: #e08a66;
-  --ivory: #0f2a3d;
-  --paper: #173244;
-  --muted: #c5d0d8;
+  --navy: #16324a;
+  --ink: #e7eef4;
+  --muted: #9aabb8;
+  --line: #243444;
+  --surface: #12202c;
+  --canvas: #0b1620;
+  --accent: #3d9b84;
+  --due: #e0b15a;
+  --overdue: #e08b7e;
+  --on-navy: #e7eef4;
   color-scheme: dark;
 }
 
 body {
   min-height: 100vh;
-  background-color: var(--ivory);
+  background: var(--canvas);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: -0.02em;
+}
+
+.dark h1,
+.dark h2,
+.dark h3 {
   color: var(--ink);
 }
 
 .field {
-  margin-top: 0.25rem;
+  margin-top: 0.35rem;
   width: 100%;
   min-height: 44px;
-  border-radius: 12px;
-  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
-  background: var(--paper);
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
   color: var(--ink);
-  padding: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 15px;
 }
 
 .card {
   border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
-  background: var(--paper);
+  border: 1px solid var(--line);
+  background: var(--surface);
 }
 
 .tap {
@@ -52,6 +80,34 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+.btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--navy);
+  color: var(--on-navy);
+  font-weight: 600;
+  padding: 0 1.25rem;
+  transition: background-color 150ms ease;
+}
+
+.btn:hover {
+  background: color-mix(in srgb, var(--navy) 86%, white);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.num {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
 }
 
 @media (prefers-reduced-motion: reduce) {

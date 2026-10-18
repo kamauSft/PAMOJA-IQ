@@ -77,9 +77,11 @@ describe("goals and published books", () => {
       actor: { membershipId: office.id, personId: treasurer.id, role: "TREASURER" },
     });
     expect(shared).toEqual({ published: 1, members: 1 });
-    const note = await prismaRaw.notification.findFirstOrThrow();
+    const note = await prismaRaw.notification.findFirstOrThrow({ where: { title: "Your position is ready" } });
     expect(note.body).toBe(publishNotice());
     expect(note.body).not.toMatch(/Asha|Jane|KES|\d/);
+    const highlight = await prismaRaw.notification.findFirstOrThrow({ where: { title: "Your account was updated" } });
+    expect(highlight.body).toBe("Your account was updated. Savings: KES 2,000, up KES 2,000.");
 
     const visible = await runWithTenant(
       { chamaId: chama.id, membershipId: membership.id, personId: person.id, role: "MEMBER" },

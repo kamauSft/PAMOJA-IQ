@@ -45,7 +45,7 @@ export function MemberPinForm({ labels = english }: { labels?: typeof english })
         />
       </label>
       <button
-        className="tap mt-3 rounded-full bg-leaf px-4 text-sm font-semibold text-ivory disabled:opacity-60"
+        className="btn mt-3 disabled:opacity-60"
         disabled={pending || pin.length !== 4}
         type="submit"
       >

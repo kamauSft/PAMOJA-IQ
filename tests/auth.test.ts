@@ -147,6 +147,30 @@ describe("auth", () => {
     await logout(authed.token, now);
   });
 
+  it("lets one phone open the member door and the treasurer door", async () => {
+    const fixture = await member({ phone: "+254711000111", role: "TREASURER" });
+    await prismaRaw.membership.create({
+      data: {
+        chamaId: fixture.chama.id,
+        personId: fixture.person.id,
+        role: "MEMBER",
+        memberNo: "M022",
+        joinDate: new Date("2026-01-03T00:00:00.000Z"),
+        hashedPin: fixture.membership.hashedPin,
+      },
+    });
+    const asMember = await loginWithPin({ phone: "0711000111", pin: "2580", role: "MEMBER", now });
+    expect(asMember).toMatchObject({ status: "authenticated", role: "MEMBER" });
+    const asTreasurer = await loginWithPin({
+      phone: "0711000111",
+      pin: "2580",
+      role: "TREASURER",
+      now,
+      demoOtpVisible: true,
+    });
+    expect(asTreasurer.status).toBe("otp_required");
+  });
+
   it("expires a code and locks it after five misses", async () => {
     await member({ phone: "+254712345001", role: "CHAIR" });
     const pending = await loginWithPin({ phone: "+254712345001", pin: "2580", now, demoOtpVisible: true });
@@ -237,6 +261,7 @@ describe("auth", () => {
     env.NODE_ENV = "production";
     expect(sessionCookieOptions().secure).toBe(true);
     env.NODE_ENV = "test";
+    expect(sessionCookieOptions().secure).toBe(false);
     expect(sessionCookieOptions().httpOnly).toBe(true);
     expect(sessionCookieOptions().sameSite).toBe("lax");
     expect(sessionCookieOptions().maxAge).toBe(30 * 60);

@@ -14,7 +14,7 @@ export default async function HealthPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center px-5 py-16">
-      <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-sisal">Pamoja IQ</p>
+      <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-accent">Pamoja IQ</p>
       <h1 className="mt-2 text-3xl font-semibold">Is it running?</h1>
       <ul className="mt-6 space-y-3 text-sm">
         <li>App: running</li>

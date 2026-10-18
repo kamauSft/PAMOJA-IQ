@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### The owner's member record
+
+- The same phone can be a member and a treasurer. The member door opens the member books. The treasurer door opens the desk.
+- `OWNER_PHONE` in `.env` is how that account is added. The number is not written in the program.
+
+### Sign-in does not fill in a phone number
+
+- The treasurer door and the member door open empty. A person types their own number.
+
 ### Start and stop on this computer
 
 - Double-click `start-pamoja.bat` to open Pamoja IQ. Leave that window open. `stop-pamoja.bat` closes it.
@@ -9,11 +18,18 @@
 - On this computer the address stays http. The padlock, the secure cookie, and the strict transport header turn on only for the internet copy.
 - An old offline worker is cleared on this computer. A problem page says what to do. It does not say the site is offline.
 
-### Photographs in the real app
+### A line that follows the member's own figures
 
+- The member home opens with one sentence about that member: a cleared loan, a savings step, a goal, a streak, or a quiet proverb.
+- The same idea can be shown on a phone alert. The alert does not include amounts unless the member later asks for them.
+- The wording does not name other members, and it does not suggest borrowing.
+
+### A quieter, banking look, with the photographs
+
+- The pages use a navy, white, and deep green palette, with IBM Plex for words and figures.
+- The treasurer has a left-hand menu. A member has a top bar and tabs along the bottom of the phone.
 - The front page shows the meeting photograph, with Sign in and For treasurers.
-- The treasurer screens show the desk photograph. The member screens show the morning photograph.
-- The type is plain, and the page is navy and white. The pictures are illustrative.
+- The treasurer screens show the desk photograph. The member screens show the morning photograph and that member's own line.
 
 ### The public page is only a sample
 
@@ -43,7 +59,7 @@
 ### Removed by the owner
 
 - Member circles are gone from the treasurer's desk. The register is a table.
-- The daily word is gone from the member home. There is no encouragement library.
+- The random daily word is gone. The morning line uses that member's own figures.
 - Goal photos, confetti, and floating animations are not part of the product.
 
 ### Two doors, and a member the treasurer adds

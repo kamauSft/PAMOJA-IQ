@@ -9,19 +9,16 @@ import { normalizePhone } from "@/lib/phone";
 
 const WHO = {
   treasurer: {
-    phone: "0712345002",
     pin: "2580",
     en: "Enter the number and PIN, then the code shown on this page.",
     sw: "Weka nambari na PIN, kisha msimbo ulio kwenye ukurasa huu.",
   },
   member: {
-    phone: "0712345005",
     pin: "",
     en: "Enter the number. The code appears on this page. A PIN can skip the code.",
     sw: "Weka nambari. Msimbo unaonekana kwenye ukurasa huu. PIN inaweza kuruka msimbo.",
   },
   chair: {
-    phone: "0712345001",
     pin: "2580",
     en: "Enter the number and PIN, then the code shown on this page.",
     sw: "Weka nambari na PIN, kisha msimbo ulio kwenye ukurasa huu.",
@@ -39,7 +36,8 @@ export default async function LoginPage({
   const freshPhone = query.phone && normalizePhone(query.phone) ? query.phone : null;
   const whoKey = query.who === "treasurer" || query.who === "member" || query.who === "chair" ? query.who : null;
   const who = freshPhone || !whoKey ? null : WHO[whoKey];
-  const door = query.door === "treasurer" || query.door === "member" ? query.door : null;
+  const doorName = query.door?.toLowerCase();
+  const door = doorName === "treasurer" || doorName === "member" ? doorName : null;
   const title = who
     ? text.shell.roles[who === WHO.member ? "MEMBER" : who === WHO.chair ? "CHAIR" : "TREASURER"]
     : door === "treasurer"
@@ -79,13 +77,15 @@ export default async function LoginPage({
         <Preferences locale={locale} languageLabel={text.language} lightLabel={text.themeLight} darkLabel={text.themeDark} />
       </div>
       <p className="mt-2 text-xs text-muted">{brand.tagline}</p>
-      <h1 className="mt-3 font-display text-4xl">{title}</h1>
+      <h1 className="mt-3 text-[2rem]">{title}</h1>
       <p className="mt-2 text-sm text-muted">{intro}</p>
       <div className="mt-6">
         <LoginForm
           initialPhone=""
           initialPin={freshPhone ? "" : (who?.pin ?? "")}
           startWithPin={freshPhone ? true : door === "treasurer" ? true : Boolean(who?.pin)}
+          afterSignIn={door === "member" ? "/home" : door === "treasurer" ? "/desk" : undefined}
+          preferredRole={door === "member" ? "MEMBER" : door === "treasurer" ? "TREASURER" : undefined}
           labels={text.login}
         />
       </div>

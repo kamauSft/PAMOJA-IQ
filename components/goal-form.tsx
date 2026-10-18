@@ -78,7 +78,7 @@ export function GoalForm({
         {labels.date}
         <input className="field" name="date" type="date" value={targetDate} onChange={(event) => setTargetDate(event.target.value)} />
       </label>
-      <button className="tap rounded-full bg-sisal px-5 text-sm font-semibold text-ink disabled:opacity-60" disabled={pending} type="submit">
+      <button className="btn disabled:opacity-60" disabled={pending} type="submit">
         {pending ? labels.working : goal ? labels.saveChange : labels.save}
       </button>
       {message ? (

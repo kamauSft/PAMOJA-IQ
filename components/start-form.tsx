@@ -72,7 +72,7 @@ export function StartForm({ labels = english }: { labels?: typeof english }) {
         {labels.chama}
         <input className="field" name="chama" value={chamaName} onChange={(event) => setChamaName(event.target.value)} />
       </label>
-      <button className="tap w-full rounded-full bg-sisal px-4 font-semibold text-ink disabled:opacity-60" disabled={pending} type="submit">
+      <button className="btn w-full disabled:opacity-60" disabled={pending} type="submit">
         {pending ? labels.working : labels.submit}
       </button>
       {message ? (

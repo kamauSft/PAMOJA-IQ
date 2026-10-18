@@ -4,6 +4,8 @@ import { parseChamaSettings } from "../chama/rules";
 import { getDb } from "../db";
 import {
   arrears,
+  compareDateOnly,
+  dueDateForPeriod,
   finesDue,
   formatKes,
   installmentRemaining,
@@ -13,11 +15,12 @@ import {
   overdueInstallments,
   periodOf,
 } from "../finance";
+import { chooseMotivation } from "../motivation/engine";
 import { goalProgress } from "../goals/progress";
 import { assertCanReadMembership, TenantIsolationError } from "../tenancy/context";
-import { borrowRoomCents, groupOnTimeLabel, monthMarks, onTimeStreak, recentPeriods, savingsBars } from "./stats";
+import { borrowRoomCents, groupOnTimeLabel, monthMarks, onTimeStreak, recentPeriods, savingsBars, shortMonth } from "./stats";
 
-export async function loadMemberHome(membershipId: string, asOf = new Date()) {
+export async function loadMemberHome(membershipId: string, asOf = new Date(), locale: "en" | "sw" = "en") {
   assertCanReadMembership(membershipId);
   const db = getDb();
   const membership = await db.membership.findFirst({
@@ -148,6 +151,47 @@ export async function loadMemberHome(membershipId: string, asOf = new Date()) {
     .filter((row) => row.remainingCents > 0)
     .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())[0];
 
+  const due = dueDateForPeriod(period, settings.contributionDueDay);
+  const previous = bars.length >= 4 ? bars[bars.length - 4]!.cents : savingsCents;
+  const principalCents = openLoans.reduce((sum, loan) => sum + loan.principalCents, 0);
+  const weekAgo = new Date(asOf.getTime() - 7 * 86_400_000);
+  const motivation = chooseMotivation({
+    membershipId,
+    firstName: membership.person.name.split(" ")[0] || membership.person.name,
+    chamaName: membership.chama.name,
+    locale,
+    asOf,
+    savingsCents,
+    previousSavingsCents: previous,
+    monthsSaving: history.filter((mark) => mark.cell === "PAID" || mark.cell === "LATE").length,
+    thisMonth,
+    paidEarly:
+      thisMonth === "PAID" &&
+      contributions.some((row) => row.period === period && compareDateOnly(row.datePaid, due) < 0),
+    monthName: shortMonth(period, locale),
+    dueDate: due.toISOString().slice(0, 10),
+    daysUntilDue: Math.round((due.getTime() - Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth(), asOf.getUTCDate())) / 86_400_000),
+    streak: onTimeStreak(history.map((mark) => mark.cell)),
+    growthCents: Math.max(0, savingsCents - previous),
+    finesCents,
+    loanBalanceCents,
+    loanPrincipalCents: principalCents,
+    loanClearedThisWeek: loans.some((loan) => loan.status === "PAID" && loan.updatedAt >= weekAgo && loan.updatedAt <= asOf),
+    joinDate: membership.joinDate,
+    monthlyDueCents: settings.monthlyContributionCents,
+    goals: goals.map((goal) => {
+      const progress = goalProgress({
+        savedCents: savingsCents,
+        targetCents: goal.targetCents,
+        startedAt: goal.createdAt,
+        targetDate: goal.targetDate,
+        asOf,
+      });
+      return { title: goal.title, percent: progress.percent, remainingCents: progress.remainingCents };
+    }),
+    recentTemplateIds: [],
+  });
+
   return {
     chamaName: membership.chama.name,
     county: membership.chama.county,
@@ -166,6 +210,7 @@ export async function loadMemberHome(membershipId: string, asOf = new Date()) {
     auditIntact,
     period,
     periodLabel: periodLabel(period),
+    motivation,
     thisMonth,
     monthlyDueLabel: formatKes(settings.monthlyContributionCents),
     nextInstallment: nextInstallment

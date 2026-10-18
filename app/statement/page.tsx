@@ -58,7 +58,7 @@ export default async function StatementPage({
         <div className="flex flex-wrap gap-2">
           {share ? (
             <a
-              className="tap rounded-full bg-leaf px-4 text-sm font-semibold text-ivory"
+              className="btn"
               href={`https://wa.me/?text=${encodeURIComponent(share)}`}
               rel="noreferrer"
               target="_blank"

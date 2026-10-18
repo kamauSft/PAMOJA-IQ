@@ -6,14 +6,19 @@ export async function POST(request: Request) {
   if (!limit.ok) {
     return Response.json({ status: "rate_limited", retryAfterMs: limit.retryAfterMs }, { status: 429 });
   }
-  const body = (await request.json().catch(() => null)) as { phone?: string; pin?: string; chamaId?: string } | null;
+  const body = (await request.json().catch(() => null)) as { phone?: string; pin?: string; chamaId?: string; role?: string } | null;
   if (!body?.phone) {
     return Response.json({ status: "invalid_credentials", message: "Enter your phone number." }, { status: 400 });
   }
+  const role =
+    body.role === "MEMBER" || body.role === "TREASURER" || body.role === "CHAIR" || body.role === "SECRETARY" || body.role === "AUDITOR"
+      ? body.role
+      : undefined;
   const result = await loginWithPin({
     phone: body.phone,
     pin: body.pin,
     chamaId: body.chamaId,
+    role,
     ip: clientIp(request),
     userAgent: request.headers.get("user-agent") ?? undefined,
     demoOtpVisible: demoOtpVisible(),

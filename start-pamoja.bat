@@ -19,6 +19,8 @@ call npx prisma db push
 if errorlevel 1 goto fail
 call node scripts/ensure-demo.mjs
 if errorlevel 1 goto fail
+call node node_modules/tsx/dist/cli.mjs scripts/ensure-owner.ts
+if errorlevel 1 goto fail
 echo.
 echo Pamoja IQ is running. Keep this window open. Close it to stop.
 echo.

@@ -2,8 +2,16 @@ import type { MembershipRole } from "@prisma/client";
 import { appendAuditInTransaction } from "@/lib/audit/log";
 import { prismaRaw } from "@/lib/db";
 import { formatKes, memberSavings } from "@/lib/finance";
+import { crossedMilestone } from "@/lib/motivation/engine";
 
 const READY = "Your position is ready. Sign in to see it.";
+
+export function accountUpdatedLine(beforeCents: number, afterCents: number): string | null {
+  if (afterCents === beforeCents) return null;
+  const delta = afterCents - beforeCents;
+  const way = delta > 0 ? "up" : "down";
+  return `Your account was updated. Savings: ${formatKes(afterCents)}, ${way} ${formatKes(Math.abs(delta))}.`;
+}
 
 export async function loadPositions(chamaId: string) {
   const memberships = await prismaRaw.membership.findMany({
@@ -40,22 +48,50 @@ export async function publishPositions(input: {
     const waiting = await tx.contribution.count({ where: { chamaId: input.chamaId, publishedAt: null } });
     if (waiting === 0) return { published: 0, members: 0 };
     const now = new Date();
+    const members = await tx.membership.findMany({
+      where: { chamaId: input.chamaId, status: "ACTIVE", role: "MEMBER" },
+      include: { contributions: { select: { amountCents: true, publishedAt: true } } },
+    });
+    const pictures = members.map((member) => ({
+      personId: member.personId,
+      before: memberSavings(member.contributions.filter((row) => row.publishedAt != null)),
+      after: memberSavings(member.contributions),
+    }));
     await tx.contribution.updateMany({
       where: { chamaId: input.chamaId, publishedAt: null },
       data: { publishedAt: now },
     });
-    const members = await tx.membership.findMany({
-      where: { chamaId: input.chamaId, status: "ACTIVE", role: "MEMBER" },
-    });
-    for (const member of members) {
+    for (const picture of pictures) {
       await tx.notification.create({
         data: {
           chamaId: input.chamaId,
-          personId: member.personId,
+          personId: picture.personId,
           title: "Your position is ready",
           body: READY,
         },
       });
+      const highlight = accountUpdatedLine(picture.before, picture.after);
+      if (highlight) {
+        await tx.notification.create({
+          data: {
+            chamaId: input.chamaId,
+            personId: picture.personId,
+            title: "Your account was updated",
+            body: highlight,
+          },
+        });
+      }
+      const milestone = crossedMilestone(picture.before, picture.after);
+      if (milestone) {
+        await tx.notification.create({
+          data: {
+            chamaId: input.chamaId,
+            personId: picture.personId,
+            title: "You reached a savings milestone",
+            body: "Open Pamoja IQ to see it.",
+          },
+        });
+      }
     }
     await appendAuditInTransaction(tx, {
       chamaId: input.chamaId,

@@ -84,7 +84,7 @@ export default async function MemberFilePage({ params }: { params: Promise<{ mem
           <li key={`${fine.date}-${fine.type}`}>{fine.date} · {fine.type} · {fine.amountLabel} · {fine.status.toLowerCase()}</li>
         ))}
       </ul>
-      <Link href={`/statement?memberNo=${file.memberNo}`} className="mt-6 inline-block rounded-full bg-moss px-4 py-2 text-sm font-semibold text-white">
+      <Link href={`/statement?memberNo=${file.memberNo}`} className="btn mt-6">
         Open her statement
       </Link>
     </Shell>

@@ -9,10 +9,10 @@ import type { ContributionCell } from "@/lib/chama/picture";
 export const dynamic = "force-dynamic";
 
 const TONE: Record<ContributionCell, string> = {
-  PAID: "bg-emerald-100 text-emerald-900",
-  LATE: "bg-amber-100 text-amber-950",
-  MISSED: "bg-red-100 text-red-900",
-  NOT_DUE: "bg-stone-100 text-stone-400",
+  PAID: "bg-accent/10 text-accent",
+  LATE: "bg-due/10 text-due",
+  MISSED: "bg-overdue/10 text-overdue",
+  NOT_DUE: "bg-line text-muted",
 };
 
 const WORD: Record<ContributionCell, string> = {
@@ -36,7 +36,7 @@ export default async function ContributionsPage() {
       </p>
       <ul className="mt-4 flex flex-wrap gap-3 text-xs">
         {(["PAID", "LATE", "MISSED", "NOT_DUE"] as const).map((cell) => (
-          <li key={cell} className={`rounded-full px-3 py-1 ${TONE[cell]}`}>
+          <li key={cell} className={`rounded-md px-3 py-1 text-[13px] ${TONE[cell]}`}>
             {WORD[cell]}
           </li>
         ))}

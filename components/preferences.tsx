@@ -37,14 +37,14 @@ export function Preferences({
   return (
     <div className="no-print flex flex-wrap gap-2">
       <button
-        className="tap rounded-full border border-ink/15 bg-paper px-4 text-sm font-semibold text-ink"
+        className="tap rounded-lg border border-line bg-surface px-3 text-[13px] font-semibold text-ink"
         type="button"
         onClick={() => setLocale(locale === "en" ? "sw" : "en")}
       >
         {languageLabel}
       </button>
       <button
-        className="tap rounded-full border border-ink/15 bg-paper px-4 text-sm font-semibold text-ink"
+        className="tap rounded-lg border border-line bg-surface px-3 text-[13px] font-semibold text-ink"
         type="button"
         onClick={toggleTheme}
       >
