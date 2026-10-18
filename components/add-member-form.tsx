@@ -22,6 +22,7 @@ export function AddMemberForm({
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [done, setDone] = useState("");
+  const [invite, setInvite] = useState("");
   const [pending, setPending] = useState(false);
 
   async function submit(event: React.FormEvent) {
@@ -29,20 +30,29 @@ export function AddMemberForm({
     setPending(true);
     setMessage("");
     setDone("");
+    setInvite("");
     try {
       const response = await fetch("/api/members", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ name, phone }),
       });
-      const body = (await response.json().catch(() => null)) as { message?: string; phone?: string; memberNo?: string } | null;
-      if (!response.ok || !body?.phone || !body.memberNo) {
+      const body = (await response.json().catch(() => null)) as {
+        message?: string;
+        phone?: string;
+        memberNo?: string;
+        temporaryPin?: string;
+      } | null;
+      if (!response.ok || !body?.phone || !body.memberNo || !body.temporaryPin) {
         setMessage(body?.message || labels.addFailed);
         return;
       }
       setName("");
       setPhone("");
-      setDone(`${labels.addDone} ${body.phone} (${body.memberNo}).`);
+      setDone(`${labels.addDone} ${body.memberNo}.`);
+      setInvite(
+        `Pamoja IQ. Sign in on the member door with your phone number. Your temporary PIN is ${body.temporaryPin}. Choose your own 6-digit PIN after you sign in.`,
+      );
       router.refresh();
     } catch {
       setMessage(labels.addFailed);
@@ -69,6 +79,18 @@ export function AddMemberForm({
         {pending ? labels.addWorking : labels.addSave}
       </button>
       {done ? <p className="text-sm text-leaf">{done}</p> : null}
+      {invite ? (
+        <div className="text-sm">
+          <p>{invite}</p>
+          <button
+            className="tap mt-3 rounded-lg border border-line px-4 text-sm"
+            type="button"
+            onClick={() => void navigator.clipboard.writeText(invite)}
+          >
+            Copy invite message
+          </button>
+        </div>
+      ) : null}
       {message ? (
         <p className="text-sm text-clay" role="alert">
           {message}

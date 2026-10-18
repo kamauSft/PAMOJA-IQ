@@ -3,6 +3,7 @@ import { otpSmsBody } from "@/config/brand";
 import { prismaRaw } from "../db";
 import { devMessaging, type MessagingProvider } from "../messaging/provider";
 import { hashPin, verifyPin } from "./pin";
+import { validatePin } from "./pin-policy";
 import { normalizePhone } from "../phone";
 import {
   LOCKOUT_MS,
@@ -37,7 +38,9 @@ export type LoginResult =
   | { status: "authenticated"; token: string; chamaId: string; membershipId: string; role: MembershipRole };
 
 const UNREGISTERED = "This number isn't registered. Ask your treasurer to add you.";
-const LOCKED_MESSAGE = "Too many attempts. Try again in 15 minutes.";
+const LOCKED_MESSAGE = "This number is locked. The treasurer or the chair must unlock it.";
+const OTP_LOCKED_MESSAGE = "Too many codes. Try again in 15 minutes.";
+const PIN_LOCK_UNTIL = new Date("9999-12-31T00:00:00.000Z");
 
 function triesLeftMessage(triesLeft: number): string {
   return `Wrong PIN. ${triesLeft} ${triesLeft === 1 ? "try" : "tries"} left.`;
@@ -58,14 +61,13 @@ function dummyPinHash(): Promise<string> {
 async function recordFailure(personId: string, attempts: number, now: Date): Promise<LoginResult> {
   const next = attempts + 1;
   if (next >= PIN_MAX_ATTEMPTS) {
-    const lockedUntil = new Date(now.getTime() + LOCKOUT_MS);
     await prismaRaw.person.update({
       where: { id: personId },
-      data: { failedLoginAttempts: 0, lockedUntil },
+      data: { failedLoginAttempts: 0, lockedUntil: PIN_LOCK_UNTIL },
     });
     return {
       status: "locked",
-      lockedUntil: lockedUntil.toISOString(),
+      lockedUntil: PIN_LOCK_UNTIL.toISOString(),
       message: LOCKED_MESSAGE,
     };
   }
@@ -224,9 +226,9 @@ export async function loginWithPin(input: {
     });
   }
 
-  if (!/^\d{4,6}$/.test(pin)) {
+  if (!/^(?:\d{4}|\d{6}|\d{8})$/.test(pin)) {
     await verifyPin(pin, await dummyPinHash());
-    return { status: "invalid_credentials", message: "A PIN is 4 to 6 digits." };
+    return { status: "invalid_credentials", message: "A member PIN is 6 digits. An official PIN is 8 digits." };
   }
 
   const matches: LoginMembership[] = [];
@@ -273,7 +275,8 @@ export async function setMemberPin(input: {
   personId: string;
   pin: string;
 }): Promise<{ ok: true } | { ok: false; message: string }> {
-  if (!/^\d{4}$/.test(input.pin)) return { ok: false, message: "Use a 4-digit PIN." };
+  const problem = validatePin(input.pin, "MEMBER");
+  if (problem) return { ok: false, message: problem };
   const membership = await prismaRaw.membership.findFirst({
     where: { id: input.membershipId, personId: input.personId, role: "MEMBER", status: "ACTIVE" },
   });
@@ -317,7 +320,7 @@ export async function verifyOtp(input: {
         where: { id: challenge.personId },
         data: { failedLoginAttempts: 0, lockedUntil },
       });
-      return { status: "locked", lockedUntil: lockedUntil.toISOString(), message: LOCKED_MESSAGE };
+      return { status: "locked", lockedUntil: lockedUntil.toISOString(), message: OTP_LOCKED_MESSAGE };
     }
     return { status: "otp_invalid" };
   }

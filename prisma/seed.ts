@@ -15,7 +15,8 @@ import { shiftPeriod } from "../lib/finance/dates";
 import { divRound } from "../lib/finance/money";
 import { runWithTenant } from "../lib/tenancy/context";
 import {
-  DEMO_PIN,
+  DEMO_MEMBER_PIN,
+  DEMO_OFFICIAL_PIN,
   SEED_AS_OF,
   agentRuns,
   buildContributions,
@@ -65,7 +66,8 @@ export async function seedDatabase() {
   await prisma.person.deleteMany();
   await prisma.chama.deleteMany();
 
-  const pinHash = await hashPin(DEMO_PIN);
+  const memberPin = await hashPin(DEMO_MEMBER_PIN);
+  const officialPin = await hashPin(DEMO_OFFICIAL_PIN);
   const { contributions, fines } = buildContributions();
   const chama = await prisma.chama.create({
     data: {
@@ -107,7 +109,7 @@ export async function seedDatabase() {
         joinDate: new Date(`${member.joinDate}T00:00:00.000Z`),
         exitDate: member.exitDate ? new Date(`${member.exitDate}T00:00:00.000Z`) : null,
         status: member.exitDate ? "EXITED" : "ACTIVE",
-        hashedPin: pinHash,
+        hashedPin: member.role === "MEMBER" ? memberPin : officialPin,
       },
     });
     personByMember.set(member.memberNo, { personId: person.id, membershipId: membership.id });
@@ -515,7 +517,7 @@ export async function seedDatabase() {
 
   console.log("Seeded Umoja Savings Group");
   console.log(`Members: ${members.length}. Contributions: ${contributions.length}. Loans: ${loans.length}.`);
-  console.log(`Demo PIN for every member: ${DEMO_PIN}`);
+  console.log(`Demo member PIN: ${DEMO_MEMBER_PIN}. Demo official PIN: ${DEMO_OFFICIAL_PIN}.`);
   console.log("Chair Grace Wanjiku: +254712345001 (SMS code required)");
   console.log("Treasurer Peter Otieno: +254712345002 (SMS code required)");
   console.log("Member Amina Hassan: +254712345005");

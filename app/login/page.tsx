@@ -9,7 +9,7 @@ import { normalizePhone } from "@/lib/phone";
 
 const WHO = {
   treasurer: {
-    pin: "2580",
+    pin: "48291637",
     en: "Enter the number and PIN, then the code shown on this page.",
     sw: "Weka nambari na PIN, kisha msimbo ulio kwenye ukurasa huu.",
   },
@@ -19,7 +19,7 @@ const WHO = {
     sw: "Weka nambari. Msimbo unaonekana kwenye ukurasa huu. PIN inaweza kuruka msimbo.",
   },
   chair: {
-    pin: "2580",
+    pin: "48291637",
     en: "Enter the number and PIN, then the code shown on this page.",
     sw: "Weka nambari na PIN, kisha msimbo ulio kwenye ukurasa huu.",
   },

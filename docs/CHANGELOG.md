@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Sign-in PINs
+
+- A member PIN is 6 digits. An official PIN is 8 digits. Easy pins are refused.
+- Three wrong PINs lock the number until the treasurer or the chair unlocks it.
+- A new member gets a temporary PIN once. They are asked to choose their own.
+
 ### The owner's member record
 
 - The same phone can be a member and a treasurer. The member door opens the member books. The treasurer door opens the desk.

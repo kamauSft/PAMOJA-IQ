@@ -2,11 +2,12 @@ import { randomInt } from "node:crypto";
 import type { MembershipRole } from "@prisma/client";
 import { appendAuditInTransaction } from "@/lib/audit/log";
 import { hashPin } from "@/lib/auth/pin";
+import { validatePin } from "@/lib/auth/pin-policy";
 import { prismaRaw } from "@/lib/db";
 import { normalizePhone } from "@/lib/phone";
 
 export type AddMemberResult =
-  | { ok: true; memberNo: string; phone: string; name: string }
+  | { ok: true; memberNo: string; phone: string; name: string; temporaryPin: string }
   | { ok: false; message: string };
 
 function cleanName(value: string): string | null {
@@ -51,7 +52,16 @@ export async function addMember(input: {
     select: { memberNo: true },
   });
   const memberNo = nextMemberNo(new Set(numbers.map((row) => row.memberNo)));
-  const hashedPin = await hashPin(String(randomInt(0, 10000)).padStart(4, "0"));
+  let temporaryPin = "";
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    const candidate = String(randomInt(0, 1_000_000)).padStart(6, "0");
+    if (!validatePin(candidate, "MEMBER")) {
+      temporaryPin = candidate;
+      break;
+    }
+  }
+  if (!temporaryPin) temporaryPin = "482916";
+  const hashedPin = await hashPin(temporaryPin);
 
   await prismaRaw.$transaction(async (tx) => {
     const person = await tx.person.create({
@@ -72,6 +82,7 @@ export async function addMember(input: {
         joinDate: new Date(),
         status: "ACTIVE",
         hashedPin,
+        mustChangePin: true,
       },
     });
     await appendAuditInTransaction(tx, {
@@ -85,5 +96,5 @@ export async function addMember(input: {
     });
   });
 
-  return { ok: true, memberNo, phone, name };
+  return { ok: true, memberNo, phone, name, temporaryPin };
 }

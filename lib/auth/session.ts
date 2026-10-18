@@ -7,7 +7,7 @@ export const OTP_TTL_MS = 5 * 60 * 1000;
 export const OTP_MAX_ATTEMPTS = 5;
 export const OTP_MAX_SENDS = 3;
 export const OTP_SEND_WINDOW_MS = 15 * 60 * 1000;
-export const PIN_MAX_ATTEMPTS = 5;
+export const PIN_MAX_ATTEMPTS = 3;
 export const LOCKOUT_MS = 15 * 60 * 1000;
 
 export function sha256(value: string): string {

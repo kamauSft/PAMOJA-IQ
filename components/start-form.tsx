@@ -65,7 +65,7 @@ export function StartForm({ labels = english }: { labels?: typeof english }) {
           type="password"
           inputMode="numeric"
           autoComplete="new-password"
-          maxLength={4}
+          maxLength={8}
         />
       </label>
       <label className="block text-sm font-medium">
