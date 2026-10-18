@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-18 — This computer stays on a file; the internet copy uses Postgres
+
+Thomas starts the app by double-clicking `start-pamoja.bat`. That copy uses the local records file. The internet copy uses Postgres, and its build switches the database type only when the address starts with `postgres`. The padlock settings stay off on this computer. Demo data can be added on the internet copy only when that copy is marked as a demo. The public sample page does not point at the real app until that internet address exists.
+
 ## 2026-10-17 — Photographs sit behind the title, and they are not a real chama
 
 The front page, the treasurer desk, and the member home show a photograph behind a navy overlay. The pictures are illustrative. They are not photographs of a real chama. A later replacement needs written consent from every person in the picture. The register, statements, and forms stay plain.

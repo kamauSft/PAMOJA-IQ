@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { brand } from "@/config/brand";
 import { getLocale } from "@/lib/locale";
+import { DevCleanup } from "@/components/dev-cleanup";
 import { ThemeBoot } from "@/components/theme-boot";
 import "./globals.css";
 
@@ -21,6 +22,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={locale} className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body className="font-sans antialiased">
         <ThemeBoot />
+        {process.env.NODE_ENV !== "production" ? <DevCleanup /> : null}
         {children}
       </body>
     </html>
