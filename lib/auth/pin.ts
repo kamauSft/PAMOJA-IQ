@@ -1,4 +1,5 @@
 import { hash, verify } from "@node-rs/argon2";
+import { pinMaterial } from "./pin-policy";
 
 const options = {
   memoryCost: 19456,
@@ -8,9 +9,9 @@ const options = {
 };
 
 export function hashPin(pin: string): Promise<string> {
-  return hash(pin, options);
+  return hash(pinMaterial(pin), options);
 }
 
 export function verifyPin(pin: string, hashed: string): Promise<boolean> {
-  return verify(hashed, pin, options);
+  return verify(hashed, pinMaterial(pin), options);
 }

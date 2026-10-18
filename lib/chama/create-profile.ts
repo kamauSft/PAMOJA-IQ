@@ -1,5 +1,6 @@
 import { prismaRaw } from "@/lib/db";
 import { hashPin } from "@/lib/auth/pin";
+import { validatePin } from "@/lib/auth/pin-policy";
 import { normalizePhone } from "@/lib/phone";
 import { appendAuditInTransaction } from "@/lib/audit/log";
 import { umojaSettings, type ChamaSettings } from "@/lib/chama/rules";
@@ -29,10 +30,10 @@ export async function createTreasurerProfile(raw: unknown): Promise<CreateProfil
   const chamaName = cleanName(body.chamaName);
   const pin = typeof body.pin === "string" ? body.pin.trim() : "";
   const typedPhone = typeof body.phone === "string" ? body.phone.trim() : "";
-  if (!name || !chamaName || !/^\d{4}$/.test(pin)) {
+  if (!name || !chamaName || validatePin(pin, "TREASURER")) {
     return {
       ok: false,
-      message: "Enter your name, a Kenyan mobile number, a 4-digit PIN, and the chama name.",
+      message: "Enter your name, a Kenyan mobile number, an 8-digit PIN, and the chama name.",
     };
   }
   const phone = normalizePhone(typedPhone);

@@ -232,6 +232,7 @@ model Membership {
   exitDate   DateTime?
   status     MembershipStatus @default(ACTIVE)
   hashedPin  String
+  mustChangePin Boolean        @default(false)
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
 

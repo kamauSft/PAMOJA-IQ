@@ -49,20 +49,20 @@ describe("treasurer profile and import", () => {
     const created = await createTreasurerProfile({
       name: "Jane Wanjiku",
       phone: "0712 000 111",
-      pin: "2468",
+      pin: "24681357",
       chamaName: "Mwanga",
     });
     expect(created).toEqual({ ok: true, phone: "0712 000 111", chamaName: "Mwanga" });
     const again = await createTreasurerProfile({
       name: "Jane Wanjiku",
       phone: "0712000111",
-      pin: "2468",
+      pin: "24681357",
       chamaName: "Another",
     });
     expect(again).toMatchObject({ ok: false });
     expect(await prismaRaw.chama.count()).toBe(1);
 
-    const signIn = await loginWithPin({ phone: "0712000111", pin: "2468" });
+    const signIn = await loginWithPin({ phone: "0712000111", pin: "24681357" });
     expect(signIn.status).toBe("otp_required");
 
     const rejected = await createTreasurerProfile({ name: "A", phone: "123", pin: "12", chamaName: "X" });
@@ -73,7 +73,7 @@ describe("treasurer profile and import", () => {
     await createTreasurerProfile({
       name: "Jane Wanjiku",
       phone: "0712000111",
-      pin: "2468",
+      pin: "24681357",
       chamaName: "Mwanga",
     });
     const treasurer = await prismaRaw.membership.findFirstOrThrow({ include: { person: true } });
@@ -106,7 +106,7 @@ describe("treasurer profile and import", () => {
     await createTreasurerProfile({
       name: "Jane Wanjiku",
       phone: "0712000222",
-      pin: "2468",
+      pin: "24681357",
       chamaName: "Mwanga",
     });
     const treasurer = await prismaRaw.membership.findFirstOrThrow({ include: { person: true } });

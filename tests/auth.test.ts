@@ -6,6 +6,7 @@ import { consumeRateLimit, resetRateLimits } from "@/lib/auth/rate-limit";
 import { sessionCookieOptions } from "@/lib/auth/session";
 import { resetLoginLockouts } from "@/lib/auth/lockout";
 import { getSession, loginWithPin, logout, logoutAll, setMemberPin, verifyOtp } from "@/lib/auth/service";
+import { unlockAccount } from "@/lib/auth/unlock";
 import { MemoryMessagingProvider } from "@/lib/messaging/provider";
 import { prismaRaw } from "@/lib/db";
 import { umojaSettings } from "@/lib/chama/rules";
@@ -34,7 +35,7 @@ async function member(input: {
       role: input.role ?? "MEMBER",
       memberNo: "M001",
       joinDate: new Date("2026-01-03T00:00:00.000Z"),
-      hashedPin: await hashPin(input.pin ?? "2580"),
+      hashedPin: await hashPin(input.pin ?? "482916"),
     },
   });
   return { chama, person, membership };
@@ -56,9 +57,9 @@ describe("auth", () => {
     expect(maskPhone("123")).toBe("hidden");
   });
 
-  it("signs in a member and locks the phone after five bad PINs", async () => {
+  it("signs in a member and locks the phone after three bad PINs", async () => {
     await member({ phone: "+254712345005" });
-    const ok = await loginWithPin({ phone: "0712345005", pin: "2580", now });
+    const ok = await loginWithPin({ phone: "0712345005", pin: "482916", now });
     expect(ok.status).toBe("authenticated");
     if (ok.status !== "authenticated") return;
     const session = await getSession(ok.token, new Date(now.getTime() + 60_000));
@@ -67,30 +68,30 @@ describe("auth", () => {
     expect(await getSession(ok.token, stillSignedIn)).not.toBeNull();
     expect(await getSession(ok.token, new Date(stillSignedIn.getTime() + 31 * 24 * 60 * 60_000))).toBeNull();
 
-    for (let attempt = 0; attempt < 4; attempt += 1) {
-      const failed = await loginWithPin({ phone: "+254712345005", pin: "0000", now });
-      const triesLeft = 4 - attempt;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const failed = await loginWithPin({ phone: "+254712345005", pin: "000000", now });
+      const triesLeft = 2 - attempt;
       expect(failed).toMatchObject({
         status: "invalid_credentials",
         triesLeft,
         message: `Wrong PIN. ${triesLeft} ${triesLeft === 1 ? "try" : "tries"} left.`,
       });
     }
-    const locked = await loginWithPin({ phone: "+254712345005", pin: "0000", now });
+    const locked = await loginWithPin({ phone: "+254712345005", pin: "000000", now });
     expect(locked.status).toBe("locked");
-    const still = await loginWithPin({ phone: "+254712345005", pin: "2580", now: new Date(now.getTime() + 60_000) });
+    const still = await loginWithPin({ phone: "+254712345005", pin: "482916", now: new Date(now.getTime() + 60_000) });
     expect(still.status).toBe("locked");
     const later = await loginWithPin({
       phone: "+254712345005",
-      pin: "2580",
+      pin: "482916",
       now: new Date(now.getTime() + 16 * 60_000),
     });
-    expect(later.status).toBe("authenticated");
-    expect(await loginWithPin({ phone: "nope", pin: "2580", now })).toMatchObject({
+    expect(later.status).toBe("locked");
+    expect(await loginWithPin({ phone: "nope", pin: "482916", now })).toMatchObject({
       status: "invalid_credentials",
       message: "Enter a Kenyan mobile number, like 0712 345 005.",
     });
-    expect(await loginWithPin({ phone: "0711999000", pin: "2580", now })).toMatchObject({
+    expect(await loginWithPin({ phone: "0711999000", pin: "482916", now })).toMatchObject({
       status: "unknown_number",
       message: "This number isn't registered. Ask your treasurer to add you.",
     });
@@ -112,13 +113,13 @@ describe("auth", () => {
       },
     });
     const messaging = new MemoryMessagingProvider();
-    const choice = await loginWithPin({ phone: "+254712345002", pin: "2580", now, messaging });
+    const choice = await loginWithPin({ phone: "+254712345002", pin: "482916", now, messaging });
     expect(choice.status).toBe("choose_chama");
     if (choice.status !== "choose_chama") return;
 
     const pending = await loginWithPin({
       phone: "+254712345002",
-      pin: "2580",
+      pin: "482916",
       chamaId: fixture.chama.id,
       now,
       messaging,
@@ -138,7 +139,7 @@ describe("auth", () => {
       status: "otp_invalid",
     });
 
-    const second = await loginWithPin({ phone: "+254712345002", pin: "2580", chamaId: other.id, now });
+    const second = await loginWithPin({ phone: "+254712345002", pin: "482916", chamaId: other.id, now });
     expect(second.status).toBe("authenticated");
     if (second.status !== "authenticated") return;
     await logoutAll(fixture.person.id, now);
@@ -159,11 +160,11 @@ describe("auth", () => {
         hashedPin: fixture.membership.hashedPin,
       },
     });
-    const asMember = await loginWithPin({ phone: "0711000111", pin: "2580", role: "MEMBER", now });
+    const asMember = await loginWithPin({ phone: "0711000111", pin: "482916", role: "MEMBER", now });
     expect(asMember).toMatchObject({ status: "authenticated", role: "MEMBER" });
     const asTreasurer = await loginWithPin({
       phone: "0711000111",
-      pin: "2580",
+      pin: "482916",
       role: "TREASURER",
       now,
       demoOtpVisible: true,
@@ -173,7 +174,7 @@ describe("auth", () => {
 
   it("expires a code and locks it after five misses", async () => {
     await member({ phone: "+254712345001", role: "CHAIR" });
-    const pending = await loginWithPin({ phone: "+254712345001", pin: "2580", now, demoOtpVisible: true });
+    const pending = await loginWithPin({ phone: "+254712345001", pin: "482916", now, demoOtpVisible: true });
     if (pending.status !== "otp_required") throw new Error("expected a code");
     expect(
       await verifyOtp({
@@ -183,7 +184,7 @@ describe("auth", () => {
       }),
     ).toMatchObject({ status: "otp_expired" });
 
-    const again = await loginWithPin({ phone: "+254712345001", pin: "2580", now, demoOtpVisible: true });
+    const again = await loginWithPin({ phone: "+254712345001", pin: "482916", now, demoOtpVisible: true });
     if (again.status !== "otp_required") throw new Error("expected a code");
     for (let attempt = 0; attempt < 4; attempt += 1) {
       expect(await verifyOtp({ challengeId: again.challengeId, code: "111111", now })).toMatchObject({
@@ -193,7 +194,7 @@ describe("auth", () => {
     expect(await verifyOtp({ challengeId: again.challengeId, code: "111111", now })).toMatchObject({
       status: "locked",
     });
-    expect(await loginWithPin({ phone: "0712345001", pin: "2580", now: new Date(now.getTime() + 60_000) })).toMatchObject({
+    expect(await loginWithPin({ phone: "0712345001", pin: "482916", now: new Date(now.getTime() + 60_000) })).toMatchObject({
       status: "locked",
     });
   });
@@ -212,10 +213,10 @@ describe("auth", () => {
     expect(await setMemberPin({ membershipId: fixture.membership.id, personId: fixture.person.id, pin: "12" })).toMatchObject({
       ok: false,
     });
-    expect(await setMemberPin({ membershipId: fixture.membership.id, personId: fixture.person.id, pin: "4321" })).toEqual({
+    expect(await setMemberPin({ membershipId: fixture.membership.id, personId: fixture.person.id, pin: "482916" })).toEqual({
       ok: true,
     });
-    expect((await loginWithPin({ phone: "0712345005", pin: "4321", now })).status).toBe("authenticated");
+    expect((await loginWithPin({ phone: "0712345005", pin: "482916", now })).status).toBe("authenticated");
 
     while (messaging.sent.length < 3) {
       expect((await loginWithPin({ phone: "0712345005", now, messaging, demoOtpVisible: true })).status).toBe("otp_required");
@@ -320,5 +321,50 @@ describe("rules and maker-checker", () => {
         ],
       }).ok,
     ).toBe(true);
+  });
+
+  it("lets the treasurer unlock a locked member and issue a temporary PIN", async () => {
+    const treasurer = await member({ phone: "+254712345002", role: "TREASURER", pin: "48291637" });
+    const person = await prismaRaw.person.create({
+      data: { name: "Amina", phone: "+254712345005", channelPrefs: {}, consent: {} },
+    });
+    const membership = await prismaRaw.membership.create({
+      data: {
+        chamaId: treasurer.chama.id,
+        personId: person.id,
+        role: "MEMBER",
+        memberNo: "M005",
+        joinDate: new Date("2026-01-03T00:00:00.000Z"),
+        hashedPin: await hashPin("482916"),
+      },
+    });
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await loginWithPin({ phone: "+254712345005", pin: "000000", now });
+    }
+    expect((await loginWithPin({ phone: "+254712345005", pin: "482916", now })).status).toBe("locked");
+    const refused = await unlockAccount({
+      chamaId: treasurer.chama.id,
+      actorMembershipId: treasurer.membership.id,
+      actorPersonId: treasurer.person.id,
+      actorRole: "TREASURER",
+      actorPin: "00000000",
+      targetMembershipId: membership.id,
+      mode: "unlock",
+    });
+    expect(refused.ok).toBe(false);
+    const issued = await unlockAccount({
+      chamaId: treasurer.chama.id,
+      actorMembershipId: treasurer.membership.id,
+      actorPersonId: treasurer.person.id,
+      actorRole: "TREASURER",
+      actorPin: "48291637",
+      targetMembershipId: membership.id,
+      mode: "temporary",
+    });
+    expect(issued.ok).toBe(true);
+    if (!issued.ok || !issued.temporaryPin) throw new Error("expected a temporary PIN");
+    expect((await loginWithPin({ phone: "+254712345005", pin: issued.temporaryPin, now })).status).toBe("authenticated");
+    const audit = await prismaRaw.auditLog.findFirst({ where: { action: "member.temporary_pin" } });
+    expect(audit?.entityId).toBe(membership.id);
   });
 });
