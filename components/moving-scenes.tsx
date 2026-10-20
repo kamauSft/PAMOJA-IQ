@@ -22,7 +22,7 @@ export function MovingScenes({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <div className="relative min-h-[70vh] w-full overflow-hidden">
+    <div className="relative w-full overflow-hidden sm:min-h-[70vh]">
       {SCENES.map((scene, sceneIndex) => (
         <div
           key={scene.name}
@@ -47,7 +47,7 @@ export function MovingScenes({ children }: { children: React.ReactNode }) {
         </div>
       ))}
       <div className="absolute inset-0 bg-[#0F2A3D]/70" />
-      <div className="scene-copy absolute inset-0 flex items-end p-5 sm:p-8">{children}</div>
+      <div className="scene-copy relative z-10 px-4 pb-8 pt-28 sm:absolute sm:inset-0 sm:flex sm:min-h-[70vh] sm:items-end sm:p-8">{children}</div>
     </div>
   );
 }

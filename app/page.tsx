@@ -13,8 +13,8 @@ export default async function LandingPage() {
 
   return (
     <main className="relative">
-      <header className="absolute z-10 flex w-full items-center justify-between gap-3 px-5 py-4 text-white sm:px-8">
-        <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em]">
+      <header className="absolute z-20 flex w-full items-center justify-between gap-2 px-4 py-4 text-white sm:gap-3 sm:px-8">
+        <p className="flex min-w-0 items-center gap-2 whitespace-nowrap text-xs font-semibold uppercase tracking-[0.12em] sm:text-sm sm:tracking-[0.18em]">
           <BrandMark />
           {brand.name}
         </p>

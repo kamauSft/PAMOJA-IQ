@@ -35,7 +35,7 @@ export function Preferences({
   }
 
   return (
-    <div className="no-print flex flex-wrap gap-2">
+    <div className="no-print flex shrink-0 flex-nowrap gap-2">
       <button
         className="tap rounded-lg border border-line bg-surface px-3 text-[13px] font-semibold text-ink"
         type="button"

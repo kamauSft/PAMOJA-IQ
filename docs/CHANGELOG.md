@@ -4,6 +4,7 @@
 
 ### A new password, and two messy registers
 
+- On a phone, the front-page title starts below the name and the language buttons.
 - The sign-in page no longer fills in a password.
 - The front page has two doors, and the photographs move slowly.
 - The practice password for the demo member and the demo treasurer is Ab3!@cde.
