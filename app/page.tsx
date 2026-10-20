@@ -46,9 +46,6 @@ export default async function LandingPage() {
           </div>
         </div>
       </MovingScenes>
-      <footer className="mx-auto max-w-5xl px-5 py-8 text-sm text-muted sm:px-8">
-        <p>{page.security}</p>
-      </footer>
     </main>
   );
 }

@@ -5,6 +5,7 @@
 ### A new password, and two messy registers
 
 - On a phone, the front-page title starts below the name and the language buttons.
+- The home page no longer says the records stay on the server. It says an agent names the columns on an unfamiliar Excel sheet, and each payment is placed on that member's line.
 - When a sheet's column names are unfamiliar, a free Gemini helper may name the columns. Phone numbers in the sample are hidden. The app still counts the money, and a new member is added only when the row has a phone.
 - The sign-in page no longer fills in a password.
 - The front page has two doors, and the photographs move slowly.
