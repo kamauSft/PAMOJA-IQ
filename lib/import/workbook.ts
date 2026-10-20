@@ -31,7 +31,7 @@ export interface WorkbookRead {
 }
 
 type Column =
-  | { kind: "name" | "phone" | "memberNo" | "role" | "join" | "status" | "skip" }
+  | { kind: "name" | "phone" | "memberNo" | "role" | "join" | "status" | "amount" | "date" | "skip" }
   | { kind: "month"; period: string };
 
 const MONTHS: Record<string, string> = {
@@ -59,7 +59,21 @@ const MONTHS: Record<string, string> = {
   november: "11",
   dec: "12",
   december: "12",
+  januari: "01",
+  februari: "02",
+  machi: "03",
+  aprili: "04",
+  mei: "05",
+  juni: "06",
+  julai: "07",
+  agosti: "08",
+  septemba: "09",
+  oktoba: "10",
+  novemba: "11",
+  desemba: "12",
 };
+
+const MONTH_NAMES = Object.keys(MONTHS).sort((left, right) => right.length - left.length);
 
 function cellText(value: ExcelJS.CellValue): string {
   if (value == null) return "";
@@ -90,17 +104,63 @@ export function shillingsToCents(value: string): number | null {
 
 function monthPeriod(header: string): string | null {
   const text = header.trim().toLowerCase().replace(/\./g, "");
-  if (/^\d{4}-\d{2}$/.test(text)) return text;
+  const iso = text.match(/^(\d{4})-(\d{2})$/);
+  if (iso) {
+    const month = Number(iso[2]);
+    if (month < 1 || month > 12) return null;
+    return `${iso[1]}-${iso[2]}`;
+  }
   const slash = text.match(/^(\d{1,2})[/-](\d{4})$/);
   if (slash) {
-    const month = slash[1].padStart(2, "0");
-    if (Number(month) < 1 || Number(month) > 12) return null;
-    return `${slash[2]}-${month}`;
+    const month = Number(slash[1]);
+    if (month < 1 || month > 12) return null;
+    return `${slash[2]}-${String(month).padStart(2, "0")}`;
   }
-  const named = text.match(
-    /^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december)[\s/-]+(\d{4})$/,
-  );
+  const named = text.match(new RegExp(`^(${MONTH_NAMES.join("|")})[\\s/-]+(\\d{4})$`));
   if (named && MONTHS[named[1]]) return `${named[2]}-${MONTHS[named[1]]}`;
+  return null;
+}
+
+function periodsMentioned(text: string): string[] {
+  const found = new Set<string>();
+  const lower = text.toLowerCase().replace(/\./g, " ");
+  for (const match of lower.matchAll(/\b(\d{4})-(\d{2})\b/g)) {
+    const period = monthPeriod(`${match[1]}-${match[2]}`);
+    if (period) found.add(period);
+  }
+  for (const match of lower.matchAll(/\b(\d{1,2})[/-](\d{4})\b/g)) {
+    const period = monthPeriod(`${match[1]}/${match[2]}`);
+    if (period) found.add(period);
+  }
+  const named = new RegExp(`\\b(${MONTH_NAMES.join("|")})\\b[\\s/-]*(\\d{4})`, "g");
+  for (const match of lower.matchAll(named)) {
+    const month = MONTHS[match[1]];
+    if (month) found.add(`${match[2]}-${month}`);
+  }
+  return [...found];
+}
+
+function periodFromDate(value: string): string | null {
+  const text = value.trim().toLowerCase().replace(/\./g, "");
+  if (!text) return null;
+  const iso = text.match(/^(\d{4})-(\d{2})(?:-\d{2})?$/);
+  if (iso) return monthPeriod(`${iso[1]}-${iso[2]}`);
+  const dmy = text.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+  if (dmy) {
+    const day = Number(dmy[1]);
+    const month = Number(dmy[2]);
+    if (day >= 1 && day <= 31 && month >= 1 && month <= 12) return `${dmy[3]}-${String(month).padStart(2, "0")}`;
+    return null;
+  }
+  const named = text.match(new RegExp(`^(\\d{1,2})[\\s/-]+(${MONTH_NAMES.join("|")})\\b[\\s,/-]+(\\d{4})$`));
+  if (named && MONTHS[named[2]]) return `${named[3]}-${MONTHS[named[2]]}`;
+  if (/^\d{5}(?:\.\d+)?$/.test(text)) {
+    const serial = Math.floor(Number(text));
+    if (serial > 20000 && serial < 80000) {
+      const utc = new Date(Date.UTC(1899, 11, 30) + serial * 86_400_000);
+      return monthPeriod(utc.toISOString().slice(0, 7));
+    }
+  }
   return null;
 }
 
@@ -109,19 +169,57 @@ function classifyHeader(header: string): Column {
   if (!text) return { kind: "skip" };
   const period = monthPeriod(text);
   if (period) return { kind: "month", period };
-  if (["jumla", "total", "totals", "sum"].includes(text)) return { kind: "skip" };
-  if (text.includes("simu") || text.includes("phone") || text.includes("mobile") || /\btel\b/.test(text)) {
+  if (["jumla", "total", "totals", "sum"].includes(text) || text.startsWith("jumla ") || text.startsWith("total ")) {
+    return { kind: "skip" };
+  }
+  if (
+    text.includes("simu") ||
+    text.includes("phone") ||
+    text.includes("mobile") ||
+    /\btel\b/.test(text) ||
+    text.includes("whatsapp") ||
+    text.includes("msisdn")
+  ) {
     return { kind: "phone" };
   }
-  if (text.includes("jina") || text === "name" || text.includes("full name") || text.includes("member name")) {
-    return { kind: "name" };
-  }
-  if (text.includes("nambari") || text.includes("member no") || text.includes("member number") || text === "no") {
+  if (text.includes("nambari") || text.includes("member no") || text.includes("member number") || text === "no" || text === "no.") {
     return { kind: "memberNo" };
   }
+  if (text.includes("repaid") || text.includes("mkopo") || text.includes("loan") || text.includes("fine") || text.includes("faini")) {
+    return { kind: "skip" };
+  }
+  if (
+    text === "amount" ||
+    text === "paid" ||
+    text === "cash" ||
+    text.includes("kiasi") ||
+    text.includes("malipo") ||
+    text.includes("mchango") ||
+    text.includes("ilipwa") ||
+    text.includes("imelipwa") ||
+    text.includes("shilling") ||
+    text === "kes" ||
+    text === "ksh"
+  ) {
+    return { kind: "amount" };
+  }
+  if (text.includes("join") || text.includes("kujiunga") || text === "tarehe") return { kind: "join" };
+  if (text.includes("date") || text.includes("tarehe") || text === "siku" || text.includes("paid on")) return { kind: "date" };
   if (text === "role" || text === "cheo") return { kind: "role" };
-  if (text.includes("join") || text === "tarehe") return { kind: "join" };
   if (text === "status" || text === "hali") return { kind: "status" };
+  if (
+    text.includes("jina") ||
+    text === "name" ||
+    text.includes("full name") ||
+    text.includes("member name") ||
+    text.includes("mwanachama") ||
+    text.includes("aliyelipa") ||
+    text === "member" ||
+    text.includes("contributor") ||
+    text.includes("paid by")
+  ) {
+    return { kind: "name" };
+  }
   return { kind: "skip" };
 }
 
@@ -144,13 +242,22 @@ function note(problems: string[], message: string) {
   if (problems.length < 50) problems.push(message);
 }
 
-function findHeader(sheet: ExcelJS.Worksheet): { rowNumber: number; columns: Column[] } | null {
-  let found: { rowNumber: number; columns: Column[] } | null = null;
+function sheetKeepsPayments(name: string): boolean {
+  return !/(loan|mkopo|fine|faini|expense|repay|matumizi)/i.test(name);
+}
+
+function findHeader(sheet: ExcelJS.Worksheet): { rowNumber: number; columns: Column[]; titleText: string } | null {
+  const earlier: string[] = [];
+  let found: { rowNumber: number; columns: Column[]; titleText: string } | null = null;
   sheet.eachRow((row, rowNumber) => {
     if (found || rowNumber > 20) return;
-    const columns = rowValues(row).map((cell) => classifyHeader(cell));
-    const useful = columns.some((column) => column.kind === "name" || column.kind === "phone");
-    if (useful) found = { rowNumber, columns };
+    const values = rowValues(row);
+    const columns = values.map((cell) => classifyHeader(cell));
+    const hasName = columns.some((column) => column.kind === "name" || column.kind === "phone");
+    const hasPerson = hasName || columns.some((column) => column.kind === "memberNo");
+    const hasMoney = columns.some((column) => column.kind === "month" || column.kind === "amount");
+    if (hasName || (hasPerson && hasMoney)) found = { rowNumber, columns, titleText: earlier.join(" ") };
+    else earlier.push(values.join(" "));
   });
   return found;
 }
@@ -183,8 +290,18 @@ function upsertMember(members: ParsedMember[], problems: string[], draft: Parsed
 }
 
 function parseSheet(sheet: ExcelJS.Worksheet, result: WorkbookRead) {
+  if (!sheetKeepsPayments(sheet.name)) return;
   const header = findHeader(sheet);
   if (!header) return;
+  const titlePeriods = periodsMentioned(`${sheet.name} ${header.titleText}`);
+  const titlePeriod = titlePeriods.length === 1 ? titlePeriods[0] : null;
+  const hasMonth = header.columns.some((column) => column.kind === "month");
+  const amountIndex = header.columns.findIndex((column) => column.kind === "amount");
+  const dateIndex = header.columns.findIndex((column) => column.kind === "date");
+  if (!hasMonth && amountIndex >= 0 && titlePeriods.length > 1) {
+    note(result.problems, `${sheet.name}: more than one month is named above the table, so those amounts were left out.`);
+  }
+
   sheet.eachRow((row, rowNumber) => {
     if (rowNumber <= header.rowNumber) return;
     const cells = rowValues(row);
@@ -202,7 +319,7 @@ function parseSheet(sheet: ExcelJS.Worksheet, result: WorkbookRead) {
     if (phoneText && !phone) {
       note(result.problems, `${sheet.name} row ${rowNumber}: ${phoneText} is not a Kenyan mobile number.`);
     }
-    if (name || phone) {
+    if (phone || memberNo) {
       upsertMember(result.members, result.problems, {
         memberNo,
         name: name || "Member",
@@ -215,36 +332,63 @@ function parseSheet(sheet: ExcelJS.Worksheet, result: WorkbookRead) {
       });
     }
 
-    header.columns.forEach((column, index) => {
-      if (column.kind !== "month") return;
-      const raw = cells[index] ?? "";
-      if (!raw) return;
-      const amountCents = shillingsToCents(raw);
-      if (amountCents == null) {
-        note(result.problems, `${sheet.name} row ${rowNumber}: could not read the amount "${raw}".`);
-        return;
-      }
-      if (amountCents <= 0) return;
-      if (!phone && !memberNo) {
-        note(result.problems, `${sheet.name} row ${rowNumber}: a payment has no member number or phone.`);
+    const addPayment = (period: string, amountCents: number) => {
+      if (!phone && !memberNo && !name) {
+        note(result.problems, `${sheet.name} row ${rowNumber}: a payment has no member number, phone, or name.`);
         return;
       }
       result.contributions.push({
         memberNo,
         name,
         phone,
-        period: column.period,
+        period,
         amountCents,
         sheet: sheet.name,
         row: rowNumber,
       });
-    });
+    };
+
+    if (hasMonth) {
+      header.columns.forEach((column, index) => {
+        if (column.kind !== "month") return;
+        const raw = cells[index] ?? "";
+        if (!raw) return;
+        const amountCents = shillingsToCents(raw);
+        if (amountCents == null) {
+          note(result.problems, `${sheet.name} row ${rowNumber}: could not read the amount "${raw}".`);
+          return;
+        }
+        if (amountCents <= 0) return;
+        addPayment(column.period, amountCents);
+      });
+      return;
+    }
+
+    if (amountIndex < 0 || titlePeriods.length > 1) return;
+    const raw = cells[amountIndex] ?? "";
+    if (!raw) return;
+    const amountCents = shillingsToCents(raw);
+    if (amountCents == null) {
+      note(result.problems, `${sheet.name} row ${rowNumber}: could not read the amount "${raw}".`);
+      return;
+    }
+    if (amountCents <= 0) return;
+    const dated = dateIndex >= 0 ? periodFromDate(cells[dateIndex] ?? "") : null;
+    const period = dated ?? titlePeriod;
+    if (!period) {
+      note(result.problems, `${sheet.name} row ${rowNumber}: the amount has no month.`);
+      return;
+    }
+    addPayment(period, amountCents);
   });
 }
 
 export function parseWorkbook(book: ExcelJS.Workbook): WorkbookRead {
   const result: WorkbookRead = { members: [], contributions: [], problems: [] };
-  for (const sheet of book.worksheets) parseSheet(sheet, result);
+  for (const sheet of book.worksheets) {
+    if (!sheetKeepsPayments(sheet.name)) continue;
+    parseSheet(sheet, result);
+  }
   for (const payment of result.contributions) {
     if (payment.phone) continue;
     const known = result.members.find((member) => payment.memberNo && member.memberNo === payment.memberNo && member.phone);

@@ -9,6 +9,7 @@
 - The books now allow that one phone to keep both doors.
 - A treasurer is not locked after wrong passwords. A member still locks after 3.
 - Two messy Excel files are on the upload page. The second file changes the October amounts.
+- A messy sheet still shows each payment: the month column, or a date beside an amount, then the member it belongs to.
 
 ### The treasurer can set a PIN, lock a number, or remove a person
 

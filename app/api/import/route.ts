@@ -1,4 +1,6 @@
 import { canBringInBooks, readSession } from "@/lib/chama/page-session";
+import { prismaRaw } from "@/lib/db";
+import { placementFor } from "@/lib/import/identify";
 import { saveImport } from "@/lib/import/save";
 import { readUpload } from "@/lib/import/workbook";
 
@@ -27,7 +29,7 @@ export async function POST(request: Request) {
   if (workbook.members.length === 0 && workbook.contributions.length === 0) {
     return Response.json(
       {
-        message: "No members or payments were found. Use the Members sheet with Full Name and Phone columns.",
+        message: "No payments were found. Put a name or a phone on each row, and a month or an amount.",
         problems: workbook.problems,
       },
       { status: 422 },
@@ -44,6 +46,19 @@ export async function POST(request: Request) {
     return Response.json(saved);
   }
 
+  const known = await prismaRaw.membership.findMany({
+    where: { chamaId: session.chamaId, status: "ACTIVE" },
+    select: { personId: true, memberNo: true, role: true, status: true, person: { select: { name: true, phone: true } } },
+  });
+  const people = known.map((member) => ({
+    personId: member.personId,
+    name: member.person.name,
+    phone: member.person.phone,
+    memberNo: member.memberNo,
+    role: member.role,
+    status: member.status,
+  }));
+
   return Response.json({
     members: workbook.members.slice(0, 100).map((member) => ({
       memberNo: member.memberNo,
@@ -53,6 +68,15 @@ export async function POST(request: Request) {
     })),
     memberCount: workbook.members.length,
     contributionCount: workbook.contributions.length,
+    payments: workbook.contributions.slice(0, 40).map((payment) => ({
+      name: payment.name,
+      phone: payment.phone,
+      period: payment.period,
+      amountCents: payment.amountCents,
+      sheet: payment.sheet,
+      row: payment.row,
+      ...placementFor(payment, people),
+    })),
     problems: workbook.problems.slice(0, 40),
   });
 }

@@ -4,6 +4,7 @@ import { appendAuditInTransaction } from "@/lib/audit/log";
 import { importFileLabel } from "@/lib/chama/import-label";
 import { hashPin } from "@/lib/auth/pin";
 import { prismaRaw } from "@/lib/db";
+import { placementFor, type KnownMember } from "./identify";
 import type { WorkbookRead } from "./workbook";
 
 export interface ImportSaveResult {
@@ -50,7 +51,13 @@ export async function saveImport(input: {
     where: { chamaId: input.chamaId },
     include: { person: true },
   });
-  const byPhone = new Map(existingMemberships.map((membership) => [membership.person.phone, membership]));
+  const byPhone = new Map<string, (typeof existingMemberships)[number]>();
+  for (const membership of existingMemberships) {
+    const current = byPhone.get(membership.person.phone);
+    const rank = (row: { status: string; role: string }) =>
+      row.status === "ACTIVE" && row.role === "MEMBER" ? 3 : row.status === "ACTIVE" ? 2 : 1;
+    if (!current || rank(membership) > rank(current)) byPhone.set(membership.person.phone, membership);
+  }
   const usedNumbers = new Set(existingMemberships.map((membership) => membership.memberNo));
   const fresh = ready.filter((member) => !byPhone.has(member.phone));
   const pinByPhone = new Map<string, string>();
@@ -63,6 +70,14 @@ export async function saveImport(input: {
     let membersAlready = 0;
     const membershipByPhone = new Map(byPhone);
     const membershipByNo = new Map(existingMemberships.map((membership) => [membership.memberNo, membership]));
+    const roster: KnownMember[] = existingMemberships.map((membership) => ({
+      personId: membership.personId,
+      name: membership.person.name,
+      phone: membership.person.phone,
+      memberNo: membership.memberNo,
+      role: membership.role,
+      status: membership.status,
+    }));
 
     for (const member of ready) {
       const found = membershipByPhone.get(member.phone);
@@ -102,6 +117,14 @@ export async function saveImport(input: {
       });
       membershipByPhone.set(member.phone, created);
       membershipByNo.set(memberNo, created);
+      roster.push({
+        personId: created.personId,
+        name: created.person.name,
+        phone: created.person.phone,
+        memberNo: created.memberNo,
+        role: created.role,
+        status: created.status,
+      });
       membersAdded += 1;
     }
 
@@ -115,10 +138,13 @@ export async function saveImport(input: {
     let contributionsSkipped = 0;
 
     for (const payment of input.workbook.contributions) {
-      const membership =
-        (payment.phone ? membershipByPhone.get(payment.phone) : undefined) ??
-        (payment.memberNo ? membershipByNo.get(payment.memberNo) : undefined);
-      if (!membership) {
+      const decision = placementFor(payment, roster);
+      if (decision.placement === "ambiguous") {
+        note(problems, `${payment.sheet} row ${payment.row}: ${payment.name} matches more than one member, so that payment was left out.`);
+        continue;
+      }
+      const membership = decision.placedNo ? membershipByNo.get(decision.placedNo) : undefined;
+      if (!membership || decision.placement === "left" || decision.placement === "new") {
         note(problems, `${payment.sheet} row ${payment.row}: no member to attach the ${payment.period} payment to.`);
         continue;
       }

@@ -4,6 +4,7 @@ import { createTreasurerProfile } from "@/lib/chama/create-profile";
 import { addMember } from "@/lib/chama/add-member";
 import { loginWithPin } from "@/lib/auth/service";
 import { validatePin } from "@/lib/auth/pin-policy";
+import { placementFor } from "@/lib/import/identify";
 import { saveImport } from "@/lib/import/save";
 import { readUpload, shillingsToCents, templateWorkbook } from "@/lib/import/workbook";
 import { prismaRaw } from "@/lib/db";
@@ -59,6 +60,40 @@ describe("excel amounts", () => {
     expect(amount(second, "+254712345001")).toBe(310_000);
     expect(first.members.map((member) => member.name)).not.toContain("JUMLA");
     expect(second.members.map((member) => member.name)).not.toContain("Total");
+  });
+
+  it("reads a swahili month, a date beside an amount, and a name that is already on the register", async () => {
+    const swahili = Buffer.from("Jina,Simu,Oktoba 2026\nAsha Njeri,0712555011,\"2,000\"\nJUMLA,,4000\n");
+    const read = await readUpload(swahili, "oktoba.csv");
+    expect(read.contributions).toEqual([
+      expect.objectContaining({ name: "Asha Njeri", phone: "+254712555011", period: "2026-10", amountCents: 200_000 }),
+    ]);
+
+    const dated = Buffer.from(
+      "October 2026 meeting\nName,Phone,Date,Amount\nAmina Hassan,0712345005,03/10/2026,\"1,500\"\nPeter Otieno,0712345002,,\"2,200/=\"\n",
+    );
+    const meeting = await readUpload(dated, "meeting.csv");
+    expect(meeting.contributions.map((row) => [row.phone, row.period, row.amountCents])).toEqual([
+      ["+254712345005", "2026-10", 150_000],
+      ["+254712345002", "2026-10", 220_000],
+    ]);
+
+    const kiasi = Buffer.from("Umoja — Oktoba 2026\nMwanachama,Mobile No.,Kiasi\nPeter Otieno,0712345002,900\n");
+    const cash = await readUpload(kiasi, "kiasi.csv");
+    expect(cash.contributions[0]).toMatchObject({ phone: "+254712345002", period: "2026-10", amountCents: 90_000 });
+
+    const known = [
+      { personId: "1", name: "Amina Hassan Bakari", phone: "+254712345005", memberNo: "M001", role: "MEMBER", status: "ACTIVE" },
+      { personId: "2", name: "Grace Wanjiku", phone: "+254712000001", memberNo: "M002", role: "MEMBER", status: "ACTIVE" },
+      { personId: "3", name: "Grace Wanjiku Mwangi", phone: "+254712000002", memberNo: "M003", role: "MEMBER", status: "ACTIVE" },
+    ];
+    expect(placementFor({ name: "Amina Hassan", phone: null, memberNo: null }, known)).toMatchObject({
+      placement: "name",
+      placedNo: "M001",
+    });
+    expect(placementFor({ name: "Grace Wanjiku", phone: null, memberNo: null }, known).placement).toBe("ambiguous");
+    expect(placementFor({ name: "Grace", phone: null, memberNo: null }, known).placement).toBe("left");
+    expect(placementFor({ name: "Peter Otieno", phone: "+254712345002", memberNo: null }, known).placement).toBe("new");
   });
 
   it("builds a blank template with member and month columns", async () => {
@@ -124,6 +159,36 @@ describe("treasurer profile and import", () => {
     expect(await prismaRaw.contribution.count()).toBe(4);
     const logged = await prismaRaw.auditLog.findFirst({ where: { action: "import.excel" }, orderBy: { seq: "asc" } });
     expect(logged?.after).toMatchObject({ fileName: "messy.xlsx" });
+  });
+
+  it("places a short name on the one member it fits", async () => {
+    await createTreasurerProfile({
+      name: "Jane Wanjiku",
+      phone: "0712000333",
+      pin: "Ab3!@cde",
+      chamaName: "Mwanga",
+    });
+    const treasurer = await prismaRaw.membership.findFirstOrThrow({ include: { person: true } });
+    const added = await addMember({
+      chamaId: treasurer.chamaId,
+      actor: { membershipId: treasurer.id, personId: treasurer.personId, role: "TREASURER" },
+      name: "Amina Hassan Bakari",
+      phone: "0712345005",
+    });
+    expect(added.ok).toBe(true);
+    const workbook = await readUpload(Buffer.from("Jina,Oktoba 2026\nAmina Hassan,\"1,500\"\n"), "names.csv");
+    const saved = await saveImport({
+      chamaId: treasurer.chamaId,
+      actor: { membershipId: treasurer.id, personId: treasurer.personId, role: "TREASURER" },
+      workbook,
+      fileName: "names.csv",
+    });
+    expect(saved.membersAdded).toBe(0);
+    expect(saved.contributionsAdded).toBe(1);
+    const payment = await prismaRaw.contribution.findFirstOrThrow({ include: { membership: { include: { person: true } } } });
+    expect(payment.membership.person.name).toBe("Amina Hassan Bakari");
+    expect(payment.amountCents).toBe(150_000);
+    expect(payment.period).toBe("2026-10");
   });
 
   it("adds one member the treasurer can send to the member door", async () => {
