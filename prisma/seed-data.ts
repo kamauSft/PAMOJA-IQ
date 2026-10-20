@@ -9,7 +9,7 @@ import {
 } from "../lib/finance/index";
 
 export const SEED_AS_OF = "2026-10-16";
-export const DEMO_PIN = "2580";
+export const DEMO_PIN = "Ab3!@cde";
 
 export interface SeedMember {
   memberNo: string;

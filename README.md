@@ -26,12 +26,12 @@ Open http://localhost:3000.
 
 ## Demo logins
 
-Every seeded member uses PIN **2580**.
+Every seeded member uses password **Ab3!@cde**.
 
 | Person | Role | Phone | Lands on |
 |---|---|---|---|
-| Grace Wanjiku Mwangi | Chair | 0712345001 | The books, with PIN 2580 |
-| Peter Otieno Omondi | Treasurer | 0712345002 | The books, with PIN 2580 |
+| Grace Wanjiku Mwangi | Chair | 0712345001 | The books, with password Ab3!@cde |
+| Peter Otieno Omondi | Treasurer | 0712345002 | The books, with password Ab3!@cde |
 | Amina Hassan Bakari | Member | 0712345005 | Her own position |
 
 ## Price

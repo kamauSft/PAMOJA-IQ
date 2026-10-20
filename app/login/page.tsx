@@ -9,7 +9,7 @@ import { normalizePhone } from "@/lib/phone";
 
 const WHO = {
   treasurer: {
-    pin: "2580",
+    pin: "Ab3!@cde",
     en: "Enter your phone number and PIN.",
     sw: "Weka nambari ya simu na PIN.",
   },
@@ -19,7 +19,7 @@ const WHO = {
     sw: "Weka nambari ya simu na PIN.",
   },
   chair: {
-    pin: "2580",
+    pin: "Ab3!@cde",
     en: "Enter your phone number and PIN.",
     sw: "Weka nambari ya simu na PIN.",
   },

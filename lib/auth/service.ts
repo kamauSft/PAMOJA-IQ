@@ -44,7 +44,22 @@ function dummyPinHash(): Promise<string> {
   return dummyHash;
 }
 
+async function isTreasurer(personId: string): Promise<boolean> {
+  const post = await prismaRaw.membership.findFirst({
+    where: { personId, role: "TREASURER", status: "ACTIVE" },
+    select: { id: true },
+  });
+  return Boolean(post);
+}
+
 async function recordFailure(personId: string, attempts: number, messaging?: MessagingProvider): Promise<LoginResult> {
+  if (await isTreasurer(personId)) {
+    await prismaRaw.person.update({
+      where: { id: personId },
+      data: { failedLoginAttempts: 0, lockedUntil: null },
+    });
+    return { status: "invalid_credentials", message: "Wrong PIN." };
+  }
   const next = attempts + 1;
   if (next >= PIN_MAX_ATTEMPTS) {
     const lockedUntil = PIN_LOCK_UNTIL;
@@ -143,7 +158,15 @@ export async function loginWithPin(input: {
   const person = await prismaRaw.person.findUnique({ where: { phone } });
   if (!person) return unknownNumber();
   if (person.lockedUntil) {
-    return { status: "locked", lockedUntil: person.lockedUntil.toISOString(), message: LOCKED_MESSAGE };
+    if (await isTreasurer(person.id)) {
+      await prismaRaw.person.update({
+        where: { id: person.id },
+        data: { failedLoginAttempts: 0, lockedUntil: null },
+      });
+      person.failedLoginAttempts = 0;
+    } else {
+      return { status: "locked", lockedUntil: person.lockedUntil.toISOString(), message: LOCKED_MESSAGE };
+    }
   }
 
   const found = await prismaRaw.membership.findMany({

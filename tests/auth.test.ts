@@ -6,7 +6,7 @@ import { sessionCookieOptions } from "@/lib/auth/session";
 import { resetLoginLockouts } from "@/lib/auth/lockout";
 import { getSession, loginWithPin, logout, logoutAll, setMemberPin } from "@/lib/auth/service";
 import { validatePin } from "@/lib/auth/pin-policy";
-import { issueTemporaryPin, lockAccount, removeMember, unlockAccount } from "@/lib/auth/unlock";
+import { issueTemporaryPin, lockAccount, removeMember } from "@/lib/auth/unlock";
 import { MemoryMessagingProvider } from "@/lib/messaging/provider";
 import { prismaRaw } from "@/lib/db";
 import { umojaSettings } from "@/lib/chama/rules";
@@ -317,35 +317,13 @@ describe("rules and maker-checker", () => {
     expect(JSON.stringify(logged?.after ?? {})).not.toContain(memberPin);
 
     const messaging = new MemoryMessagingProvider();
-    const previous = process.env.OWNER_PHONE;
-    process.env.OWNER_PHONE = "0712000111";
-    try {
-      for (let attempt = 0; attempt < 3; attempt += 1) {
-        await loginWithPin({ phone: "0711000222", pin: "0000", role: "MEMBER", now, messaging });
-      }
-      expect(messaging.sent).toHaveLength(1);
-      expect(messaging.sent[0]?.to).toBe("+254712000111");
-      expect(messaging.sent[0]?.body).toContain("Tester");
-      expect(messaging.sent[0]?.body).toContain("member door and the treasurer door");
-      expect(messaging.sent[0]?.body).not.toContain(memberPin);
-      expect((await loginWithPin({ phone: "0711000222", pin: memberPin, role: "MEMBER", now: new Date(now.getTime() + 60 * 60_000) })).status).toBe(
-        "locked",
-      );
-      const unlocked = await unlockAccount({
-        chamaId: treasurer.chama.id,
-        actor: { membershipId: treasurer.membership.id, personId: treasurer.person.id, role: "TREASURER" },
-        personId: treasurer.person.id,
-        pin: officialPin,
-      });
-      expect(unlocked).toEqual({ ok: true });
-      for (let attempt = 0; attempt < 3; attempt += 1) {
-        await loginWithPin({ phone: "0711000222", pin: "0000", role: "MEMBER", now, messaging });
-      }
-      expect(messaging.sent[1]?.body).toContain("locked again");
-    } finally {
-      if (previous === undefined) delete process.env.OWNER_PHONE;
-      else process.env.OWNER_PHONE = previous;
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      const failed = await loginWithPin({ phone: "0711000222", pin: "0000", role: "MEMBER", now, messaging });
+      expect(failed.status).toBe("invalid_credentials");
     }
+    expect(messaging.sent).toHaveLength(0);
+    expect((await loginWithPin({ phone: "0711000222", pin: memberPin, role: "MEMBER", now })).status).toBe("authenticated");
+    expect((await loginWithPin({ phone: "0711000222", pin: officialPin, role: "TREASURER", now })).status).toBe("authenticated");
   });
 
   it("lets the treasurer lock a number and remove a person without erasing the PIN from the audit", async () => {

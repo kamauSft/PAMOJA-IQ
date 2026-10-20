@@ -4,7 +4,8 @@
 
 ### A new password, and two messy registers
 
-- A new password needs at least 8 characters, a capital letter, a number, and 2 special characters. The practice PIN 2580 still signs in.
+- The practice password for the demo member and the demo treasurer is Ab3!@cde.
+- A treasurer is not locked after wrong passwords. A member still locks after 3.
 - Two messy Excel files are on the upload page. The second file changes the October amounts.
 
 ### The treasurer can set a PIN, lock a number, or remove a person

@@ -13,16 +13,19 @@ if (existsSync(envPath)) {
 }
 
 const db = new PrismaClient();
+const tsxCli = path.resolve("node_modules/tsx/dist/cli.mjs");
 try {
   const count = await db.membership.count();
   if (count > 0) {
     console.log("Records are already there. Leaving them as they are.");
   } else if (process.env.DEMO_MODE === "true") {
     console.log("The records are empty. Adding the demo chama.");
-    const tsxCli = path.resolve("node_modules/tsx/dist/cli.mjs");
     execFileSync(process.execPath, [tsxCli, "prisma/seed.ts"], { stdio: "inherit" });
   } else {
     console.log("The records are empty. Demo members stay off unless DEMO_MODE is true.");
+  }
+  if (process.env.DEMO_MODE === "true") {
+    execFileSync(process.execPath, [tsxCli, "scripts/refresh-demo-pins.ts"], { stdio: "inherit" });
   }
 } catch {
   console.error("The records could not be opened. Run start-pamoja.bat again.");
