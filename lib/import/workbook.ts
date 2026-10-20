@@ -30,9 +30,23 @@ export interface WorkbookRead {
   problems: string[];
 }
 
-type Column =
+export type Column =
   | { kind: "name" | "phone" | "memberNo" | "role" | "join" | "status" | "amount" | "date" | "skip" }
   | { kind: "month"; period: string };
+
+export interface SheetHeading {
+  rowNumber: number;
+  columns: Column[];
+  titleText: string;
+}
+
+export interface UnclearSheet {
+  sheetName: string;
+  rowNumber: number;
+  titleText: string;
+  header: string[];
+  samples: string[][];
+}
 
 const MONTHS: Record<string, string> = {
   jan: "01",
@@ -246,7 +260,19 @@ function sheetKeepsPayments(name: string): boolean {
   return !/(loan|mkopo|fine|faini|expense|repay|matumizi)/i.test(name);
 }
 
-function findHeader(sheet: ExcelJS.Worksheet): { rowNumber: number; columns: Column[]; titleText: string } | null {
+export function confirmedPeriod(header: string, titleText: string): string | null {
+  const direct = monthPeriod(header);
+  if (direct) return direct;
+  const mentioned = periodsMentioned(header);
+  if (mentioned.length === 1) return mentioned[0];
+  const month = MONTHS[header.trim().toLowerCase().replace(/\./g, "")];
+  if (!month) return null;
+  const years = titleText.match(/\b(20\d{2})\b/g) ?? [];
+  if (new Set(years).size !== 1) return null;
+  return `${years[0]}-${month}`;
+}
+
+function findHeader(sheet: ExcelJS.Worksheet): SheetHeading | null {
   const earlier: string[] = [];
   let found: { rowNumber: number; columns: Column[]; titleText: string } | null = null;
   sheet.eachRow((row, rowNumber) => {
@@ -289,9 +315,46 @@ function upsertMember(members: ParsedMember[], problems: string[], draft: Parsed
   if (!match.name && draft.name) match.name = draft.name;
 }
 
-function parseSheet(sheet: ExcelJS.Worksheet, result: WorkbookRead) {
+export function unclearSheets(book: ExcelJS.Workbook): UnclearSheet[] {
+  const found: UnclearSheet[] = [];
+  for (const sheet of book.worksheets) {
+    if (!sheetKeepsPayments(sheet.name) || findHeader(sheet)) continue;
+    const rows: { rowNumber: number; values: string[] }[] = [];
+    sheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 20 || rows.length > 8) return;
+      const values = rowValues(row)
+        .slice(0, 12)
+        .map((cell) => cell.slice(0, 80));
+      if (values.some(Boolean)) rows.push({ rowNumber, values });
+    });
+    if (rows.length < 2) continue;
+    let best = 0;
+    let bestScore = -1;
+    rows.forEach((row, index) => {
+      const score = row.values.filter((cell) => cell && shillingsToCents(cell) == null && !/^\d+$/.test(cell)).length;
+      if (score > bestScore) {
+        bestScore = score;
+        best = index;
+      }
+    });
+    if (bestScore < 2) continue;
+    found.push({
+      sheetName: sheet.name,
+      rowNumber: rows[best].rowNumber,
+      titleText: rows
+        .slice(0, best)
+        .map((row) => row.values.join(" "))
+        .join(" "),
+      header: rows[best].values,
+      samples: rows.slice(best + 1, best + 6).map((row) => row.values),
+    });
+  }
+  return found;
+}
+
+function parseSheet(sheet: ExcelJS.Worksheet, result: WorkbookRead, assisted?: SheetHeading) {
   if (!sheetKeepsPayments(sheet.name)) return;
-  const header = findHeader(sheet);
+  const header = findHeader(sheet) ?? assisted ?? null;
   if (!header) return;
   const titlePeriods = periodsMentioned(`${sheet.name} ${header.titleText}`);
   const titlePeriod = titlePeriods.length === 1 ? titlePeriods[0] : null;
@@ -383,11 +446,11 @@ function parseSheet(sheet: ExcelJS.Worksheet, result: WorkbookRead) {
   });
 }
 
-export function parseWorkbook(book: ExcelJS.Workbook): WorkbookRead {
+export function parseWorkbook(book: ExcelJS.Workbook, assists?: Map<string, SheetHeading>): WorkbookRead {
   const result: WorkbookRead = { members: [], contributions: [], problems: [] };
   for (const sheet of book.worksheets) {
     if (!sheetKeepsPayments(sheet.name)) continue;
-    parseSheet(sheet, result);
+    parseSheet(sheet, result, assists?.get(sheet.name));
   }
   for (const payment of result.contributions) {
     if (payment.phone) continue;
@@ -404,7 +467,26 @@ export async function readUpload(buffer: Buffer, filename: string): Promise<Work
   } else {
     await book.xlsx.load(buffer as unknown as ExcelJS.Buffer);
   }
-  return parseWorkbook(book);
+  const { askColumnMap, aiImportEnabled } = await import("@/lib/import/column-assist");
+  const needed = unclearSheets(book);
+  const assists = new Map<string, SheetHeading>();
+  if (aiImportEnabled()) {
+    for (const sheet of needed) {
+      const columns = await askColumnMap(sheet);
+      if (!columns) continue;
+      assists.set(sheet.sheetName, { rowNumber: sheet.rowNumber, columns, titleText: sheet.titleText });
+    }
+  }
+  const result = parseWorkbook(book, assists);
+  if (aiImportEnabled()) {
+    for (const sheet of unclearSheets(book)) {
+      if (assists.has(sheet.sheetName)) continue;
+      if (result.problems.length < 50) {
+        result.problems.push(`${sheet.sheetName}: the helper could not name the columns, so that sheet was left out.`);
+      }
+    }
+  }
+  return result;
 }
 
 export function recentPeriods(count = 3, today = new Date()): string[] {

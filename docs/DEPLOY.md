@@ -21,7 +21,9 @@ Copy names from `.env.example`. Set real values only in the host:
 | `DEMO_MODE` | `false` |
 | `ALLOW_DEMO_IN_PROD` | unset |
 | `SENTRY_DSN` | optional |
-| `ENABLE_AI_IMPORT` | `false` until import is ready |
+| `ENABLE_AI_IMPORT` | `true` only after `GEMINI_API_KEY` is set |
+| `GEMINI_API_KEY` | free Gemini key, Secret. Empty leaves the usual Excel reader in charge |
+| `GEMINI_MODEL` | `gemini-3.5-flash-lite` |
 | `ANTHROPIC_API_KEY` | empty until an assistant is connected |
 | `ANTHROPIC_MODEL` | `claude-sonnet-5-5` when that assistant is connected |
 
