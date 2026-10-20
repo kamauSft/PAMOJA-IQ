@@ -27,13 +27,21 @@ export default async function LandingPage() {
           <p className="mt-4 max-w-2xl text-lg text-white/85">{page.bankSentence}</p>
           <p className="mt-3 max-w-2xl text-sm text-white/80">{page.excelLine}</p>
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            <Link href="/login?door=member" className="btn">
-              <span className="block">{page.memberCta}</span>
-              <span className="mt-1 block text-xs font-normal opacity-80">{page.memberHint}</span>
+            <Link
+              href="/login?door=member"
+              className="btn h-auto w-full flex-col items-start gap-1 whitespace-normal px-5 py-4 text-left"
+              style={{ flexDirection: "column", alignItems: "flex-start", height: "auto" }}
+            >
+              <span className="block text-base">{page.memberCta}</span>
+              <span className="block text-xs font-normal leading-5 opacity-80">{page.memberHint}</span>
             </Link>
-            <Link href="/login?door=treasurer" className="tap rounded-lg border border-white px-5 py-3 text-sm font-semibold text-white">
-              <span className="block">{page.treasurerCta}</span>
-              <span className="mt-1 block text-xs font-normal text-white/80">{page.treasurerHint}</span>
+            <Link
+              href="/login?door=treasurer"
+              className="tap flex h-auto w-full flex-col items-start gap-1 whitespace-normal rounded-lg border border-white px-5 py-4 text-left text-sm font-semibold text-white"
+              style={{ flexDirection: "column", alignItems: "flex-start", height: "auto" }}
+            >
+              <span className="block text-base">{page.treasurerCta}</span>
+              <span className="block text-xs font-normal leading-5 text-white/80">{page.treasurerHint}</span>
             </Link>
           </div>
         </div>
