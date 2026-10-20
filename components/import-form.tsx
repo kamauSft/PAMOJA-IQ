@@ -24,6 +24,7 @@ interface Saved {
   membersAdded: number;
   membersAlready: number;
   contributionsAdded: number;
+  contributionsUpdated?: number;
   contributionsSkipped: number;
   problems: string[];
 }
@@ -81,6 +82,9 @@ export function ImportForm({ labels = english }: { labels?: typeof english }) {
           </li>
           <li>
             {labels.paymentsAdded}: {saved.contributionsAdded}
+          </li>
+          <li>
+            {labels.paymentsChanged}: {saved.contributionsUpdated ?? 0}
           </li>
           <li>
             {labels.paymentsSkipped}: {saved.contributionsSkipped}

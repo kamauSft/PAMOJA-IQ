@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### A new password, and two messy registers
+
+- A new password needs at least 8 characters, a capital letter, a number, and 2 special characters. The practice PIN 2580 still signs in.
+- Two messy Excel files are on the upload page. The second file changes the October amounts.
+
 ### The treasurer can set a PIN, lock a number, or remove a person
 
 - A new PIN is shown in large type on the desk, once.

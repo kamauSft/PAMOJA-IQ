@@ -158,9 +158,8 @@ export function SignInCare({
         <input
           className="field font-mono tracking-[0.2em]"
           value={pin}
-          onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 8))}
+          onChange={(event) => setPin(event.target.value.slice(0, 64))}
           type="password"
-          inputMode="numeric"
           autoComplete="current-password"
         />
       </label>

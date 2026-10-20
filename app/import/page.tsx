@@ -24,9 +24,15 @@ export default async function ImportPage() {
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">{page.kicker}</p>
       <h1 className="mt-1 text-4xl">{page.title}</h1>
       <p className="mt-2 max-w-2xl text-sm text-muted">{page.body}</p>
-      <p className="mt-4">
+      <p className="mt-4 flex flex-wrap gap-4">
         <Link className="text-sm font-semibold text-leaf underline" href="/api/import/template">
           {page.download}
+        </Link>
+        <Link className="text-sm font-semibold text-leaf underline" href="/samples/messy-register-1.xlsx">
+          {page.messyOne}
+        </Link>
+        <Link className="text-sm font-semibold text-leaf underline" href="/samples/messy-register-2.xlsx">
+          {page.messyTwo}
         </Link>
       </p>
       <ImportForm labels={page} />

@@ -1,41 +1,53 @@
 import { randomInt } from "node:crypto";
 
-const WEAK = new Set([
-  "000000",
-  "111111",
-  "123456",
-  "654321",
-  "258025",
-  "00000000",
-  "11111111",
-  "12345678",
-  "87654321",
-  "25802580",
-]);
+const UPPERS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+const LOWERS = "abcdefghijkmnopqrstuvwxyz";
+const DIGITS = "23456789";
+const SPECIALS = "!@#$%&*";
 
-export function validatePin(pin: string, kind: "MEMBER" | "OFFICIAL"): string | null {
-  const length = kind === "MEMBER" ? 6 : 8;
-  if (!new RegExp(`^\\d{${length}}$`).test(pin)) {
-    return kind === "MEMBER" ? "A member PIN is 6 digits." : "An official PIN is 8 digits.";
-  }
-  if (WEAK.has(pin) || /^(\d)\1+$/.test(pin)) return "Choose a PIN that is not easy to guess.";
+function pick(chars: string): string {
+  return chars[randomInt(0, chars.length)] ?? "A";
+}
+
+/** At least 8 characters, with a letter, a capital, a number, and 2 special characters. */
+export function validatePin(pin: string, _kind?: "MEMBER" | "OFFICIAL"): string | null {
+  if (pin.length < 8) return "Use at least 8 characters.";
+  if (!/[A-Za-z]/.test(pin)) return "Include a letter.";
+  if (!/[A-Z]/.test(pin)) return "Include a capital letter.";
+  if (!/\d/.test(pin)) return "Include a number.";
+  if ((pin.match(/[^A-Za-z0-9]/g) ?? []).length < 2) return "Include 2 special characters.";
   return null;
 }
 
-export function randomOfficialPin(): string {
-  let pin = "48291673";
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    pin = randomInt(0, 100_000_000).toString().padStart(8, "0");
-    if (!validatePin(pin, "OFFICIAL")) return pin;
+export function acceptsStoredPin(pin: string): boolean {
+  return /^(?:\d{4}|\d{6}|\d{8})$/.test(pin) || validatePin(pin) === null;
+}
+
+export function randomPassword(): string {
+  const chars = [
+    pick(UPPERS),
+    pick(LOWERS),
+    pick(DIGITS),
+    pick(SPECIALS),
+    pick(SPECIALS),
+    pick(LOWERS),
+    pick(UPPERS),
+    pick(LOWERS),
+  ];
+  for (let index = chars.length - 1; index > 0; index -= 1) {
+    const swap = randomInt(0, index + 1);
+    const current = chars[index];
+    chars[index] = chars[swap] ?? current;
+    chars[swap] = current;
   }
-  return "48291673";
+  const pin = chars.join("");
+  return validatePin(pin) === null ? pin : "Kw3!@mja";
+}
+
+export function randomOfficialPin(): string {
+  return randomPassword();
 }
 
 export function randomMemberPin(): string {
-  let pin = "482916";
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    pin = randomInt(0, 1_000_000).toString().padStart(6, "0");
-    if (!validatePin(pin, "MEMBER")) return pin;
-  }
-  return "482916";
+  return randomPassword();
 }

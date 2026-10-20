@@ -3,7 +3,7 @@ import { prismaRaw } from "../db";
 import { type MessagingProvider } from "../messaging/provider";
 import { hashPin, verifyPin } from "./pin";
 import { notifyLock } from "./lock-notice";
-import { validatePin } from "./pin-policy";
+import { acceptsStoredPin, validatePin } from "./pin-policy";
 import { normalizePhone } from "../phone";
 import { OTP_MAX_ATTEMPTS, PIN_MAX_ATTEMPTS, newSessionToken, sessionLifetimeMs, sha256 } from "./session";
 
@@ -157,7 +157,7 @@ export async function loginWithPin(input: {
     return { status: "pin_required", message: "Enter your PIN." };
   }
 
-  if (!/^(?:\d{4}|\d{6}|\d{8})$/.test(pin)) {
+  if (!acceptsStoredPin(pin)) {
     await verifyPin(pin, await dummyPinHash());
     return { status: "invalid_credentials", message: "Enter the PIN you were given." };
   }

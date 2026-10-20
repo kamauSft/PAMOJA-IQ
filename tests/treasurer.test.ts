@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { createTreasurerProfile } from "@/lib/chama/create-profile";
 import { addMember } from "@/lib/chama/add-member";
 import { loginWithPin } from "@/lib/auth/service";
+import { validatePin } from "@/lib/auth/pin-policy";
 import { saveImport } from "@/lib/import/save";
 import { readUpload, shillingsToCents, templateWorkbook } from "@/lib/import/workbook";
 import { prismaRaw } from "@/lib/db";
@@ -44,6 +45,22 @@ describe("excel amounts", () => {
     await expect(readUpload(Buffer.from("not a workbook"), "notes.pdf")).rejects.toThrow();
   });
 
+  it("reads the two messy samples and keeps different October amounts", async () => {
+    const first = await readUpload(await readFile("public/samples/messy-register-1.xlsx"), "messy-register-1.xlsx");
+    const second = await readUpload(await readFile("public/samples/messy-register-2.xlsx"), "messy-register-2.xlsx");
+    const amount = (book: typeof first, phone: string) => book.contributions.find((row) => row.phone === phone)?.amountCents;
+    expect(first.problems).toEqual([]);
+    expect(second.problems).toEqual([]);
+    expect(amount(first, "+254712345005")).toBe(150_000);
+    expect(amount(second, "+254712345005")).toBe(450_000);
+    expect(amount(first, "+254712345002")).toBe(220_000);
+    expect(amount(second, "+254712345002")).toBe(90_000);
+    expect(amount(first, "+254712345001")).toBe(180_000);
+    expect(amount(second, "+254712345001")).toBe(310_000);
+    expect(first.members.map((member) => member.name)).not.toContain("JUMLA");
+    expect(second.members.map((member) => member.name)).not.toContain("Total");
+  });
+
   it("builds a blank template with member and month columns", async () => {
     const blank = await readUpload(await templateWorkbook(), "pamoja-members.xlsx");
     expect(blank.members).toEqual([]);
@@ -56,20 +73,20 @@ describe("treasurer profile and import", () => {
     const created = await createTreasurerProfile({
       name: "Jane Wanjiku",
       phone: "0712 000 111",
-      pin: "2468",
+      pin: "Ab3!@cde",
       chamaName: "Mwanga",
     });
     expect(created).toEqual({ ok: true, phone: "0712 000 111", chamaName: "Mwanga" });
     const again = await createTreasurerProfile({
       name: "Jane Wanjiku",
       phone: "0712000111",
-      pin: "2468",
+      pin: "Ab3!@cde",
       chamaName: "Another",
     });
     expect(again).toMatchObject({ ok: false });
     expect(await prismaRaw.chama.count()).toBe(1);
 
-    const signIn = await loginWithPin({ phone: "0712000111", pin: "2468" });
+    const signIn = await loginWithPin({ phone: "0712000111", pin: "Ab3!@cde" });
     expect(signIn.status).toBe("authenticated");
 
     const rejected = await createTreasurerProfile({ name: "A", phone: "123", pin: "12", chamaName: "X" });
@@ -80,7 +97,7 @@ describe("treasurer profile and import", () => {
     await createTreasurerProfile({
       name: "Jane Wanjiku",
       phone: "0712000111",
-      pin: "2468",
+      pin: "Ab3!@cde",
       chamaName: "Mwanga",
     });
     const treasurer = await prismaRaw.membership.findFirstOrThrow({ include: { person: true } });
@@ -113,7 +130,7 @@ describe("treasurer profile and import", () => {
     await createTreasurerProfile({
       name: "Jane Wanjiku",
       phone: "0712000222",
-      pin: "2468",
+      pin: "Ab3!@cde",
       chamaName: "Mwanga",
     });
     const treasurer = await prismaRaw.membership.findFirstOrThrow({ include: { person: true } });
@@ -125,7 +142,7 @@ describe("treasurer profile and import", () => {
     });
     expect(added).toMatchObject({ ok: true, memberNo: "M001", phone: "+254712555099", keptOfficialPin: false });
     if (!added.ok) return;
-    expect(added.temporaryPin).toMatch(/^\d{6}$/);
+    expect(validatePin(added.temporaryPin)).toBeNull();
     expect((await loginWithPin({ phone: "0712555099", pin: added.temporaryPin, role: "MEMBER" })).status).toBe("authenticated");
     const addedLog = await prismaRaw.auditLog.findFirst({ where: { action: "member.added" } });
     expect(JSON.stringify(addedLog?.after ?? {})).not.toContain(added.temporaryPin);
@@ -151,8 +168,8 @@ describe("treasurer profile and import", () => {
     });
     expect(alsoMember).toMatchObject({ ok: true, keptOfficialPin: true });
     if (!alsoMember.ok) return;
-    expect(alsoMember.temporaryPin).toMatch(/^\d{6}$/);
+    expect(validatePin(alsoMember.temporaryPin)).toBeNull();
     expect((await loginWithPin({ phone: "0712000222", pin: alsoMember.temporaryPin, role: "MEMBER" })).status).toBe("authenticated");
-    expect((await loginWithPin({ phone: "0712000222", pin: "2468", role: "TREASURER" })).status).toBe("authenticated");
+    expect((await loginWithPin({ phone: "0712000222", pin: "Ab3!@cde", role: "TREASURER" })).status).toBe("authenticated");
   });
 });

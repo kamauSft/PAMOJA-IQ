@@ -5,6 +5,7 @@ import { consumeRateLimit, resetRateLimits } from "@/lib/auth/rate-limit";
 import { sessionCookieOptions } from "@/lib/auth/session";
 import { resetLoginLockouts } from "@/lib/auth/lockout";
 import { getSession, loginWithPin, logout, logoutAll, setMemberPin } from "@/lib/auth/service";
+import { validatePin } from "@/lib/auth/pin-policy";
 import { issueTemporaryPin, lockAccount, removeMember, unlockAccount } from "@/lib/auth/unlock";
 import { MemoryMessagingProvider } from "@/lib/messaging/provider";
 import { prismaRaw } from "@/lib/db";
@@ -183,10 +184,10 @@ describe("auth", () => {
     expect(await setMemberPin({ membershipId: fixture.membership.id, personId: fixture.person.id, pin: "4321" })).toMatchObject({
       ok: false,
     });
-    expect(await setMemberPin({ membershipId: fixture.membership.id, personId: fixture.person.id, pin: "482916" })).toEqual({
+    expect(await setMemberPin({ membershipId: fixture.membership.id, personId: fixture.person.id, pin: "Ab3!@cde" })).toEqual({
       ok: true,
     });
-    expect((await loginWithPin({ phone: "0712345005", pin: "482916", now })).status).toBe("authenticated");
+    expect((await loginWithPin({ phone: "0712345005", pin: "Ab3!@cde", now })).status).toBe("authenticated");
 
     await member({ phone: "+254712345002", role: "TREASURER" });
     expect(await loginWithPin({ phone: "0712345002", now, messaging })).toMatchObject({ status: "pin_required" });
@@ -307,8 +308,8 @@ describe("rules and maker-checker", () => {
     if (!issued.ok) return;
     const memberPin = issued.pins.find((row) => row.role === "MEMBER")?.temporaryPin ?? "";
     const officialPin = issued.pins.find((row) => row.role === "TREASURER")?.temporaryPin ?? "";
-    expect(memberPin).toMatch(/^\d{6}$/);
-    expect(officialPin).toMatch(/^\d{8}$/);
+    expect(validatePin(memberPin)).toBeNull();
+    expect(validatePin(officialPin)).toBeNull();
     expect((await loginWithPin({ phone: "0711000222", pin: memberPin, role: "MEMBER", now })).status).toBe("authenticated");
     expect((await loginWithPin({ phone: "0711000222", pin: officialPin, role: "TREASURER", now })).status).toBe("authenticated");
     expect((await loginWithPin({ phone: "0711000222", pin: "2580", role: "TREASURER", now })).status).not.toBe("authenticated");

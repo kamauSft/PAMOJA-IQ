@@ -10,6 +10,7 @@ export interface ImportSaveResult {
   membersAdded: number;
   membersAlready: number;
   contributionsAdded: number;
+  contributionsUpdated: number;
   contributionsSkipped: number;
   problems: string[];
 }
@@ -106,10 +107,11 @@ export async function saveImport(input: {
 
     const payments = await tx.contribution.findMany({
       where: { chamaId: input.chamaId, reversesId: null },
-      select: { membershipId: true, period: true },
+      select: { id: true, membershipId: true, period: true, amountCents: true },
     });
-    const seen = new Set(payments.map((payment) => `${payment.membershipId}:${payment.period}`));
+    const seen = new Map(payments.map((payment) => [`${payment.membershipId}:${payment.period}`, payment]));
     let contributionsAdded = 0;
+    let contributionsUpdated = 0;
     let contributionsSkipped = 0;
 
     for (const payment of input.workbook.contributions) {
@@ -121,11 +123,21 @@ export async function saveImport(input: {
         continue;
       }
       const key = `${membership.id}:${payment.period}`;
-      if (seen.has(key)) {
-        contributionsSkipped += 1;
+      const existing = seen.get(key);
+      if (existing) {
+        if (existing.amountCents === payment.amountCents) {
+          contributionsSkipped += 1;
+          continue;
+        }
+        await tx.contribution.update({
+          where: { id: existing.id },
+          data: { amountCents: payment.amountCents },
+        });
+        existing.amountCents = payment.amountCents;
+        contributionsUpdated += 1;
         continue;
       }
-      await tx.contribution.create({
+      const created = await tx.contribution.create({
         data: {
           chamaId: input.chamaId,
           membershipId: membership.id,
@@ -137,7 +149,12 @@ export async function saveImport(input: {
           reference: `${payment.sheet} row ${payment.row}`,
         },
       });
-      seen.add(key);
+      seen.set(key, {
+        id: created.id,
+        membershipId: membership.id,
+        period: payment.period,
+        amountCents: payment.amountCents,
+      });
       contributionsAdded += 1;
     }
 
@@ -151,10 +168,11 @@ export async function saveImport(input: {
       after: {
         membersAdded,
         contributionsAdded,
+        contributionsUpdated,
         fileName: importFileLabel(input.fileName ?? "Excel"),
       },
     });
 
-    return { membersAdded, membersAlready, contributionsAdded, contributionsSkipped, problems };
+    return { membersAdded, membersAlready, contributionsAdded, contributionsUpdated, contributionsSkipped, problems };
   });
 }

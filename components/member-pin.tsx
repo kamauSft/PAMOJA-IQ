@@ -38,15 +38,14 @@ export function MemberPinForm({ labels = english }: { labels?: typeof english })
         <input
           className="field max-w-xs font-mono tracking-[0.3em]"
           value={pin}
-          onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 6))}
-          inputMode="numeric"
+          onChange={(event) => setPin(event.target.value.slice(0, 64))}
           autoComplete="new-password"
           name="member-pin"
         />
       </label>
       <button
         className="btn mt-3 disabled:opacity-60"
-        disabled={pending || pin.length !== 6}
+        disabled={pending || pin.length < 8}
         type="submit"
       >
         {pending ? labels.saving : labels.save}

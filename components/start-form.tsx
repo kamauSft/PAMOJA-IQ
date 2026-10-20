@@ -63,9 +63,8 @@ export function StartForm({ labels = english }: { labels?: typeof english }) {
           value={pin}
           onChange={(event) => setPin(event.target.value)}
           type="password"
-          inputMode="numeric"
           autoComplete="new-password"
-          maxLength={4}
+          maxLength={64}
         />
       </label>
       <label className="block text-sm font-medium">
