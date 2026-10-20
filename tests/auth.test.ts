@@ -7,6 +7,7 @@ import { resetLoginLockouts } from "@/lib/auth/lockout";
 import { getSession, loginWithPin, logout, logoutAll, setMemberPin } from "@/lib/auth/service";
 import { validatePin } from "@/lib/auth/pin-policy";
 import { issueTemporaryPin, lockAccount, removeMember } from "@/lib/auth/unlock";
+import { ensureOwnerAccount } from "@/lib/chama/ensure-owner";
 import { MemoryMessagingProvider } from "@/lib/messaging/provider";
 import { prismaRaw } from "@/lib/db";
 import { umojaSettings } from "@/lib/chama/rules";
@@ -376,5 +377,21 @@ describe("rules and maker-checker", () => {
         pin: "2580",
       }),
     ).toMatchObject({ ok: false });
+  });
+
+  it("opens the member door and the treasurer door for one owner phone", async () => {
+    await member({ phone: "+254711000001", role: "CHAIR" });
+    const ready = await ensureOwnerAccount({ phone: "0712000888", name: "Meshack Akoko", pin: "Ab3!@cde" });
+    expect(ready).toEqual({ ok: true });
+    expect((await loginWithPin({ phone: "0712000888", pin: "Ab3!@cde", role: "MEMBER", now })).status).toBe("authenticated");
+    expect((await loginWithPin({ phone: "0712000888", pin: "Ab3!@cde", role: "TREASURER", now })).status).toBe("authenticated");
+    const again = await ensureOwnerAccount({ phone: "0712000888", name: "Meshack Akoko", pin: "Ab3!@cde" });
+    expect(again).toEqual({ ok: true });
+    const posts = await prismaRaw.membership.findMany({ where: { person: { phone: "+254712000888" } } });
+    expect(posts.map((row) => row.role).sort()).toEqual(["MEMBER", "TREASURER"]);
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      expect((await loginWithPin({ phone: "0712000888", pin: "0000", role: "MEMBER", now })).status).toBe("invalid_credentials");
+    }
+    expect((await loginWithPin({ phone: "0712000888", pin: "Ab3!@cde", role: "TREASURER", now })).status).toBe("authenticated");
   });
 });

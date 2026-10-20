@@ -5,6 +5,7 @@
 ### A new password, and two messy registers
 
 - The practice password for the demo member and the demo treasurer is Ab3!@cde.
+- The owner in the server settings is both the treasurer and a member on that one phone. The phone is not written in the program.
 - A treasurer is not locked after wrong passwords. A member still locks after 3.
 - Two messy Excel files are on the upload page. The second file changes the October amounts.
 

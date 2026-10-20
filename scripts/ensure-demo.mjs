@@ -27,6 +27,7 @@ try {
   if (process.env.DEMO_MODE === "true") {
     execFileSync(process.execPath, [tsxCli, "scripts/refresh-demo-pins.ts"], { stdio: "inherit" });
   }
+  execFileSync(process.execPath, [tsxCli, "scripts/ensure-owner.ts"], { stdio: "inherit" });
 } catch {
   console.error("The records could not be opened. Run start-pamoja.bat again.");
   process.exitCode = 1;

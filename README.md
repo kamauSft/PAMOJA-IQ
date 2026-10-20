@@ -28,6 +28,8 @@ Open http://localhost:3000.
 
 Every seeded member uses password **Ab3!@cde**.
 
+The owner saved in the server settings uses one phone for both doors. That phone is not written in this page.
+
 | Person | Role | Phone | Lands on |
 |---|---|---|---|
 | Grace Wanjiku Mwangi | Chair | 0712345001 | The books, with password Ab3!@cde |
