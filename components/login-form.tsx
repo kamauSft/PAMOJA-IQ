@@ -150,7 +150,6 @@ export function LoginForm({
                     value={pin}
                     onChange={(event) => setPin(event.target.value)}
                     type={pinVisible ? "text" : "password"}
-                    inputMode="numeric"
                     autoComplete="new-password"
                     name="pin"
                   />

@@ -4,6 +4,7 @@
 
 ### A new password, and two messy registers
 
+- The sign-in PIN box opens the normal phone keyboard, so a password with letters and symbols can be typed.
 - The home page says an AI Agent names the columns on an unfamiliar Excel sheet.
 - The treasurer door no longer says to ask the treasurer. A treasurer is not locked after wrong passwords.
 - On a phone, the front-page title starts below the name and the language buttons.
