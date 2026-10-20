@@ -27,6 +27,7 @@ export function LoginForm({
   startWithPin = false,
   afterSignIn,
   preferredRole,
+  showForgot = true,
   labels = english,
 }: {
   initialPhone?: string;
@@ -34,6 +35,7 @@ export function LoginForm({
   startWithPin?: boolean;
   afterSignIn?: "/home" | "/desk";
   preferredRole?: "MEMBER" | "TREASURER" | "CHAIR" | "SECRETARY" | "AUDITOR";
+  showForgot?: boolean;
   labels?: typeof english;
 }) {
   const router = useRouter();
@@ -209,7 +211,7 @@ export function LoginForm({
           {showPin ? labels.useCode : labels.usePin}
         </button>
       ) : null}
-      {!challengeId ? <p className="mt-4 text-[13px] text-muted">{labels.forgot}</p> : null}
+      {!challengeId && showForgot ? <p className="mt-4 text-[13px] text-muted">{labels.forgot}</p> : null}
       {message ? (
         <p className="mt-4 text-sm text-clay" role="alert" data-testid="login-error">
           {message}

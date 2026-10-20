@@ -83,6 +83,7 @@ export default async function LoginPage({
           startWithPin
           afterSignIn={door === "member" ? "/home" : door === "treasurer" ? "/desk" : undefined}
           preferredRole={door === "member" ? "MEMBER" : door === "treasurer" ? "TREASURER" : undefined}
+          showForgot={whoKey !== "treasurer" && door !== "treasurer"}
           labels={text.login}
         />
       </div>
