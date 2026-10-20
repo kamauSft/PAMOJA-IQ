@@ -9,17 +9,14 @@ import { normalizePhone } from "@/lib/phone";
 
 const WHO = {
   treasurer: {
-    pin: "Ab3!@cde",
     en: "Enter your phone number and PIN.",
     sw: "Weka nambari ya simu na PIN.",
   },
   member: {
-    pin: "",
     en: "Enter your phone number and PIN.",
     sw: "Weka nambari ya simu na PIN.",
   },
   chair: {
-    pin: "Ab3!@cde",
     en: "Enter your phone number and PIN.",
     sw: "Weka nambari ya simu na PIN.",
   },
@@ -82,7 +79,7 @@ export default async function LoginPage({
       <div className="mt-6">
         <LoginForm
           initialPhone=""
-          initialPin={freshPhone ? "" : (who?.pin ?? "")}
+          initialPin=""
           startWithPin
           afterSignIn={door === "member" ? "/home" : door === "treasurer" ? "/desk" : undefined}
           preferredRole={door === "member" ? "MEMBER" : door === "treasurer" ? "TREASURER" : undefined}

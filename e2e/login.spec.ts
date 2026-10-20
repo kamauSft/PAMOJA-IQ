@@ -41,7 +41,8 @@ test("signs the treasurer in with the PIN", async ({ page }) => {
   await page.goto("/login?who=treasurer");
   await expect(page.getByLabel("Phone")).toHaveValue("");
   await page.getByLabel("Phone").fill("0712345002");
-  await expect(page.getByLabel("PIN")).toHaveValue("Ab3!@cde");
+  await expect(page.getByLabel("PIN")).toHaveValue("");
+  await page.getByLabel("PIN").fill("Ab3!@cde");
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL(/\/desk$/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("meeting");

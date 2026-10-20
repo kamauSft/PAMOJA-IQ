@@ -135,7 +135,7 @@ export function LoginForm({
                 value={phone}
                 onChange={(event) => setPhone(event.target.value)}
                 inputMode="tel"
-                autoComplete="tel"
+                autoComplete="off"
                 name="phone"
               />
             </label>
@@ -149,7 +149,7 @@ export function LoginForm({
                     onChange={(event) => setPin(event.target.value)}
                     type={pinVisible ? "text" : "password"}
                     inputMode="numeric"
-                    autoComplete="current-password"
+                    autoComplete="new-password"
                     name="pin"
                   />
                   <button className="tap shrink-0 rounded-lg border border-line px-3 text-[13px]" type="button" onClick={() => setPinVisible((current) => !current)}>

@@ -4,6 +4,8 @@
 
 ### A new password, and two messy registers
 
+- The sign-in page no longer fills in a password.
+- The front page has two doors, and the photographs move slowly.
 - The practice password for the demo member and the demo treasurer is Ab3!@cde.
 - The owner in the server settings is both the treasurer and a member on that one phone. The phone is not written in the program.
 - The books now allow that one phone to keep both doors.
