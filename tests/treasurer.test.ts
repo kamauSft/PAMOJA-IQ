@@ -35,6 +35,13 @@ describe("excel amounts", () => {
     expect(messy.contributions).toHaveLength(4);
     expect(messy.contributions.every((row) => row.amountCents === 200_000)).toBe(true);
     expect(messy.contributions.find((row) => row.name === "Amina Hassan")?.phone).toBe("+254712345005");
+
+    const csv = Buffer.from("Jina,Simu,Jan 2026\nAsha Njeri,0712555011,\"2,000\"\n");
+    const plain = await readUpload(csv, "register.csv");
+    expect(plain.members.map((member) => member.phone)).toEqual(["+254712555011"]);
+    expect(plain.contributions).toHaveLength(1);
+    expect(plain.contributions[0]?.amountCents).toBe(200_000);
+    await expect(readUpload(Buffer.from("not a workbook"), "notes.pdf")).rejects.toThrow();
   });
 
   it("builds a blank template with member and month columns", async () => {

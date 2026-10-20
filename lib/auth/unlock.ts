@@ -124,3 +124,112 @@ export async function issueTemporaryPin(input: {
     pins: pins.map(({ role, memberNo, temporaryPin }) => ({ role, memberNo, temporaryPin })),
   };
 }
+
+const HOLD_UNTIL = new Date("9999-12-31T00:00:00.000Z");
+
+async function actingOfficer(input: {
+  chamaId: string;
+  actor: { membershipId: string; personId: string; role: MembershipRole };
+  pin: string;
+  refused: string;
+}) {
+  if (input.actor.role !== "TREASURER" && input.actor.role !== "CHAIR") {
+    return { ok: false as const, message: input.refused };
+  }
+  const actor = await prismaRaw.membership.findFirst({
+    where: {
+      id: input.actor.membershipId,
+      chamaId: input.chamaId,
+      personId: input.actor.personId,
+      status: "ACTIVE",
+    },
+  });
+  if (!actor || (actor.role !== "TREASURER" && actor.role !== "CHAIR")) {
+    return { ok: false as const, message: input.refused };
+  }
+  if (!(await verifyPin(input.pin.trim(), actor.hashedPin))) {
+    return { ok: false as const, message: "That PIN does not match this treasurer or chair." };
+  }
+  return { ok: true as const, actor };
+}
+
+export async function lockAccount(input: {
+  chamaId: string;
+  actor: { membershipId: string; personId: string; role: MembershipRole };
+  personId: string;
+  pin: string;
+}): Promise<{ ok: true } | { ok: false; message: string }> {
+  const officer = await actingOfficer({
+    ...input,
+    refused: "Only the treasurer or the chair can lock a number.",
+  });
+  if (!officer.ok) return officer;
+  if (input.personId === input.actor.personId) {
+    return { ok: false, message: "You cannot lock your own number." };
+  }
+  const member = await prismaRaw.membership.findFirst({
+    where: { chamaId: input.chamaId, personId: input.personId, status: "ACTIVE" },
+  });
+  if (!member) return { ok: false, message: "That member is not in this chama." };
+  await prismaRaw.$transaction(async (tx) => {
+    await tx.person.update({
+      where: { id: input.personId },
+      data: { lockedUntil: HOLD_UNTIL },
+    });
+    await tx.session.updateMany({
+      where: { personId: input.personId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+    await appendAuditInTransaction(tx, {
+      chamaId: input.chamaId,
+      membershipId: officer.actor.id,
+      personId: input.actor.personId,
+      action: "member.held",
+      entityType: "Person",
+      entityId: input.personId,
+      after: { memberNo: member.memberNo },
+    });
+  });
+  return { ok: true };
+}
+
+export async function removeMember(input: {
+  chamaId: string;
+  actor: { membershipId: string; personId: string; role: MembershipRole };
+  personId: string;
+  pin: string;
+}): Promise<{ ok: true } | { ok: false; message: string }> {
+  const officer = await actingOfficer({
+    ...input,
+    refused: "Only the treasurer or the chair can remove a person.",
+  });
+  if (!officer.ok) return officer;
+  if (input.personId === input.actor.personId) {
+    return { ok: false, message: "You cannot remove your own number." };
+  }
+  const posts = await prismaRaw.membership.findMany({
+    where: { chamaId: input.chamaId, personId: input.personId, status: "ACTIVE" },
+  });
+  if (posts.length === 0) return { ok: false, message: "That member is not in this chama." };
+  const now = new Date();
+  await prismaRaw.$transaction(async (tx) => {
+    await tx.membership.updateMany({
+      where: { id: { in: posts.map((post) => post.id) } },
+      data: { status: "EXITED", exitDate: now },
+    });
+    await tx.session.updateMany({
+      where: { personId: input.personId, revokedAt: null },
+      data: { revokedAt: now },
+    });
+    await appendAuditInTransaction(tx, {
+      chamaId: input.chamaId,
+      membershipId: officer.actor.id,
+      personId: input.actor.personId,
+      action: "member.removed",
+      entityType: "Person",
+      entityId: input.personId,
+      after: { memberNos: posts.map((post) => post.memberNo) },
+    });
+  });
+  return { ok: true };
+}

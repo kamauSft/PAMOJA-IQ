@@ -25,6 +25,7 @@ export function AddMemberForm({
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [done, setDone] = useState("");
+  const [startPin, setStartPin] = useState("");
   const [pending, setPending] = useState(false);
 
   async function submit(event: React.FormEvent) {
@@ -32,6 +33,7 @@ export function AddMemberForm({
     setPending(true);
     setMessage("");
     setDone("");
+    setStartPin("");
     try {
       const response = await fetch("/api/members", {
         method: "POST",
@@ -52,10 +54,9 @@ export function AddMemberForm({
       }
       setName("");
       setPhone("");
+      setStartPin(body.temporaryPin);
       const kept = body.keptOfficialPin ? ` ${labels.addKept}` : "";
-      setDone(
-        `${labels.addDone} ${body.name ?? ""} (${body.memberNo}). ${labels.addPin}: ${body.temporaryPin}. ${labels.issuedTail}${kept}`,
-      );
+      setDone(`${labels.addDone} ${body.name ?? ""} (${body.memberNo}).${kept}`);
       router.refresh();
     } catch {
       setMessage(labels.addFailed);
@@ -81,7 +82,14 @@ export function AddMemberForm({
       <button className="btn disabled:opacity-60" disabled={pending} type="submit">
         {pending ? labels.addWorking : labels.addSave}
       </button>
-      {done ? <p className="text-sm text-leaf">{done}</p> : null}
+      {startPin ? (
+        <div className="border border-line p-4" role="status">
+          <p className="text-sm text-muted">{labels.addPin}</p>
+          <p className="mt-1 font-mono text-3xl tracking-[0.18em]">{startPin}</p>
+          <p className="mt-2 text-sm text-muted">{labels.issuedTail}</p>
+          {done ? <p className="mt-2 text-sm">{done}</p> : null}
+        </div>
+      ) : null}
       {message ? (
         <p className="text-sm text-clay" role="alert">
           {message}

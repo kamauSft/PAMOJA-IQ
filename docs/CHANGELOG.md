@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### The treasurer can set a PIN, lock a number, or remove a person
+
+- A new PIN is shown in large type on the desk, once.
+- The treasurer can lock a number or remove a person. Old payments stay in the books.
+- The front page no longer talks about a neighbour's savings.
+
 ### The treasurer can set a PIN and unlock a number
 
 - Adding a member shows a temporary PIN once on the desk. It is not sent to a phone.

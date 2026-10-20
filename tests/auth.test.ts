@@ -5,7 +5,7 @@ import { consumeRateLimit, resetRateLimits } from "@/lib/auth/rate-limit";
 import { sessionCookieOptions } from "@/lib/auth/session";
 import { resetLoginLockouts } from "@/lib/auth/lockout";
 import { getSession, loginWithPin, logout, logoutAll, setMemberPin } from "@/lib/auth/service";
-import { issueTemporaryPin, unlockAccount } from "@/lib/auth/unlock";
+import { issueTemporaryPin, lockAccount, removeMember, unlockAccount } from "@/lib/auth/unlock";
 import { MemoryMessagingProvider } from "@/lib/messaging/provider";
 import { prismaRaw } from "@/lib/db";
 import { umojaSettings } from "@/lib/chama/rules";
@@ -345,5 +345,57 @@ describe("rules and maker-checker", () => {
       if (previous === undefined) delete process.env.OWNER_PHONE;
       else process.env.OWNER_PHONE = previous;
     }
+  });
+
+  it("lets the treasurer lock a number and remove a person without erasing the PIN from the audit", async () => {
+    const treasurer = await member({ phone: "+254711000444", role: "TREASURER", pin: "2580" });
+    const person = await prismaRaw.person.create({
+      data: { name: "Asha Njeri", phone: "+254711000555", channelPrefs: {}, consent: {} },
+    });
+    await prismaRaw.membership.create({
+      data: {
+        chamaId: treasurer.chama.id,
+        personId: person.id,
+        role: "MEMBER",
+        memberNo: "M009",
+        joinDate: new Date("2026-01-03T00:00:00.000Z"),
+        hashedPin: await hashPin("482916"),
+      },
+    });
+    expect(
+      await lockAccount({
+        chamaId: treasurer.chama.id,
+        actor: { membershipId: treasurer.membership.id, personId: treasurer.person.id, role: "TREASURER" },
+        personId: person.id,
+        pin: "0000",
+      }),
+    ).toMatchObject({ ok: false });
+    expect(
+      await lockAccount({
+        chamaId: treasurer.chama.id,
+        actor: { membershipId: treasurer.membership.id, personId: treasurer.person.id, role: "TREASURER" },
+        personId: person.id,
+        pin: "2580",
+      }),
+    ).toEqual({ ok: true });
+    expect((await loginWithPin({ phone: "0711000555", pin: "482916", now })).status).toBe("locked");
+    expect(
+      await removeMember({
+        chamaId: treasurer.chama.id,
+        actor: { membershipId: treasurer.membership.id, personId: treasurer.person.id, role: "TREASURER" },
+        personId: person.id,
+        pin: "2580",
+      }),
+    ).toEqual({ ok: true });
+    const kept = await prismaRaw.membership.findFirstOrThrow({ where: { personId: person.id } });
+    expect(kept.status).toBe("EXITED");
+    expect(
+      await removeMember({
+        chamaId: treasurer.chama.id,
+        actor: { membershipId: treasurer.membership.id, personId: treasurer.person.id, role: "TREASURER" },
+        personId: treasurer.person.id,
+        pin: "2580",
+      }),
+    ).toMatchObject({ ok: false });
   });
 });
