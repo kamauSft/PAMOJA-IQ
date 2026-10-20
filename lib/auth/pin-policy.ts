@@ -22,6 +22,15 @@ export function validatePin(pin: string, kind: "MEMBER" | "OFFICIAL"): string | 
   return null;
 }
 
+export function randomOfficialPin(): string {
+  let pin = "48291673";
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    pin = randomInt(0, 100_000_000).toString().padStart(8, "0");
+    if (!validatePin(pin, "OFFICIAL")) return pin;
+  }
+  return "48291673";
+}
+
 export function randomMemberPin(): string {
   let pin = "482916";
   for (let attempt = 0; attempt < 20; attempt += 1) {

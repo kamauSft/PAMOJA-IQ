@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### The treasurer can set a PIN and unlock a number
+
+- Adding a member shows a temporary PIN once on the desk. It is not sent to a phone.
+- A person who is already an official can also be a member. Each door keeps its own PIN.
+- Three wrong PINs lock both doors until the treasurer or the chair unlocks them.
+- A lock notice is prepared for `OWNER_PHONE`. The number is not written in the program.
+
 ### The internet page draws itself
 
 - The live page was white because the internet copy blocked its own script. That script is allowed now, so the page can open.

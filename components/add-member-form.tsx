@@ -15,6 +15,9 @@ export function AddMemberForm({
     addWorking: string;
     addFailed: string;
     addDone: string;
+    addPin: string;
+    addKept: string;
+    issuedTail: string;
   };
 }) {
   const router = useRouter();
@@ -35,14 +38,24 @@ export function AddMemberForm({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ name, phone }),
       });
-      const body = (await response.json().catch(() => null)) as { message?: string; phone?: string; memberNo?: string } | null;
-      if (!response.ok || !body?.phone || !body.memberNo) {
+      const body = (await response.json().catch(() => null)) as {
+        message?: string;
+        phone?: string;
+        memberNo?: string;
+        name?: string;
+        temporaryPin?: string;
+        keptOfficialPin?: boolean;
+      } | null;
+      if (!response.ok || !body?.phone || !body.memberNo || !body.temporaryPin) {
         setMessage(body?.message || labels.addFailed);
         return;
       }
       setName("");
       setPhone("");
-      setDone(`${labels.addDone} ${body.phone} (${body.memberNo}).`);
+      const kept = body.keptOfficialPin ? ` ${labels.addKept}` : "";
+      setDone(
+        `${labels.addDone} ${body.name ?? ""} (${body.memberNo}). ${labels.addPin}: ${body.temporaryPin}. ${labels.issuedTail}${kept}`,
+      );
       router.refresh();
     } catch {
       setMessage(labels.addFailed);

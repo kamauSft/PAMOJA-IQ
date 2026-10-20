@@ -1,12 +1,12 @@
-import { randomInt } from "node:crypto";
 import type { MembershipRole } from "@prisma/client";
 import { appendAuditInTransaction } from "@/lib/audit/log";
 import { hashPin } from "@/lib/auth/pin";
+import { randomMemberPin } from "@/lib/auth/pin-policy";
 import { prismaRaw } from "@/lib/db";
 import { normalizePhone } from "@/lib/phone";
 
 export type AddMemberResult =
-  | { ok: true; memberNo: string; phone: string; name: string }
+  | { ok: true; memberNo: string; phone: string; name: string; temporaryPin: string; keptOfficialPin: boolean }
   | { ok: false; message: string };
 
 function cleanName(value: string): string | null {
@@ -43,26 +43,38 @@ export async function addMember(input: {
     return { ok: false, message: "Only the treasurer can add a member." };
   }
 
-  const taken = await prismaRaw.person.findUnique({ where: { phone } });
-  if (taken) return { ok: false, message: "That number is already registered. Ask them to sign in." };
+  const taken = await prismaRaw.person.findUnique({
+    where: { phone },
+    include: { memberships: { where: { chamaId: input.chamaId, status: "ACTIVE" } } },
+  });
+  if (taken && taken.memberships.some((row) => row.role === "MEMBER")) {
+    return { ok: false, message: "That number is already registered. Ask them to sign in." };
+  }
+  if (taken && taken.memberships.length === 0) {
+    return { ok: false, message: "That number is already registered. Ask them to sign in." };
+  }
 
   const numbers = await prismaRaw.membership.findMany({
     where: { chamaId: input.chamaId },
     select: { memberNo: true },
   });
   const memberNo = nextMemberNo(new Set(numbers.map((row) => row.memberNo)));
-  const hashedPin = await hashPin(String(randomInt(0, 10000)).padStart(4, "0"));
+  const temporaryPin = randomMemberPin();
+  const hashedPin = await hashPin(temporaryPin);
+  const keptOfficialPin = Boolean(taken);
 
   await prismaRaw.$transaction(async (tx) => {
-    const person = await tx.person.create({
-      data: {
-        name,
-        phone,
-        preferredLanguage: "EN",
-        channelPrefs: { whatsapp: true, sms: true, ussd: false },
-        consent: { privacyNotice: true, dataProcessing: true, consentedAt: new Date().toISOString() },
-      },
-    });
+    const person =
+      taken ??
+      (await tx.person.create({
+        data: {
+          name,
+          phone,
+          preferredLanguage: "EN",
+          channelPrefs: { whatsapp: true, sms: true, ussd: false },
+          consent: { privacyNotice: true, dataProcessing: true, consentedAt: new Date().toISOString() },
+        },
+      }));
     const membership = await tx.membership.create({
       data: {
         chamaId: input.chamaId,
@@ -81,9 +93,9 @@ export async function addMember(input: {
       action: "member.added",
       entityType: "Membership",
       entityId: membership.id,
-      after: { memberNo, name },
+      after: { memberNo, name, keptOfficialPin },
     });
   });
 
-  return { ok: true, memberNo, phone, name };
+  return { ok: true, memberNo, phone, name: taken?.name ?? name, temporaryPin, keptOfficialPin };
 }

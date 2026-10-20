@@ -2,15 +2,10 @@ import type { MembershipRole } from "@prisma/client";
 import { prismaRaw } from "../db";
 import { type MessagingProvider } from "../messaging/provider";
 import { hashPin, verifyPin } from "./pin";
+import { notifyLock } from "./lock-notice";
+import { validatePin } from "./pin-policy";
 import { normalizePhone } from "../phone";
-import {
-  LOCKOUT_MS,
-  OTP_MAX_ATTEMPTS,
-  PIN_MAX_ATTEMPTS,
-  newSessionToken,
-  sessionLifetimeMs,
-  sha256,
-} from "./session";
+import { OTP_MAX_ATTEMPTS, PIN_MAX_ATTEMPTS, newSessionToken, sessionLifetimeMs, sha256 } from "./session";
 
 export interface ChamaChoice {
   chamaId: string;
@@ -49,14 +44,15 @@ function dummyPinHash(): Promise<string> {
   return dummyHash;
 }
 
-async function recordFailure(personId: string, attempts: number, now: Date): Promise<LoginResult> {
+async function recordFailure(personId: string, attempts: number, messaging?: MessagingProvider): Promise<LoginResult> {
   const next = attempts + 1;
   if (next >= PIN_MAX_ATTEMPTS) {
-    const lockedUntil = new Date(now.getTime() + LOCKOUT_MS);
+    const lockedUntil = PIN_LOCK_UNTIL;
     await prismaRaw.person.update({
       where: { id: personId },
-      data: { failedLoginAttempts: 0, lockedUntil },
+      data: { failedLoginAttempts: next, lockedUntil },
     });
+    await notifyLock(personId, messaging);
     return {
       status: "locked",
       lockedUntil: lockedUntil.toISOString(),
@@ -146,15 +142,8 @@ export async function loginWithPin(input: {
 
   const person = await prismaRaw.person.findUnique({ where: { phone } });
   if (!person) return unknownNumber();
-  if (person.lockedUntil && person.lockedUntil > now) {
+  if (person.lockedUntil) {
     return { status: "locked", lockedUntil: person.lockedUntil.toISOString(), message: LOCKED_MESSAGE };
-  }
-  if (person.lockedUntil && person.lockedUntil <= now) {
-    await prismaRaw.person.update({
-      where: { id: person.id },
-      data: { failedLoginAttempts: 0, lockedUntil: null },
-    });
-    person.failedLoginAttempts = 0;
   }
 
   const found = await prismaRaw.membership.findMany({
@@ -177,7 +166,7 @@ export async function loginWithPin(input: {
   for (const membership of memberships) {
     if (await verifyPin(pin, membership.hashedPin)) matches.push(membership);
   }
-  if (matches.length === 0) return recordFailure(person.id, person.failedLoginAttempts, now);
+  if (matches.length === 0) return recordFailure(person.id, person.failedLoginAttempts, input.messaging);
   if (person.failedLoginAttempts !== 0) {
     await prismaRaw.person.update({
       where: { id: person.id },
@@ -186,7 +175,7 @@ export async function loginWithPin(input: {
   }
 
   const chosen = input.chamaId ? matches.filter((membership) => membership.chamaId === input.chamaId) : matches;
-  if (chosen.length === 0) return recordFailure(person.id, person.failedLoginAttempts, now);
+  if (chosen.length === 0) return recordFailure(person.id, person.failedLoginAttempts, input.messaging);
   if (chosen.length > 1) return { status: "choose_chama", chamas: chamaChoices(chosen) };
 
   const membership = chosen[0];
@@ -206,7 +195,8 @@ export async function setMemberPin(input: {
   personId: string;
   pin: string;
 }): Promise<{ ok: true } | { ok: false; message: string }> {
-  if (!/^\d{4}$/.test(input.pin)) return { ok: false, message: "Use a 4-digit PIN." };
+  const pinMessage = validatePin(input.pin, "MEMBER");
+  if (pinMessage) return { ok: false, message: pinMessage };
   const membership = await prismaRaw.membership.findFirst({
     where: { id: input.membershipId, personId: input.personId, role: "MEMBER", status: "ACTIVE" },
   });
@@ -245,7 +235,7 @@ export async function verifyOtp(input: {
       data: { attempts, consumedAt: lock ? now : null },
     });
     if (lock) {
-      const lockedUntil = new Date(now.getTime() + LOCKOUT_MS);
+      const lockedUntil = PIN_LOCK_UNTIL;
       await prismaRaw.person.update({
         where: { id: challenge.personId },
         data: { failedLoginAttempts: 0, lockedUntil },

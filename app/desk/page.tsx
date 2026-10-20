@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AddMemberForm } from "@/components/add-member-form";
+import { SignInCare } from "@/components/sign-in-care";
 import { MemberRegister } from "@/components/member-register";
 import { MonthPill } from "@/components/month-pill";
 import { ScenePhoto } from "@/components/scene-photo";
@@ -9,6 +10,7 @@ import { Stat } from "@/components/stat";
 import { copy } from "@/content/ui";
 import { booksAsOf } from "@/lib/chama/clock";
 import { loadDesk } from "@/lib/chama/load-desk";
+import { loadSignInList } from "@/lib/chama/sign-in-list";
 import { canBringInBooks, requireSession, tenantFromSession } from "@/lib/chama/page-session";
 import { getLocale } from "@/lib/locale";
 import { isOfficial, runWithTenant } from "@/lib/tenancy/context";
@@ -23,7 +25,10 @@ export default async function DeskPage() {
   const locale = await getLocale();
   const text = copy(locale);
   const deskText = text.desk;
-  const desk = await runWithTenant(tenantFromSession(session), () => loadDesk(booksAsOf()));
+  const { desk, signIns } = await runWithTenant(tenantFromSession(session), async () => ({
+    desk: await loadDesk(booksAsOf()),
+    signIns: canBringInBooks(session.role) ? await loadSignInList() : [],
+  }));
   const register = [...desk.members].sort(
     (a, b) => ORDER[a.thisMonth] - ORDER[b.thisMonth] || a.memberNo.localeCompare(b.memberNo),
   );
@@ -64,6 +69,7 @@ export default async function DeskPage() {
         </section>
       ) : null}
       {canBringInBooks(session.role) ? <AddMemberForm labels={deskText} /> : null}
+      {canBringInBooks(session.role) ? <SignInCare people={signIns} roles={text.shell.roles} labels={deskText} /> : null}
       <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label={deskText.savings} value={desk.savingsLabel} />
         <Stat label={deskText.loans} value={desk.loansOutstandingLabel} />

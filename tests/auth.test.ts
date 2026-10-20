@@ -5,6 +5,7 @@ import { consumeRateLimit, resetRateLimits } from "@/lib/auth/rate-limit";
 import { sessionCookieOptions } from "@/lib/auth/session";
 import { resetLoginLockouts } from "@/lib/auth/lockout";
 import { getSession, loginWithPin, logout, logoutAll, setMemberPin } from "@/lib/auth/service";
+import { issueTemporaryPin, unlockAccount } from "@/lib/auth/unlock";
 import { MemoryMessagingProvider } from "@/lib/messaging/provider";
 import { prismaRaw } from "@/lib/db";
 import { umojaSettings } from "@/lib/chama/rules";
@@ -84,7 +85,7 @@ describe("auth", () => {
       pin: "2580",
       now: new Date(now.getTime() + 16 * 60_000),
     });
-    expect(later.status).toBe("authenticated");
+    expect(later.status).toBe("locked");
     expect(await loginWithPin({ phone: "nope", pin: "2580", now })).toMatchObject({
       status: "invalid_credentials",
       message: "Enter a Kenyan mobile number, like 0712 345 005.",
@@ -179,10 +180,13 @@ describe("auth", () => {
     expect(await setMemberPin({ membershipId: fixture.membership.id, personId: fixture.person.id, pin: "12" })).toMatchObject({
       ok: false,
     });
-    expect(await setMemberPin({ membershipId: fixture.membership.id, personId: fixture.person.id, pin: "4321" })).toEqual({
+    expect(await setMemberPin({ membershipId: fixture.membership.id, personId: fixture.person.id, pin: "4321" })).toMatchObject({
+      ok: false,
+    });
+    expect(await setMemberPin({ membershipId: fixture.membership.id, personId: fixture.person.id, pin: "482916" })).toEqual({
       ok: true,
     });
-    expect((await loginWithPin({ phone: "0712345005", pin: "4321", now })).status).toBe("authenticated");
+    expect((await loginWithPin({ phone: "0712345005", pin: "482916", now })).status).toBe("authenticated");
 
     await member({ phone: "+254712345002", role: "TREASURER" });
     expect(await loginWithPin({ phone: "0712345002", now, messaging })).toMatchObject({ status: "pin_required" });
@@ -279,5 +283,67 @@ describe("rules and maker-checker", () => {
         ],
       }).ok,
     ).toBe(true);
+  });
+
+  it("gives a member and a treasurer their own temporary PINs and keeps a lock until unlock", async () => {
+    const treasurer = await member({ phone: "+254711000222", role: "TREASURER", pin: "2580" });
+    const memberPost = await prismaRaw.membership.create({
+      data: {
+        chamaId: treasurer.chama.id,
+        personId: treasurer.person.id,
+        role: "MEMBER",
+        memberNo: "M002",
+        joinDate: new Date("2026-01-03T00:00:00.000Z"),
+        hashedPin: treasurer.membership.hashedPin,
+      },
+    });
+    const issued = await issueTemporaryPin({
+      chamaId: treasurer.chama.id,
+      actor: { membershipId: treasurer.membership.id, personId: treasurer.person.id, role: "TREASURER" },
+      membershipId: memberPost.id,
+      pin: "2580",
+    });
+    expect(issued.ok).toBe(true);
+    if (!issued.ok) return;
+    const memberPin = issued.pins.find((row) => row.role === "MEMBER")?.temporaryPin ?? "";
+    const officialPin = issued.pins.find((row) => row.role === "TREASURER")?.temporaryPin ?? "";
+    expect(memberPin).toMatch(/^\d{6}$/);
+    expect(officialPin).toMatch(/^\d{8}$/);
+    expect((await loginWithPin({ phone: "0711000222", pin: memberPin, role: "MEMBER", now })).status).toBe("authenticated");
+    expect((await loginWithPin({ phone: "0711000222", pin: officialPin, role: "TREASURER", now })).status).toBe("authenticated");
+    expect((await loginWithPin({ phone: "0711000222", pin: "2580", role: "TREASURER", now })).status).not.toBe("authenticated");
+    const logged = await prismaRaw.auditLog.findFirst({ where: { action: "member.pin_reset" } });
+    expect(JSON.stringify(logged?.after ?? {})).not.toContain(memberPin);
+
+    const messaging = new MemoryMessagingProvider();
+    const previous = process.env.OWNER_PHONE;
+    process.env.OWNER_PHONE = "0712000111";
+    try {
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        await loginWithPin({ phone: "0711000222", pin: "0000", role: "MEMBER", now, messaging });
+      }
+      expect(messaging.sent).toHaveLength(1);
+      expect(messaging.sent[0]?.to).toBe("+254712000111");
+      expect(messaging.sent[0]?.body).toContain("Tester");
+      expect(messaging.sent[0]?.body).toContain("member door and the treasurer door");
+      expect(messaging.sent[0]?.body).not.toContain(memberPin);
+      expect((await loginWithPin({ phone: "0711000222", pin: memberPin, role: "MEMBER", now: new Date(now.getTime() + 60 * 60_000) })).status).toBe(
+        "locked",
+      );
+      const unlocked = await unlockAccount({
+        chamaId: treasurer.chama.id,
+        actor: { membershipId: treasurer.membership.id, personId: treasurer.person.id, role: "TREASURER" },
+        personId: treasurer.person.id,
+        pin: officialPin,
+      });
+      expect(unlocked).toEqual({ ok: true });
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        await loginWithPin({ phone: "0711000222", pin: "0000", role: "MEMBER", now, messaging });
+      }
+      expect(messaging.sent[1]?.body).toContain("locked again");
+    } finally {
+      if (previous === undefined) delete process.env.OWNER_PHONE;
+      else process.env.OWNER_PHONE = previous;
+    }
   });
 });

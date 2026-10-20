@@ -116,7 +116,12 @@ describe("treasurer profile and import", () => {
       name: "Asha Njeri",
       phone: "0712555099",
     });
-    expect(added).toMatchObject({ ok: true, memberNo: "M001", phone: "+254712555099" });
+    expect(added).toMatchObject({ ok: true, memberNo: "M001", phone: "+254712555099", keptOfficialPin: false });
+    if (!added.ok) return;
+    expect(added.temporaryPin).toMatch(/^\d{6}$/);
+    expect((await loginWithPin({ phone: "0712555099", pin: added.temporaryPin, role: "MEMBER" })).status).toBe("authenticated");
+    const addedLog = await prismaRaw.auditLog.findFirst({ where: { action: "member.added" } });
+    expect(JSON.stringify(addedLog?.after ?? {})).not.toContain(added.temporaryPin);
     const duplicate = await addMember({
       chamaId: treasurer.chamaId,
       actor: { membershipId: treasurer.id, personId: treasurer.personId, role: "TREASURER" },
@@ -131,5 +136,16 @@ describe("treasurer profile and import", () => {
       phone: "0712555088",
     });
     expect(refused.ok).toBe(false);
+    const alsoMember = await addMember({
+      chamaId: treasurer.chamaId,
+      actor: { membershipId: treasurer.id, personId: treasurer.personId, role: "TREASURER" },
+      name: "Jane Wanjiku",
+      phone: "0712000222",
+    });
+    expect(alsoMember).toMatchObject({ ok: true, keptOfficialPin: true });
+    if (!alsoMember.ok) return;
+    expect(alsoMember.temporaryPin).toMatch(/^\d{6}$/);
+    expect((await loginWithPin({ phone: "0712000222", pin: alsoMember.temporaryPin, role: "MEMBER" })).status).toBe("authenticated");
+    expect((await loginWithPin({ phone: "0712000222", pin: "2468", role: "TREASURER" })).status).toBe("authenticated");
   });
 });
