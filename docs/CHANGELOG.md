@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### The internet page draws itself
+
+- The live page was white because the internet copy blocked its own script. That script is allowed now, so the page can open.
+
 ### Sign-in is the phone number and the PIN
 
 - The sign-in page no longer talks about a code on the screen. A person enters the phone number and the PIN.
