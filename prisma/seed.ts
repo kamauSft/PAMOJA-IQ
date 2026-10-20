@@ -516,8 +516,8 @@ export async function seedDatabase() {
   console.log("Seeded Umoja Savings Group");
   console.log(`Members: ${members.length}. Contributions: ${contributions.length}. Loans: ${loans.length}.`);
   console.log(`Demo PIN for every member: ${DEMO_PIN}`);
-  console.log("Chair Grace Wanjiku: +254712345001 (SMS code required)");
-  console.log("Treasurer Peter Otieno: +254712345002 (SMS code required)");
+  console.log("Chair Grace Wanjiku: +254712345001");
+  console.log("Treasurer Peter Otieno: +254712345002");
   console.log("Member Amina Hassan: +254712345005");
   console.log(`Sample savings for Amina at ${SEED_AS_OF}: ${savingsCentsAt("M005", SEED_AS_OF)} cents`);
 }

@@ -21,26 +21,26 @@ export default async function LoansPage() {
 
   return (
     <Shell chamaName={desk.chamaName} personName={session.personName} role={session.role} current="/loans">
-      <h1 className="font-serif text-4xl">Loans</h1>
-      <p className="mt-1 text-sm text-stone-600">Still out: {desk.loansOutstandingLabel}. Pool left to lend: {desk.poolLabel}.</p>
+      <h1 className="text-4xl">Loans</h1>
+      <p className="mt-1 text-sm text-muted">Still out: {desk.loansOutstandingLabel}. Pool left to lend: {desk.poolLabel}.</p>
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         {GROUPS.map((group) => {
           const rows = desk.loans.filter((loan) => (group.statuses as readonly string[]).includes(loan.status));
           return (
-            <section key={group.title} className="rounded-2xl border border-stone-300 bg-white/80 p-4">
-              <h2 className="font-serif text-2xl">
-                {group.title} <span className="text-base text-stone-500">{rows.length}</span>
+            <section key={group.title} className="card p-4">
+              <h2 className="text-2xl">
+                {group.title} <span className="text-base text-muted">{rows.length}</span>
               </h2>
               {rows.length === 0 ? (
-                <p className="mt-2 text-sm text-stone-500">None.</p>
+                <p className="mt-2 text-sm text-muted">None.</p>
               ) : (
                 <ul className="mt-3 space-y-3">
                   {rows.map((loan) => (
-                    <li key={`${loan.memberNo}-${loan.purpose}-${loan.status}`} className="border-t border-stone-200 pt-3 text-sm">
-                      <p className="font-medium">
+                    <li key={`${loan.memberNo}-${loan.purpose}-${loan.status}`} className="border-t border-line pt-3 text-sm">
+                      <p className="font-medium text-ink">
                         {loan.memberNo} {loan.name}
                       </p>
-                      <p className="text-stone-600">
+                      <p className="text-muted">
                         {loan.purpose} · {loan.months} months · {loan.status === "DEFAULTED" ? "Defaulted" : loan.status.toLowerCase()}
                       </p>
                       <p>

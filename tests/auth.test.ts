@@ -1,11 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { otpSmsBody } from "@/config/brand";
 import { hashPin } from "@/lib/auth/pin";
 import { maskPhone, normalizePhone } from "@/lib/auth/phone";
 import { consumeRateLimit, resetRateLimits } from "@/lib/auth/rate-limit";
 import { sessionCookieOptions } from "@/lib/auth/session";
 import { resetLoginLockouts } from "@/lib/auth/lockout";
-import { getSession, loginWithPin, logout, logoutAll, setMemberPin, verifyOtp } from "@/lib/auth/service";
+import { getSession, loginWithPin, logout, logoutAll, setMemberPin } from "@/lib/auth/service";
 import { MemoryMessagingProvider } from "@/lib/messaging/provider";
 import { prismaRaw } from "@/lib/db";
 import { umojaSettings } from "@/lib/chama/rules";
@@ -67,9 +66,9 @@ describe("auth", () => {
     expect(await getSession(ok.token, stillSignedIn)).not.toBeNull();
     expect(await getSession(ok.token, new Date(stillSignedIn.getTime() + 31 * 24 * 60 * 60_000))).toBeNull();
 
-    for (let attempt = 0; attempt < 4; attempt += 1) {
+    for (let attempt = 0; attempt < 2; attempt += 1) {
       const failed = await loginWithPin({ phone: "+254712345005", pin: "0000", now });
-      const triesLeft = 4 - attempt;
+      const triesLeft = 2 - attempt;
       expect(failed).toMatchObject({
         status: "invalid_credentials",
         triesLeft,
@@ -116,27 +115,17 @@ describe("auth", () => {
     expect(choice.status).toBe("choose_chama");
     if (choice.status !== "choose_chama") return;
 
-    const pending = await loginWithPin({
+    const authed = await loginWithPin({
       phone: "+254712345002",
       pin: "2580",
       chamaId: fixture.chama.id,
       now,
       messaging,
-      demoOtpVisible: true,
     });
-    expect(pending.status).toBe("otp_required");
-    if (pending.status !== "otp_required") return;
-    expect(messaging.sent.at(-1)?.body).toContain(pending.demoCode);
-    expect(await verifyOtp({ challengeId: pending.challengeId, code: "000000", now })).toMatchObject({
-      status: "otp_invalid",
-    });
-    const authed = await verifyOtp({ challengeId: pending.challengeId, code: pending.demoCode ?? "", now });
     expect(authed.status).toBe("authenticated");
     if (authed.status !== "authenticated") return;
+    expect(messaging.sent).toHaveLength(0);
     expect(await getSession(authed.token, new Date(now.getTime() + 31 * 60_000))).toBeNull();
-    expect(await verifyOtp({ challengeId: pending.challengeId, code: pending.demoCode ?? "", now })).toMatchObject({
-      status: "otp_invalid",
-    });
 
     const second = await loginWithPin({ phone: "+254712345002", pin: "2580", chamaId: other.id, now });
     expect(second.status).toBe("authenticated");
@@ -168,46 +157,24 @@ describe("auth", () => {
       now,
       demoOtpVisible: true,
     });
-    expect(asTreasurer.status).toBe("otp_required");
+    expect(asTreasurer.status).toBe("authenticated");
   });
 
-  it("expires a code and locks it after five misses", async () => {
+  it("signs a chair in with the PIN alone", async () => {
     await member({ phone: "+254712345001", role: "CHAIR" });
-    const pending = await loginWithPin({ phone: "+254712345001", pin: "2580", now, demoOtpVisible: true });
-    if (pending.status !== "otp_required") throw new Error("expected a code");
-    expect(
-      await verifyOtp({
-        challengeId: pending.challengeId,
-        code: pending.demoCode ?? "",
-        now: new Date(now.getTime() + 6 * 60_000),
-      }),
-    ).toMatchObject({ status: "otp_expired" });
-
-    const again = await loginWithPin({ phone: "+254712345001", pin: "2580", now, demoOtpVisible: true });
-    if (again.status !== "otp_required") throw new Error("expected a code");
-    for (let attempt = 0; attempt < 4; attempt += 1) {
-      expect(await verifyOtp({ challengeId: again.challengeId, code: "111111", now })).toMatchObject({
-        status: "otp_invalid",
-      });
-    }
-    expect(await verifyOtp({ challengeId: again.challengeId, code: "111111", now })).toMatchObject({
-      status: "locked",
-    });
-    expect(await loginWithPin({ phone: "0712345001", pin: "2580", now: new Date(now.getTime() + 60_000) })).toMatchObject({
-      status: "locked",
+    expect(await loginWithPin({ phone: "+254712345001", pin: "2580", now })).toMatchObject({
+      status: "authenticated",
+      role: "CHAIR",
     });
   });
 
   it("texts a member a code, saves a PIN, and asks an official for a PIN first", async () => {
     const fixture = await member({ phone: "+254712345005" });
     const messaging = new MemoryMessagingProvider();
-    const pending = await loginWithPin({ phone: "0712345005", now, messaging, demoOtpVisible: true });
-    expect(pending.status).toBe("otp_required");
-    if (pending.status !== "otp_required") return;
-    expect(messaging.sent.at(-1)?.body).toBe(otpSmsBody(pending.demoCode ?? ""));
-    expect((await verifyOtp({ challengeId: pending.challengeId, code: pending.demoCode ?? "", now })).status).toBe(
-      "authenticated",
-    );
+    expect(await loginWithPin({ phone: "0712345005", now, messaging })).toMatchObject({
+      status: "pin_required",
+      message: "Enter your PIN.",
+    });
 
     expect(await setMemberPin({ membershipId: fixture.membership.id, personId: fixture.person.id, pin: "12" })).toMatchObject({
       ok: false,
@@ -216,14 +183,6 @@ describe("auth", () => {
       ok: true,
     });
     expect((await loginWithPin({ phone: "0712345005", pin: "4321", now })).status).toBe("authenticated");
-
-    while (messaging.sent.length < 3) {
-      expect((await loginWithPin({ phone: "0712345005", now, messaging, demoOtpVisible: true })).status).toBe("otp_required");
-    }
-    expect(await loginWithPin({ phone: "0712345005", now, messaging })).toMatchObject({
-      status: "rate_limited",
-      message: "Too many codes. Try again in 15 minutes.",
-    });
 
     await member({ phone: "+254712345002", role: "TREASURER" });
     expect(await loginWithPin({ phone: "0712345002", now, messaging })).toMatchObject({ status: "pin_required" });

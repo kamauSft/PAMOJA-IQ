@@ -16,12 +16,12 @@ export default async function MembersPage() {
 
   return (
     <Shell chamaName={desk.chamaName} personName={session.personName} role={session.role} current="/members">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-moss">Treasurer&apos;s view</p>
-      <h1 className="mt-1 font-serif text-4xl">Register</h1>
-      <p className="mt-1 text-sm text-stone-600">{desk.activeMembers} active · open a name to see that member&apos;s own months and loan.</p>
-      <div className="mt-6 overflow-x-auto">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Members</p>
+      <h1 className="mt-1 text-4xl">Register</h1>
+      <p className="mt-1 text-sm text-muted">{desk.activeMembers} active · open a name to see that member&apos;s own months and loan.</p>
+      <div className="card mt-6 overflow-x-auto p-4">
         <table className="w-full min-w-[46rem] text-left text-sm">
-          <thead className="text-stone-500">
+          <thead className="text-muted">
             <tr>
               <th className="py-2 font-medium">Member</th>
               <th className="py-2 font-medium">{desk.periodLabel}</th>
@@ -35,12 +35,12 @@ export default async function MembersPage() {
           </thead>
           <tbody>
             {desk.members.map((member) => (
-              <tr key={member.membershipId} className="border-t border-stone-200">
+              <tr key={member.membershipId} className="border-t border-line">
                 <td className="py-2">
-                  <Link className="underline decoration-stone-300" href={`/members/${member.memberNo}`}>
+                  <Link className="font-medium text-ink underline" href={`/members/${member.memberNo}`}>
                     {member.memberNo} {member.name}
                   </Link>
-                  <p className="text-xs text-stone-500">{member.phoneMasked}</p>
+                  <p className="text-xs text-muted">{member.phoneMasked}</p>
                 </td>
                 <td><MonthPill cell={member.thisMonth} /></td>
                 <td>{member.role}</td>

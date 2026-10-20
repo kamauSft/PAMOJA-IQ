@@ -63,7 +63,7 @@ describe("treasurer profile and import", () => {
     expect(await prismaRaw.chama.count()).toBe(1);
 
     const signIn = await loginWithPin({ phone: "0712000111", pin: "2468" });
-    expect(signIn.status).toBe("otp_required");
+    expect(signIn.status).toBe("authenticated");
 
     const rejected = await createTreasurerProfile({ name: "A", phone: "123", pin: "12", chamaName: "X" });
     expect(rejected.ok).toBe(false);

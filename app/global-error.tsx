@@ -4,8 +4,8 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
   return (
     <html lang="en">
       <body style={{ fontFamily: "sans-serif", margin: "2rem" }}>
-        <h1>Pamoja IQ hit a problem</h1>
-        <p>Double-click start-pamoja.bat, wait until that window says it is running, then try again.</p>
+        <h1>Something went wrong</h1>
+        <p>Try again in a moment.</p>
         <button type="button" onClick={() => reset()}>
           Try again
         </button>

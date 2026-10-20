@@ -31,9 +31,9 @@ export default async function DeskPage() {
   return (
     <Shell chamaName={desk.chamaName} personName={session.personName} role={session.role} current="/desk">
       <ScenePhoto name="treasurer-desk" alt="A treasurer comparing a handwritten register with a laptop">
-        <p className="text-2xl font-semibold text-white">{desk.chamaName}</p>
+        <p className="text-2xl font-semibold">{desk.chamaName}</p>
       </ScenePhoto>
-      <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-leaf">{deskText.kicker}</p>
+      <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-accent">{deskText.kicker}</p>
       <h1 className="mt-1 font-display text-4xl">
         {desk.periodLabel} {deskText.meeting}
       </h1>
@@ -43,7 +43,7 @@ export default async function DeskPage() {
         {deskText.missedWord}.
       </p>
       {canBringInBooks(session.role) ? (
-        <section className="card mt-6 flex flex-wrap items-center justify-between gap-4 p-4">
+        <section className="card mt-5 flex flex-wrap items-center justify-between gap-4 p-5">
           <div>
             <h2 className="font-display text-2xl">{text.upload.title}</h2>
             <p className="mt-1 max-w-xl text-sm text-muted">{deskText.uploadBody}</p>
@@ -57,7 +57,7 @@ export default async function DeskPage() {
             <Link href="/import" className="btn">
               {text.upload.title}
             </Link>
-            <Link href="/publish" className="btn">
+            <Link href="/publish" className="btn-line">
               {text.publish.title}
             </Link>
           </div>

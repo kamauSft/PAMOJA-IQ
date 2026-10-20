@@ -16,14 +16,16 @@ export default async function StatementPage({
   searchParams: Promise<{ memberNo?: string }>;
 }) {
   const session = await requireSession();
-  if (session.role === "MEMBER") redirect("/home");
   const locale = await getLocale();
   const text = copy(locale).statement;
   const query = await searchParams;
   const statement = await runWithTenant(tenantFromSession(session), async () => {
-    const membershipId = query.memberNo
-      ? await membershipIdForMemberNo(query.memberNo)
-      : session.membershipId;
+    const membershipId =
+      session.role === "MEMBER"
+        ? session.membershipId
+        : query.memberNo
+          ? await membershipIdForMemberNo(query.memberNo)
+          : session.membershipId;
     if (!membershipId) return null;
     try {
       return await loadStatement(membershipId);

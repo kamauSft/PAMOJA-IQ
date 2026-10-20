@@ -33,9 +33,9 @@ export async function Shell({
   return (
     <div className={official ? "min-h-screen md:grid md:grid-cols-[15rem_1fr]" : "min-h-screen"}>
       {official ? (
-        <aside className="no-print hidden border-r border-line bg-navy text-[var(--on-navy)] md:flex md:flex-col">
+        <aside className="no-print hidden border-r border-white/10 bg-[#0F2A3D] text-white md:flex md:flex-col">
           <div className="flex items-center gap-2 px-4 py-5 text-sm font-semibold">
-            <BrandMark className="h-7 w-7" />
+            <BrandMark className="h-7 w-7 text-white" />
             {brand.name}
           </div>
           <nav className="flex flex-1 flex-col gap-1 px-2">
@@ -45,8 +45,8 @@ export async function Shell({
                 href={href}
                 className={
                   href === current
-                    ? "tap justify-start rounded-lg bg-white/10 px-3 text-sm font-semibold"
-                    : "tap justify-start rounded-lg px-3 text-sm text-white/80 hover:bg-white/10"
+                    ? "tap justify-start rounded-lg bg-[#1e6f5c] px-3 text-sm font-semibold text-white"
+                    : "tap justify-start rounded-lg px-3 text-sm text-white hover:bg-white/10"
                 }
               >
                 {label}
@@ -78,8 +78,8 @@ export async function Shell({
                 href={href}
                 className={
                   href === current
-                    ? "tap shrink-0 rounded-lg bg-navy px-3 text-[13px] font-semibold text-[var(--on-navy)]"
-                    : "tap shrink-0 rounded-lg border border-line px-3 text-[13px]"
+                    ? "tap shrink-0 rounded-lg bg-[#1e6f5c] px-3 text-[13px] font-semibold text-white"
+                    : "tap shrink-0 rounded-lg border border-line px-3 text-[13px] font-semibold text-ink"
                 }
               >
                 {label}

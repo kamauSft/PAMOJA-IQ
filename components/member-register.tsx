@@ -30,7 +30,7 @@ export function MemberRegister({
   };
 }) {
   return (
-    <section className="mt-8">
+    <section className="card mt-8 p-4">
       <h2 className="font-display text-2xl">{labels.member}</h2>
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[40rem] text-left text-sm">
@@ -45,7 +45,7 @@ export function MemberRegister({
           </thead>
           <tbody>
             {members.map((member) => (
-              <tr key={member.memberNo} className="border-t border-ink/10">
+              <tr key={member.memberNo} className="border-t border-line">
                 <td className="py-2">
                   <Link className="font-medium underline" href={`/members/${member.memberNo}`}>
                     {member.memberNo} {member.name}

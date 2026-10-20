@@ -14,18 +14,18 @@ export default async function ReceiptsPage() {
 
   return (
     <Shell chamaName={desk.chamaName} personName={session.personName} role={session.role} current="/receipts">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-moss">Treasurer&apos;s view</p>
-      <h1 className="mt-1 font-serif text-4xl">Receipts to match</h1>
-      <p className="mt-2 max-w-2xl text-sm text-stone-600">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Receipts</p>
+      <h1 className="mt-1 text-4xl">Receipts to match</h1>
+      <p className="mt-2 max-w-2xl text-sm text-muted">
         Money arrived on M-Pesa and is not yet a member&apos;s contribution. A member does not see this queue.
       </p>
       <ul className="mt-6 space-y-3">
         {desk.receipts.map((receipt) => (
-          <li key={receipt.transId} className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm">
-            <p className="font-medium">{receipt.amountLabel}</p>
-            <p className="mt-1 text-stone-700">Receipt {receipt.transId}</p>
-            <p className="text-stone-700">Phone {receipt.phoneMasked}</p>
-            <p className="text-stone-700">Account {receipt.billRef}</p>
+          <li key={receipt.transId} className="card p-4 text-sm">
+            <p className="font-medium text-ink">{receipt.amountLabel}</p>
+            <p className="mt-1 text-muted">Receipt {receipt.transId}</p>
+            <p className="text-muted">Phone {receipt.phoneMasked}</p>
+            <p className="text-muted">Account {receipt.billRef}</p>
           </li>
         ))}
       </ul>

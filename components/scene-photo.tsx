@@ -32,7 +32,7 @@ export function ScenePhoto({
         className="hidden object-cover sm:block"
       />
       <div className="absolute inset-0 bg-[#0F2A3D]/70" />
-      {children ? <div className="absolute inset-0 flex items-end p-5 sm:p-8">{children}</div> : null}
+      {children ? <div className="scene-copy absolute inset-0 flex items-end p-5 sm:p-8">{children}</div> : null}
     </div>
   );
 }

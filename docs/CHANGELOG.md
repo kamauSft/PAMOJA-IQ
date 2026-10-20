@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Sign-in is the phone number and the PIN
+
+- The sign-in page no longer talks about a code on the screen. A person enters the phone number and the PIN.
+- Three wrong PINs lock the number until the treasurer or the chair unlocks it.
+
 ### The owner's member record
 
 - The same phone can be a member and a treasurer. The member door opens the member books. The treasurer door opens the desk.

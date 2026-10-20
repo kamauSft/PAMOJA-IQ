@@ -37,22 +37,13 @@ export default async function HomePage() {
   return (
     <Shell chamaName={home.chamaName} personName={home.personName} role={session.role} current="/home" asMember>
       <ScenePhoto name="member-morning" alt="A member reading a message on a phone beside a window">
-        <div className="text-white">
+        <div>
           <p className="text-xs uppercase tracking-[0.16em] text-white/80">{text.today}</p>
-          <p className="mt-1 text-2xl font-semibold">{home.motivation.message}</p>
-          {home.motivation.proverb ? <p className="mt-2 text-sm text-white/80">{home.motivation.proverb}</p> : null}
+          <p className="mt-1 text-2xl font-semibold">{first}</p>
+          <p className="mt-1 text-sm text-white/85">{home.motivation.message}</p>
         </div>
       </ScenePhoto>
-      <section className="card mt-4 p-5">
-        <h2 className="text-2xl">{text.reminders}</h2>
-        <ul className="mt-3 space-y-2 text-sm">
-          {reminders.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
-        <p className="mt-3 text-xs text-muted">On a phone, this would read: {home.motivation.push}</p>
-      </section>
-      <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-leaf">{text.position}</p>
+      <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-accent">{text.position}</p>
       <h1 className="mt-1 font-display text-4xl">
         {first}&apos;s {text.money}
       </h1>
@@ -83,6 +74,14 @@ export default async function HomePage() {
         <Stat label={text.loan} value={home.loanLabel} />
         <Stat label={text.fines} value={home.finesLabel} />
         <Stat label={text.net} value={home.netLabel} hint={`${text.arrears} ${home.arrearsLabel}`} />
+      </section>
+      <section className="card mt-4 p-5">
+        <h2 className="text-2xl">{text.reminders}</h2>
+        <ul className="mt-3 space-y-2 text-sm">
+          {reminders.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
       </section>
       {home.shareLabel ? (
         <p className="mt-3 text-sm text-muted">

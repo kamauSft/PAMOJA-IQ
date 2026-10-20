@@ -1,23 +1,16 @@
 import type { MembershipRole } from "@prisma/client";
-import { otpSmsBody } from "@/config/brand";
 import { prismaRaw } from "../db";
-import { devMessaging, type MessagingProvider } from "../messaging/provider";
+import { type MessagingProvider } from "../messaging/provider";
 import { hashPin, verifyPin } from "./pin";
 import { normalizePhone } from "../phone";
 import {
   LOCKOUT_MS,
   OTP_MAX_ATTEMPTS,
-  OTP_MAX_SENDS,
-  OTP_SEND_WINDOW_MS,
-  OTP_TTL_MS,
   PIN_MAX_ATTEMPTS,
-  newOtpCode,
   newSessionToken,
   sessionLifetimeMs,
   sha256,
 } from "./session";
-
-const OTP_ROLES = new Set<MembershipRole>(["CHAIR", "TREASURER", "SECRETARY", "AUDITOR"]);
 
 export interface ChamaChoice {
   chamaId: string;
@@ -37,7 +30,8 @@ export type LoginResult =
   | { status: "authenticated"; token: string; chamaId: string; membershipId: string; role: MembershipRole };
 
 const UNREGISTERED = "This number isn't registered. Ask your treasurer to add you.";
-const LOCKED_MESSAGE = "Too many attempts. Try again in 15 minutes.";
+const LOCKED_MESSAGE = "This number is locked. The treasurer or the chair must unlock it.";
+const PIN_LOCK_UNTIL = new Date("9999-12-31T00:00:00.000Z");
 
 function triesLeftMessage(triesLeft: number): string {
   return `Wrong PIN. ${triesLeft} ${triesLeft === 1 ? "try" : "tries"} left.`;
@@ -131,43 +125,6 @@ function chamaChoices(memberships: LoginMembership[]): ChamaChoice[] {
   }));
 }
 
-async function sendLoginCode(input: {
-  personId: string;
-  phone: string;
-  membership: LoginMembership;
-  now: Date;
-  messaging?: MessagingProvider;
-  demoOtpVisible?: boolean;
-}): Promise<LoginResult> {
-  const since = new Date(input.now.getTime() - OTP_SEND_WINDOW_MS);
-  const sent = await prismaRaw.otpChallenge.count({
-    where: { personId: input.personId, createdAt: { gt: since } },
-  });
-  if (!input.demoOtpVisible && sent >= OTP_MAX_SENDS) {
-    return { status: "rate_limited", message: "Too many codes. Try again in 15 minutes." };
-  }
-  const code = newOtpCode();
-  const challenge = await prismaRaw.otpChallenge.create({
-    data: {
-      personId: input.personId,
-      membershipId: input.membership.id,
-      chamaId: input.membership.chamaId,
-      codeHash: sha256(code),
-      expiresAt: new Date(input.now.getTime() + OTP_TTL_MS),
-      createdAt: input.now,
-    },
-  });
-  await (input.messaging ?? devMessaging).sendSms({
-    to: input.phone,
-    body: otpSmsBody(code),
-  });
-  return {
-    status: "otp_required",
-    challengeId: challenge.id,
-    demoCode: input.demoOtpVisible ? code : undefined,
-  };
-}
-
 export async function loginWithPin(input: {
   phone: string;
   pin?: string;
@@ -208,25 +165,12 @@ export async function loginWithPin(input: {
   if (memberships.length === 0) return unknownNumber();
 
   if (!pin) {
-    if (memberships.some((membership) => OTP_ROLES.has(membership.role))) {
-      return { status: "pin_required", message: "Enter your PIN. Officials also confirm with a text message." };
-    }
-    const chosen = input.chamaId ? memberships.filter((membership) => membership.chamaId === input.chamaId) : memberships;
-    if (chosen.length === 0) return unknownNumber();
-    if (chosen.length > 1) return { status: "choose_chama", chamas: chamaChoices(chosen) };
-    return sendLoginCode({
-      personId: person.id,
-      phone: person.phone,
-      membership: chosen[0],
-      now,
-      messaging: input.messaging,
-      demoOtpVisible: input.demoOtpVisible,
-    });
+    return { status: "pin_required", message: "Enter your PIN." };
   }
 
-  if (!/^\d{4,6}$/.test(pin)) {
+  if (!/^(?:\d{4}|\d{6}|\d{8})$/.test(pin)) {
     await verifyPin(pin, await dummyPinHash());
-    return { status: "invalid_credentials", message: "A PIN is 4 to 6 digits." };
+    return { status: "invalid_credentials", message: "Enter the PIN you were given." };
   }
 
   const matches: LoginMembership[] = [];
@@ -246,17 +190,6 @@ export async function loginWithPin(input: {
   if (chosen.length > 1) return { status: "choose_chama", chamas: chamaChoices(chosen) };
 
   const membership = chosen[0];
-  if (OTP_ROLES.has(membership.role)) {
-    return sendLoginCode({
-      personId: person.id,
-      phone: person.phone,
-      membership,
-      now,
-      messaging: input.messaging,
-      demoOtpVisible: input.demoOtpVisible,
-    });
-  }
-
   return openSession({
     personId: person.id,
     membershipId: membership.id,

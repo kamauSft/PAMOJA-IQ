@@ -10,18 +10,18 @@ import { normalizePhone } from "@/lib/phone";
 const WHO = {
   treasurer: {
     pin: "2580",
-    en: "Enter the number and PIN, then the code shown on this page.",
-    sw: "Weka nambari na PIN, kisha msimbo ulio kwenye ukurasa huu.",
+    en: "Enter your phone number and PIN.",
+    sw: "Weka nambari ya simu na PIN.",
   },
   member: {
     pin: "",
-    en: "Enter the number. The code appears on this page. A PIN can skip the code.",
-    sw: "Weka nambari. Msimbo unaonekana kwenye ukurasa huu. PIN inaweza kuruka msimbo.",
+    en: "Enter your phone number and PIN.",
+    sw: "Weka nambari ya simu na PIN.",
   },
   chair: {
     pin: "2580",
-    en: "Enter the number and PIN, then the code shown on this page.",
-    sw: "Weka nambari na PIN, kisha msimbo ulio kwenye ukurasa huu.",
+    en: "Enter your phone number and PIN.",
+    sw: "Weka nambari ya simu na PIN.",
   },
 } as const;
 
@@ -83,7 +83,7 @@ export default async function LoginPage({
         <LoginForm
           initialPhone=""
           initialPin={freshPhone ? "" : (who?.pin ?? "")}
-          startWithPin={freshPhone ? true : door === "treasurer" ? true : Boolean(who?.pin)}
+          startWithPin
           afterSignIn={door === "member" ? "/home" : door === "treasurer" ? "/desk" : undefined}
           preferredRole={door === "member" ? "MEMBER" : door === "treasurer" ? "TREASURER" : undefined}
           labels={text.login}

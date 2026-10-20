@@ -31,7 +31,7 @@ export default async function LandingPage() {
           <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">{page.bankHeadline}</h1>
           <p className="mt-4 max-w-2xl text-lg text-white/85">{page.bankSentence}</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/login?door=member" className="btn bg-white text-navy">
+            <Link href="/login?door=member" className="btn">
               {page.signIn}
             </Link>
             <Link href="/login?door=treasurer" className="tap rounded-lg border border-white px-5 text-sm font-semibold text-white">

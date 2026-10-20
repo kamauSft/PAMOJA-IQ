@@ -1,10 +1,10 @@
 import type { ContributionCell } from "@/lib/chama/picture";
 
 const TONE: Record<ContributionCell, string> = {
-  PAID: "bg-accent/10 text-accent",
-  LATE: "bg-due/10 text-due",
-  MISSED: "bg-overdue/10 text-overdue",
-  NOT_DUE: "bg-line text-muted",
+  PAID: "bg-[#1e6f5c] text-white",
+  LATE: "bg-[#9a6b00] text-white",
+  MISSED: "bg-[#a33a2b] text-white",
+  NOT_DUE: "bg-line text-ink",
 };
 
 const WORD: Record<ContributionCell, string> = {

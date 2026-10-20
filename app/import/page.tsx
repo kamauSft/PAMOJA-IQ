@@ -21,8 +21,8 @@ export default async function ImportPage() {
 
   return (
     <Shell chamaName={chama?.name ?? "Chama"} personName={session.personName} role={session.role} current="/import">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-moss">{page.kicker}</p>
-      <h1 className="mt-1 font-serif text-4xl">{page.title}</h1>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">{page.kicker}</p>
+      <h1 className="mt-1 text-4xl">{page.title}</h1>
       <p className="mt-2 max-w-2xl text-sm text-muted">{page.body}</p>
       <p className="mt-4">
         <Link className="text-sm font-semibold text-leaf underline" href="/api/import/template">

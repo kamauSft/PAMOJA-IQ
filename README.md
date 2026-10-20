@@ -30,8 +30,8 @@ Every seeded member uses PIN **2580**.
 
 | Person | Role | Phone | Lands on |
 |---|---|---|---|
-| Grace Wanjiku Mwangi | Chair | 0712345001 | Treasurer's books, after the text code |
-| Peter Otieno Omondi | Treasurer | 0712345002 | Treasurer's books, after the text code |
+| Grace Wanjiku Mwangi | Chair | 0712345001 | The books, with PIN 2580 |
+| Peter Otieno Omondi | Treasurer | 0712345002 | The books, with PIN 2580 |
 | Amina Hassan Bakari | Member | 0712345005 | Her own position |
 
 ## Price

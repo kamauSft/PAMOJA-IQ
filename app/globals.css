@@ -13,6 +13,8 @@
   --due: #9a6b00;
   --overdue: #a33a2b;
   --on-navy: #ffffff;
+  --action: #0f2a3d;
+  --on-action: #ffffff;
   --ivory: var(--canvas);
   --paper: var(--surface);
   --leaf: var(--accent);
@@ -22,16 +24,18 @@
 }
 
 .dark {
-  --navy: #16324a;
-  --ink: #e7eef4;
-  --muted: #9aabb8;
-  --line: #243444;
-  --surface: #12202c;
-  --canvas: #0b1620;
-  --accent: #3d9b84;
-  --due: #e0b15a;
-  --overdue: #e08b7e;
-  --on-navy: #e7eef4;
+  --navy: #07131c;
+  --ink: #f7f4ef;
+  --muted: #d5dde4;
+  --line: #4a6278;
+  --surface: #1b2c3c;
+  --canvas: #0e1822;
+  --accent: #7ddec8;
+  --due: #f0c36a;
+  --overdue: #f0a090;
+  --on-navy: #f7f4ef;
+  --action: #f7f4ef;
+  --on-action: #0f2a3d;
   color-scheme: dark;
 }
 
@@ -89,15 +93,35 @@ h3 {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  background: var(--navy);
-  color: var(--on-navy);
+  background: var(--action);
+  color: var(--on-action);
   font-weight: 600;
   padding: 0 1.25rem;
   transition: background-color 150ms ease;
 }
 
 .btn:hover {
-  background: color-mix(in srgb, var(--navy) 86%, white);
+  background: color-mix(in srgb, var(--action) 86%, #1e6f5c);
+}
+
+.btn-line {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  padding: 0 1.25rem;
+}
+
+.scene-copy,
+.scene-copy h1,
+.scene-copy h2,
+.scene-copy h3 {
+  color: #fff;
 }
 
 :focus-visible {

@@ -9,10 +9,10 @@ import type { ContributionCell } from "@/lib/chama/picture";
 export const dynamic = "force-dynamic";
 
 const TONE: Record<ContributionCell, string> = {
-  PAID: "bg-accent/10 text-accent",
-  LATE: "bg-due/10 text-due",
-  MISSED: "bg-overdue/10 text-overdue",
-  NOT_DUE: "bg-line text-muted",
+  PAID: "bg-[#1e6f5c] text-white",
+  LATE: "bg-[#9a6b00] text-white",
+  MISSED: "bg-[#a33a2b] text-white",
+  NOT_DUE: "bg-line text-ink",
 };
 
 const WORD: Record<ContributionCell, string> = {
@@ -29,9 +29,9 @@ export default async function ContributionsPage() {
 
   return (
     <Shell chamaName={desk.chamaName} personName={session.personName} role={session.role} current="/contributions">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-moss">Treasurer&apos;s view</p>
-      <h1 className="mt-1 font-serif text-4xl">Every member, every month</h1>
-      <p className="mt-1 text-sm text-stone-600">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Contributions</p>
+      <h1 className="mt-1 text-4xl">Every member, every month</h1>
+      <p className="mt-1 text-sm text-muted">
         {desk.period} collected {desk.collectedLabel} of {desk.expectedLabel} ({desk.collectionRateLabel}).
       </p>
       <ul className="mt-4 flex flex-wrap gap-3 text-xs">
@@ -41,13 +41,13 @@ export default async function ContributionsPage() {
           </li>
         ))}
       </ul>
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-stone-300 bg-white/80">
+      <div className="card mt-4 overflow-x-auto">
         <table className="min-w-max text-left text-xs">
           <thead>
             <tr>
-              <th className="sticky left-0 bg-paper px-3 py-2 font-medium">Member</th>
+              <th className="sticky left-0 bg-surface px-3 py-2 font-medium">Member</th>
               {desk.periods.map((period) => (
-                <th key={period} className="px-2 py-2 font-medium text-stone-500">
+                <th key={period} className="px-2 py-2 font-medium text-muted">
                   {period.slice(2)}
                 </th>
               ))}
@@ -55,8 +55,8 @@ export default async function ContributionsPage() {
           </thead>
           <tbody>
             {desk.grid.map((row) => (
-              <tr key={row.membershipId} className="border-t border-stone-200">
-                <th className="sticky left-0 bg-paper px-3 py-2 text-left font-medium">
+              <tr key={row.membershipId} className="border-t border-line">
+                <th className="sticky left-0 bg-surface px-3 py-2 text-left font-medium">
                   {row.memberNo} {row.name.split(" ")[0]}
                 </th>
                 {row.cells.map((cell, index) => (

@@ -215,18 +215,6 @@ export function LoginForm({
           {message}
         </p>
       ) : null}
-      {demoCode ? (
-        <div className="mt-3 rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-ink" data-testid="demo-banner">
-          <p className="font-semibold">{labels.demo}</p>
-          <p className="mt-1">{labels.demoNote}</p>
-          <p className="mt-1">
-            {labels.demoCode}: <strong data-testid="demo-code">{demoCode}</strong>
-          </p>
-          <button className="tap mt-2 underline" type="button" onClick={() => setCode(demoCode)}>
-            {labels.useDemo}
-          </button>
-        </div>
-      ) : null}
     </div>
   );
 }
