@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { BrandMark } from "@/components/brand-mark";
 import { LoginForm } from "@/components/login-form";
 import { Preferences } from "@/components/preferences";
@@ -52,7 +53,17 @@ export default async function LoginPage({
           ? text.login.doorMember
           : text.login.fallback;
 
+  if (!freshPhone && !whoKey && !door) redirect("/");
+
   const treasurerDoor = door === "treasurer" || whoKey === "treasurer" || whoKey === "chair";
+  const preferredRole =
+    door === "member" || whoKey === "member"
+      ? "MEMBER"
+      : door === "treasurer" || whoKey === "treasurer"
+        ? "TREASURER"
+        : whoKey === "chair"
+          ? "CHAIR"
+          : undefined;
 
   return (
     <main>
@@ -82,7 +93,7 @@ export default async function LoginPage({
           initialPin=""
           startWithPin
           afterSignIn={door === "member" ? "/home" : door === "treasurer" ? "/desk" : undefined}
-          preferredRole={door === "member" ? "MEMBER" : door === "treasurer" ? "TREASURER" : undefined}
+          preferredRole={preferredRole}
           showForgot={whoKey !== "treasurer" && door !== "treasurer"}
           labels={text.login}
         />

@@ -124,6 +124,7 @@ type LoginMembership = {
   personId: string;
   role: MembershipRole;
   hashedPin: string;
+  joinDate: Date;
   chama: { name: string };
 };
 
@@ -199,9 +200,12 @@ export async function loginWithPin(input: {
 
   const chosen = input.chamaId ? matches.filter((membership) => membership.chamaId === input.chamaId) : matches;
   if (chosen.length === 0) return recordFailure(person.id, person.failedLoginAttempts, input.messaging);
-  if (chosen.length > 1) return { status: "choose_chama", chamas: chamaChoices(chosen) };
+  if (chosen.length > 1 && input.role !== "MEMBER") return { status: "choose_chama", chamas: chamaChoices(chosen) };
 
-  const membership = chosen[0];
+  const membership =
+    chosen.length === 1
+      ? chosen[0]
+      : [...chosen].sort((a, b) => b.joinDate.getTime() - a.joinDate.getTime())[0];
   return openSession({
     personId: person.id,
     membershipId: membership.id,

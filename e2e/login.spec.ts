@@ -3,13 +3,14 @@ import { expect, test } from "@playwright/test";
 test.describe.configure({ mode: "serial" });
 
 test("rejects an unknown number", async ({ page }) => {
-  await page.goto("/login");
+  await page.goto("/login?door=member");
   await page.getByLabel("Phone").fill("0799000111");
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByTestId("login-error")).toHaveText(
     "This number isn't registered. Ask your treasurer to add you.",
   );
-  await expect(page).toHaveURL(/\/login/);
+  await expect(page).toHaveURL(/\/login\?door=member/);
+  await expect(page.getByLabel("Chama")).toHaveCount(0);
 });
 
 test("shows how many PIN tries are left", async ({ page }) => {

@@ -12,7 +12,7 @@ export async function readSession(): Promise<ActiveSession | null> {
 
 export async function requireSession(): Promise<ActiveSession> {
   const session = await readSession();
-  if (!session) redirect("/login");
+  if (!session) redirect("/");
   return session;
 }
 

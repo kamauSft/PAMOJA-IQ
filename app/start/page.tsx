@@ -26,7 +26,7 @@ export default async function StartPage() {
         <StartForm labels={page} />
       </div>
       <p className="mt-6 text-sm text-muted">
-        <Link className="underline" href="/login">
+        <Link className="underline" href="/">
           {page.signIn}
         </Link>
       </p>

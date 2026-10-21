@@ -163,6 +163,25 @@ describe("auth", () => {
     expect(asTreasurer.status).toBe("authenticated");
   });
 
+  it("opens the member door without asking which chama", async () => {
+    const fixture = await member({ phone: "+254711000444", role: "MEMBER" });
+    const other = await prismaRaw.chama.create({
+      data: { name: "Second", settings: umojaSettings, plan: "FREE", status: "ACTIVE" },
+    });
+    await prismaRaw.membership.create({
+      data: {
+        chamaId: other.id,
+        personId: fixture.person.id,
+        role: "MEMBER",
+        memberNo: "M010",
+        joinDate: new Date("2026-06-01T00:00:00.000Z"),
+        hashedPin: fixture.membership.hashedPin,
+      },
+    });
+    const asMember = await loginWithPin({ phone: "0711000444", pin: "2580", role: "MEMBER", now });
+    expect(asMember).toMatchObject({ status: "authenticated", role: "MEMBER", chamaId: other.id });
+  });
+
   it("signs a chair in with the PIN alone", async () => {
     await member({ phone: "+254712345001", role: "CHAIR" });
     expect(await loginWithPin({ phone: "+254712345001", pin: "2580", now })).toMatchObject({

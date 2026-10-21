@@ -7,7 +7,7 @@ export function SignOut({ signOutLabel = "Sign out", signOutAllLabel = "Sign out
 
   async function signOut(all: boolean) {
     await fetch(all ? "/api/auth/logout-all" : "/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    router.push("/");
     router.refresh();
   }
 

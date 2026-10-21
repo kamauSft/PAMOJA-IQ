@@ -74,7 +74,7 @@ export function LoginForm({
         goHome(body.role);
         return;
       }
-      if (body.status === "choose_chama") {
+      if (body.status === "choose_chama" && preferredRole !== "MEMBER") {
         setChoices(body.chamas ?? []);
         setMessage(labels.choose);
         return;
@@ -159,7 +159,7 @@ export function LoginForm({
                 </span>
               </label>
             ) : null}
-            {choices.length > 0 ? (
+            {preferredRole !== "MEMBER" && choices.length > 0 ? (
               <label className="block text-sm font-medium">
                 {labels.chama}
                 <select
