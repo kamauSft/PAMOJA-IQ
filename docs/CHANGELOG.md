@@ -4,7 +4,7 @@
 
 ### A new password, and two messy registers
 
-- A signed-in member can ask about their own position from the side. A treasurer can ask about the desk, including payments not shared yet. The app counts the figures.
+- A signed-in member can ask about their own position from the side. A treasurer can ask about the desk, including payments not shared yet. The app counts the figures. The question is read for both doors. A treasurer who asks who has not paid this month is given those members' names. A member who asks the same thing hears only whether they themselves have paid. A question about savings, a loan, a fine, or the net answers that part. Phone numbers stay out.
 
 - A spreadsheet is added in one step. Odd column names are read from the cells: a column of phones is the phone, and a column of amounts is the money.
 - Adding a full register saves the new payments together, so a file with many months can be added after it has been checked.

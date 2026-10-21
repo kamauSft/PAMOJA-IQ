@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { answerStaysWithFacts, fallbackSentence, figuresForHelper, loadAskFacts, type AskFacts } from "@/lib/ask/facts";
+import { answerStaysWithFacts, fallbackSentence, figuresForHelper, loadAskFacts, questionTopic, type AskFacts } from "@/lib/ask/facts";
 import { phrasePosition } from "@/lib/ask/phrase";
 import { hashPin } from "@/lib/auth/pin";
 import { umojaSettings } from "@/lib/chama/rules";
@@ -27,6 +27,8 @@ function memberFacts(net = "KES 1,600"): AskFacts {
     net,
     paymentsNotShared: null,
     activeMembers: null,
+    missedNames: null,
+    thisMonth: "PAID",
   };
 }
 
@@ -205,6 +207,8 @@ describe("position answers", () => {
     expect(facts.contributionsStillOpen).toBe("KES 500");
     expect(facts.paymentsNotShared).toBe(1);
     expect(facts.net).toBe("KES 500");
+    expect(facts.missedNames).toContain("Jane Wanjiku (T001)");
+    expect(facts.missedNames?.join(" ")).not.toContain("Zawadi");
     const packed = JSON.stringify(figuresForHelper(facts));
     expect(packed).not.toContain("Zawadi");
     expect(packed).not.toContain("700111222");
@@ -230,6 +234,52 @@ describe("position answers", () => {
       })) as typeof fetch;
     const rejected = await phrasePosition("What is my position?", facts);
     expect(rejected).toBe(fallbackSentence(facts));
+    globalThis.fetch = original;
+  });
+
+  it("answers the question that was asked, for a member and for the desk", async () => {
+    expect(questionTopic("WHO HAS NOT CONTRIBUTED ANYTHING THIS MONTH?")).toBe("whoMissed");
+    expect(questionTopic("What is my loan?")).toBe("loans");
+    const member = memberFacts();
+    member.thisMonth = "MISSED";
+    const own = await phrasePosition("Who has not contributed anything this month?", member);
+    expect(own).toBe("You have not paid anything for Oct 2026.");
+    expect(own).not.toContain("Asha");
+
+    const desk = {
+      ...memberFacts(),
+      audience: "desk" as const,
+      missedNames: ["Asha Njeri (M001)"],
+      paymentsNotShared: 1,
+      activeMembers: 2,
+      thisMonth: null,
+    };
+    let called = false;
+    const original = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      called = true;
+      return new Response("no");
+    }) as typeof fetch;
+    const named = await phrasePosition("Who has not contributed anything this month?", desk);
+    expect(called).toBe(false);
+    expect(named).toContain("Asha Njeri (M001)");
+    expect(named).not.toContain("KES 1,295,400");
+    process.env.ENABLE_AI_IMPORT = "true";
+    process.env.GEMINI_API_KEY = "test-key";
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: "Loans still open are KES 300." }] } }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      })) as typeof fetch;
+    const kept = await phrasePosition("What is my loan?", memberFacts());
+    expect(kept).toBe("Loans still open are KES 300.");
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: "Loans still open are KES 9,999." }] } }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      })) as typeof fetch;
+    const loan = await phrasePosition("What is my loan?", memberFacts());
+    expect(loan).toBe("Loans still open are KES 300.");
     globalThis.fetch = original;
   });
 });
