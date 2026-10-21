@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { columnsFromReply, maskPhones } from "@/lib/import/column-assist";
+import { applyPhoneColumn, columnsFromReply, maskPhones, notesFromReply } from "@/lib/import/column-assist";
+import type { NoteSheet } from "@/lib/import/workbook";
 import { readUpload } from "@/lib/import/workbook";
 
 afterEach(() => {
@@ -81,5 +82,59 @@ describe("column helper", () => {
     ]);
     expect(read.members[0]?.phone).toBe("+254712345005");
     expect(read.problems).toEqual([]);
+  });
+
+  it("treats a column of phone numbers as a phone when the heading is odd", () => {
+    const columns = applyPhoneColumn(
+      [
+        { kind: "name" },
+        { kind: "amount" },
+        { kind: "skip" },
+      ],
+      [["Amina Hassan", "1500", "0712 345 005"]],
+    );
+    expect(columns.map((column) => column.kind)).toEqual(["name", "amount", "phone"]);
+  });
+
+  it("reads a messy line only when the name and the amount are written there", () => {
+    const sheet: NoteSheet = {
+      sheetName: "sheet1",
+      titleText: "October 2026",
+      lines: [{ rowNumber: 2, text: "Amina Hassan 0712345005 paid 1500 for October" }],
+      truncated: false,
+    };
+    const read = notesFromReply({ lines: [{ row: 2, name: "Amina Hassan", amount: "1500" }] }, sheet);
+    expect(read?.contributions).toEqual([
+      expect.objectContaining({ name: "Amina Hassan", phone: "+254712345005", period: "2026-10", amountCents: 150_000 }),
+    ]);
+    expect(read?.members[0]?.phone).toBe("+254712345005");
+    const invented = notesFromReply({ lines: [{ row: 2, name: "Peter Otieno", amount: "9999" }] }, sheet);
+    expect(invented?.contributions).toEqual([]);
+    expect(invented?.members).toEqual([]);
+  });
+
+  it("asks the helper to read a messy line and still counts the written amount", async () => {
+    vi.stubEnv("ENABLE_AI_IMPORT", "true");
+    vi.stubEnv("GEMINI_API_KEY", "test-key");
+    const csv = "October 2026\nAmina Hassan 0712345005 paid 1500 for October\n";
+    const fetchMock = vi.fn(async (url: string, init: RequestInit) => {
+      expect(String(url)).not.toContain("test-key");
+      const sent = JSON.parse(String(init.body)) as { contents: { parts: { text: string }[] }[] };
+      const text = sent.contents[0].parts[0].text;
+      expect(text).not.toContain("0712");
+      expect(text).toContain("[phone]");
+      return new Response(
+        JSON.stringify({
+          candidates: [{ content: { parts: [{ text: JSON.stringify({ lines: [{ row: 2, name: "Amina Hassan", amount: "1500" }] }) }] } }],
+        }),
+      );
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const read = await readUpload(Buffer.from(csv), "note.csv");
+    expect(read.contributions).toEqual([
+      expect.objectContaining({ name: "Amina Hassan", phone: "+254712345005", period: "2026-10", amountCents: 150_000 }),
+    ]);
+    expect(read.members).toHaveLength(1);
+    expect(fetchMock).toHaveBeenCalledOnce();
   });
 });

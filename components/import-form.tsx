@@ -101,8 +101,8 @@ export function ImportForm({ labels = english }: { labels?: typeof english }) {
       const response = await fetch("/api/import", { method: "POST", body });
       const payload = (await response.json().catch(() => null)) as (Preview & Saved & { message?: string; problems?: string[] }) | null;
       if (!response.ok || !payload) {
-        setPreview(null);
-        setMessage(payload?.message || labels.failed);
+        if (mode === "preview") setPreview(null);
+        setMessage(payload?.message || (mode === "save" ? "The payments could not be saved. Try again." : labels.failed));
         if (payload?.problems?.length) setPreview({ members: [], memberCount: 0, contributionCount: 0, problems: payload.problems });
         return;
       }

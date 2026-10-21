@@ -5,6 +5,7 @@ import { saveImport } from "@/lib/import/save";
 import { readUpload } from "@/lib/import/workbook";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const MAX_BYTES = 10 * 1024 * 1024;
 
@@ -37,13 +38,17 @@ export async function POST(request: Request) {
   }
 
   if (mode === "save") {
-    const saved = await saveImport({
-      chamaId: session.chamaId,
-      actor: { membershipId: session.membershipId, personId: session.personId, role: session.role },
-      workbook,
-      fileName: file.name,
-    });
-    return Response.json(saved);
+    try {
+      const saved = await saveImport({
+        chamaId: session.chamaId,
+        actor: { membershipId: session.membershipId, personId: session.personId, role: session.role },
+        workbook,
+        fileName: file.name,
+      });
+      return Response.json(saved);
+    } catch {
+      return Response.json({ message: "The payments could not be saved. Try again." }, { status: 500 });
+    }
   }
 
   const known = await prismaRaw.membership.findMany({

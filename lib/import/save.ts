@@ -61,9 +61,11 @@ export async function saveImport(input: {
   const usedNumbers = new Set(existingMemberships.map((membership) => membership.memberNo));
   const fresh = ready.filter((member) => !byPhone.has(member.phone));
   const pinByPhone = new Map<string, string>();
-  for (const member of fresh) {
-    pinByPhone.set(member.phone, await hashPin(String(randomInt(0, 10000)).padStart(4, "0")));
-  }
+  await Promise.all(
+    fresh.map(async (member) => {
+      pinByPhone.set(member.phone, await hashPin(String(randomInt(0, 10000)).padStart(4, "0")));
+    }),
+  );
 
   return prismaRaw.$transaction(async (tx) => {
     let membersAdded = 0;
@@ -136,6 +138,7 @@ export async function saveImport(input: {
     let contributionsAdded = 0;
     let contributionsUpdated = 0;
     let contributionsSkipped = 0;
+    const incoming = new Map<string, { membershipId: string; period: string; amountCents: number; reference: string }>();
 
     for (const payment of input.workbook.contributions) {
       const decision = placementFor(payment, roster);
@@ -148,7 +151,25 @@ export async function saveImport(input: {
         note(problems, `${payment.sheet} row ${payment.row}: no member to attach the ${payment.period} payment to.`);
         continue;
       }
-      const key = `${membership.id}:${payment.period}`;
+      incoming.set(`${membership.id}:${payment.period}`, {
+        membershipId: membership.id,
+        period: payment.period,
+        amountCents: payment.amountCents,
+        reference: `${payment.sheet} row ${payment.row}`,
+      });
+    }
+
+    const toCreate: {
+      chamaId: string;
+      membershipId: string;
+      amountCents: number;
+      period: string;
+      datePaid: Date;
+      method: "CASH";
+      source: "IMPORT";
+      reference: string;
+    }[] = [];
+    for (const [key, payment] of incoming) {
       const existing = seen.get(key);
       if (existing) {
         if (existing.amountCents === payment.amountCents) {
@@ -159,29 +180,23 @@ export async function saveImport(input: {
           where: { id: existing.id },
           data: { amountCents: payment.amountCents },
         });
-        existing.amountCents = payment.amountCents;
         contributionsUpdated += 1;
         continue;
       }
-      const created = await tx.contribution.create({
-        data: {
-          chamaId: input.chamaId,
-          membershipId: membership.id,
-          amountCents: payment.amountCents,
-          period: payment.period,
-          datePaid: new Date(`${payment.period}-01T00:00:00.000Z`),
-          method: "CASH",
-          source: "IMPORT",
-          reference: `${payment.sheet} row ${payment.row}`,
-        },
-      });
-      seen.set(key, {
-        id: created.id,
-        membershipId: membership.id,
-        period: payment.period,
+      toCreate.push({
+        chamaId: input.chamaId,
+        membershipId: payment.membershipId,
         amountCents: payment.amountCents,
+        period: payment.period,
+        datePaid: new Date(`${payment.period}-01T00:00:00.000Z`),
+        method: "CASH",
+        source: "IMPORT",
+        reference: payment.reference,
       });
-      contributionsAdded += 1;
+    }
+    for (let index = 0; index < toCreate.length; index += 40) {
+      const created = await tx.contribution.createMany({ data: toCreate.slice(index, index + 40) });
+      contributionsAdded += created.count;
     }
 
     await appendAuditInTransaction(tx, {
@@ -200,5 +215,5 @@ export async function saveImport(input: {
     });
 
     return { membersAdded, membersAlready, contributionsAdded, contributionsUpdated, contributionsSkipped, problems };
-  });
+  }, { maxWait: 15_000, timeout: 55_000 });
 }

@@ -272,6 +272,63 @@ export function confirmedPeriod(header: string, titleText: string): string | nul
   return `${years[0]}-${month}`;
 }
 
+export function textPeriod(text: string, titleText: string): string | null {
+  const mentioned = periodsMentioned(text);
+  if (mentioned.length === 1) return mentioned[0];
+  if (mentioned.length > 1) return null;
+  const lower = text.toLowerCase();
+  const hits = MONTH_NAMES.filter((name) => new RegExp(`\\b${name}\\b`).test(lower));
+  if (hits.length !== 1) return null;
+  return confirmedPeriod(hits[0], `${text} ${titleText}`);
+}
+
+export interface NoteSheet {
+  sheetName: string;
+  titleText: string;
+  lines: { rowNumber: number; text: string }[];
+  truncated: boolean;
+}
+
+export function noteSheets(book: ExcelJS.Workbook): NoteSheet[] {
+  const tables = new Set(unclearSheets(book).map((sheet) => sheet.sheetName));
+  const found: NoteSheet[] = [];
+  for (const sheet of book.worksheets) {
+    if (!sheetKeepsPayments(sheet.name) || findHeader(sheet) || tables.has(sheet.name)) continue;
+    const rows: { rowNumber: number; text: string }[] = [];
+    sheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 20 || rows.length > 12) return;
+      const text = rowValues(row).filter(Boolean).join(" ").replace(/\s+/g, " ").trim().slice(0, 160);
+      if (text) rows.push({ rowNumber, text });
+    });
+    const notes = rows.filter((row) => /[a-z]/i.test(row.text) && /\d/.test(row.text) && !isOnlyPeriod(row.text) && !isTotalRow(row.text, ""));
+    if (notes.length === 0) continue;
+    const first = notes[0].rowNumber;
+    found.push({
+      sheetName: sheet.name,
+      titleText: rows
+        .filter((row) => row.rowNumber < first)
+        .map((row) => row.text)
+        .join(" ")
+        .slice(0, 160),
+      lines: notes.slice(0, 8),
+      truncated: notes.length > 8,
+    });
+  }
+  return found;
+}
+
+function isOnlyPeriod(text: string): boolean {
+  if (!textPeriod(text, text)) return false;
+  if (/(?<!\d)\d[\d\s().-]{6,}\d(?!\d)/.test(text)) return false;
+  const rest = text
+    .toLowerCase()
+    .replace(/\b20\d{2}\b/g, " ")
+    .replace(new RegExp(`\\b(${MONTH_NAMES.join("|")})\\b`, "g"), " ")
+    .replace(/[^a-z]+/g, " ")
+    .trim();
+  return rest.length < 2;
+}
+
 function findHeader(sheet: ExcelJS.Worksheet): SheetHeading | null {
   const earlier: string[] = [];
   let found: { rowNumber: number; columns: Column[]; titleText: string } | null = null;
@@ -467,8 +524,9 @@ export async function readUpload(buffer: Buffer, filename: string): Promise<Work
   } else {
     await book.xlsx.load(buffer as unknown as ExcelJS.Buffer);
   }
-  const { askColumnMap, aiImportEnabled } = await import("@/lib/import/column-assist");
+  const { askColumnMap, askNoteLines, aiImportEnabled } = await import("@/lib/import/column-assist");
   const needed = unclearSheets(book);
+  const notes = noteSheets(book);
   const assists = new Map<string, SheetHeading>();
   if (aiImportEnabled()) {
     for (const sheet of needed) {
@@ -481,9 +539,18 @@ export async function readUpload(buffer: Buffer, filename: string): Promise<Work
   if (aiImportEnabled()) {
     for (const sheet of unclearSheets(book)) {
       if (assists.has(sheet.sheetName)) continue;
-      if (result.problems.length < 50) {
-        result.problems.push(`${sheet.sheetName}: the helper could not name the columns, so that sheet was left out.`);
+      note(result.problems, `${sheet.sheetName}: the helper could not name the columns, so that sheet was left out.`);
+    }
+    for (const sheet of notes) {
+      if (sheet.truncated) note(result.problems, `${sheet.sheetName}: only the first 8 lines were read.`);
+      const read = await askNoteLines(sheet);
+      if (!read) {
+        note(result.problems, `${sheet.sheetName}: the helper could not read those lines, so they were left out.`);
+        continue;
       }
+      result.members.push(...read.members);
+      result.contributions.push(...read.contributions);
+      for (const problem of read.problems) note(result.problems, problem);
     }
   }
   return result;

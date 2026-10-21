@@ -4,6 +4,8 @@
 
 ### A new password, and two messy registers
 
+- Adding a full register saves the new payments together, so a file with many months can be added after it has been checked.
+- On an unfamiliar sheet, the helper treats a column of phone numbers as a phone, even when the heading is Handset. It can also read a messy line, and the amount must be the number written in that line. A new member is added only when the row has a phone.
 - The sign-in PIN box opens the normal phone keyboard, so a password with letters and symbols can be typed.
 - The home page says an AI Agent names the columns on an unfamiliar Excel sheet.
 - The treasurer door no longer says to ask the treasurer. A treasurer is not locked after wrong passwords.
