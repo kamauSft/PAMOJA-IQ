@@ -32,12 +32,14 @@ describe("column helper", () => {
     expect(columnsFromReply({ columns: [{ index: 1, kind: "amount" }] }, ["Who", "Cash"], "")).toBeNull();
   });
 
-  it("leaves an unfamiliar sheet unread until the helper is switched on", async () => {
+  it("reads an odd table here, without asking the helper", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
     const csv = "Umoja October 2026\nWho,Cash received,Reach\nAmina Hassan,1500,0712 345 005\n";
-    const unread = await readUpload(Buffer.from(csv), "odd.csv");
-    expect(unread.contributions).toHaveLength(0);
+    const read = await readUpload(Buffer.from(csv), "odd.csv");
+    expect(read.contributions).toEqual([
+      expect.objectContaining({ name: "Amina Hassan", period: "2026-10", amountCents: 150_000, phone: "+254712345005" }),
+    ]);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 

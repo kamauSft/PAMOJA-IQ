@@ -293,7 +293,7 @@ export function noteSheets(book: ExcelJS.Workbook): NoteSheet[] {
   const tables = new Set(unclearSheets(book).map((sheet) => sheet.sheetName));
   const found: NoteSheet[] = [];
   for (const sheet of book.worksheets) {
-    if (!sheetKeepsPayments(sheet.name) || findHeader(sheet) || tables.has(sheet.name)) continue;
+    if (!sheetKeepsPayments(sheet.name) || sheetHeader(sheet) || tables.has(sheet.name)) continue;
     const rows: { rowNumber: number; text: string }[] = [];
     sheet.eachRow((row, rowNumber) => {
       if (rowNumber > 20 || rows.length > 12) return;
@@ -345,6 +345,78 @@ function findHeader(sheet: ExcelJS.Worksheet): SheetHeading | null {
   return found;
 }
 
+function cellPhone(cell: string): string | null {
+  return normalizePhone(cell);
+}
+
+function looksLikeName(cell: string): boolean {
+  if (!cell || cellPhone(cell) || shillingsToCents(cell) != null) return false;
+  return cell.replace(/[^A-Za-z]/g, "").length >= 2;
+}
+
+function kindFromSamples(header: string, samples: string[], titleText: string): Column {
+  const known = classifyHeader(header);
+  if (known.kind === "month") return known;
+  const period = confirmedPeriod(header, titleText);
+  if (period && known.kind === "skip") return { kind: "month", period };
+  if (known.kind !== "skip") return known;
+  const filled = samples.map((cell) => cell.trim()).filter(Boolean);
+  if (filled.length === 0) return { kind: "skip" };
+  const phones = filled.filter((cell) => cellPhone(cell));
+  if (phones.length * 2 >= filled.length) return { kind: "phone" };
+  const amounts = filled.filter((cell) => shillingsToCents(cell) != null);
+  if (amounts.length * 2 >= filled.length) return { kind: "amount" };
+  const names = filled.filter((cell) => looksLikeName(cell));
+  if (names.length * 2 >= filled.length) return { kind: "name" };
+  return { kind: "skip" };
+}
+
+function keepFirst(columns: Column[], kind: "name" | "phone" | "amount"): Column[] {
+  let seen = false;
+  return columns.map((column) => {
+    if (column.kind !== kind) return column;
+    if (seen) return { kind: "skip" };
+    seen = true;
+    return column;
+  });
+}
+
+function absorbHeader(sheet: ExcelJS.Worksheet): SheetHeading | null {
+  const grid: { rowNumber: number; values: string[] }[] = [];
+  sheet.eachRow((row, rowNumber) => {
+    if (rowNumber > 25 || grid.length > 30) return;
+    const values = rowValues(row);
+    if (values.some(Boolean)) grid.push({ rowNumber, values });
+  });
+  for (let index = 0; index < grid.length - 1; index += 1) {
+    const headerRow = grid[index];
+    const headerish = headerRow.values.filter((cell) => cell && shillingsToCents(cell) == null && !cellPhone(cell)).length;
+    if (headerish < 2) continue;
+    const samples = grid.slice(index + 1, index + 13);
+    const titleText = grid
+      .slice(0, index)
+      .map((row) => row.values.join(" "))
+      .join(" ");
+    const width = Math.max(headerRow.values.length, ...samples.map((row) => row.values.length));
+    let columns = Array.from({ length: width }, (_, column) =>
+      kindFromSamples(
+        headerRow.values[column] ?? "",
+        samples.map((row) => row.values[column] ?? ""),
+        titleText,
+      ),
+    );
+    columns = keepFirst(keepFirst(keepFirst(columns, "name"), "phone"), "amount");
+    const hasPerson = columns.some((column) => column.kind === "name" || column.kind === "phone" || column.kind === "memberNo");
+    const hasMoney = columns.some((column) => column.kind === "month" || column.kind === "amount");
+    if (hasPerson && hasMoney) return { rowNumber: headerRow.rowNumber, columns, titleText };
+  }
+  return null;
+}
+
+function sheetHeader(sheet: ExcelJS.Worksheet): SheetHeading | null {
+  return findHeader(sheet) ?? absorbHeader(sheet);
+}
+
 function upsertMember(members: ParsedMember[], problems: string[], draft: ParsedMember) {
   const clash = members.find(
     (member) =>
@@ -375,7 +447,7 @@ function upsertMember(members: ParsedMember[], problems: string[], draft: Parsed
 export function unclearSheets(book: ExcelJS.Workbook): UnclearSheet[] {
   const found: UnclearSheet[] = [];
   for (const sheet of book.worksheets) {
-    if (!sheetKeepsPayments(sheet.name) || findHeader(sheet)) continue;
+    if (!sheetKeepsPayments(sheet.name) || sheetHeader(sheet)) continue;
     const rows: { rowNumber: number; values: string[] }[] = [];
     sheet.eachRow((row, rowNumber) => {
       if (rowNumber > 20 || rows.length > 8) return;
@@ -411,7 +483,7 @@ export function unclearSheets(book: ExcelJS.Workbook): UnclearSheet[] {
 
 function parseSheet(sheet: ExcelJS.Worksheet, result: WorkbookRead, assisted?: SheetHeading) {
   if (!sheetKeepsPayments(sheet.name)) return;
-  const header = findHeader(sheet) ?? assisted ?? null;
+  const header = sheetHeader(sheet) ?? assisted ?? null;
   if (!header) return;
   const titlePeriods = periodsMentioned(`${sheet.name} ${header.titleText}`);
   const titlePeriod = titlePeriods.length === 1 ? titlePeriods[0] : null;

@@ -172,24 +172,9 @@ export function ImportForm({ labels = english }: { labels?: typeof english }) {
         />
       </label>
       <div className="mt-4 flex flex-wrap gap-3">
-        <button
-          className="btn disabled:opacity-60"
-          type="button"
-          disabled={pending}
-          onClick={() => send("preview")}
-        >
-          {pending ? labels.checking : labels.preview}
+        <button className="btn disabled:opacity-60" type="button" disabled={pending} onClick={() => send("save")}>
+          {pending ? labels.saving : labels.save}
         </button>
-        {preview ? (
-          <button
-            className="btn disabled:opacity-60"
-            type="button"
-            disabled={pending}
-            onClick={() => send("save")}
-          >
-            {pending ? labels.saving : labels.save}
-          </button>
-        ) : null}
       </div>
       {message ? (
         <p className="mt-4 text-sm text-clay" role="alert">
