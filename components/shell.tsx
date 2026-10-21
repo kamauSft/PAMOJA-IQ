@@ -4,6 +4,7 @@ import { copy } from "@/content/ui";
 import { getLocale } from "@/lib/locale";
 import { canBringInBooks } from "@/lib/chama/page-session";
 import { isOfficial } from "@/lib/tenancy/context";
+import { AskPanel } from "./ask-panel";
 import { BrandMark } from "./brand-mark";
 import { Preferences } from "./preferences";
 import { SignOut } from "./sign-out";
@@ -55,7 +56,8 @@ export async function Shell({
           </nav>
         </aside>
       ) : null}
-      <div className="min-w-0">
+      <div className="flex min-w-0">
+        <div className="min-w-0 flex-1">
         <header className="no-print flex flex-wrap items-center justify-between gap-3 border-b border-line bg-surface px-4 py-3">
           <div>
             <p className="text-[13px] font-semibold text-ink">
@@ -88,6 +90,8 @@ export async function Shell({
           </nav>
         ) : null}
         <main className={official ? "px-4 py-6 sm:px-6" : "px-4 py-6 pb-24 sm:px-6"}>{children}</main>
+        </div>
+        <AskPanel labels={text.ask} desk={canBringInBooks(role) && !asMember} raised={!official} />
         {official ? null : (
           <nav className="no-print fixed inset-x-0 bottom-0 flex border-t border-line bg-surface">
             {links.map(([label, href]) => (
