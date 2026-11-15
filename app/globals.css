@@ -134,6 +134,40 @@ h3 {
   font-variant-numeric: tabular-nums;
 }
 
+/* A slow drift and zoom that makes a still photograph read like a quiet video. */
+@keyframes scene-drift {
+  from {
+    transform: scale(1.03) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.13) translate3d(-1.6%, -1.6%, 0);
+  }
+}
+
+.scene-layer {
+  animation: scene-drift 26s ease-in-out infinite alternate;
+  animation-play-state: paused;
+  will-change: transform;
+}
+
+.scene-layer[data-active="true"] {
+  animation-play-state: running;
+}
+
+.scene-layer[data-fade="true"] {
+  transition: opacity 1200ms ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-layer {
+    animation: none;
+    will-change: auto;
+  }
+  .scene-layer[data-fade="true"] {
+    transition: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

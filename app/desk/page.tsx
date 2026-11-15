@@ -4,7 +4,7 @@ import { AddMemberForm } from "@/components/add-member-form";
 import { SignInCare } from "@/components/sign-in-care";
 import { MemberRegister } from "@/components/member-register";
 import { MonthPill } from "@/components/month-pill";
-import { ScenePhoto } from "@/components/scene-photo";
+import { MovingScenes } from "@/components/moving-scenes";
 import { Shell } from "@/components/shell";
 import { Stat } from "@/components/stat";
 import { copy } from "@/content/ui";
@@ -35,9 +35,9 @@ export default async function DeskPage() {
 
   return (
     <Shell chamaName={desk.chamaName} personName={session.personName} role={session.role} current="/desk">
-      <ScenePhoto name="treasurer-desk" alt="A treasurer comparing a handwritten register with a laptop">
+      <MovingScenes start="treasurer-desk">
         <p className="text-2xl font-semibold">{desk.chamaName}</p>
-      </ScenePhoto>
+      </MovingScenes>
       <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-accent">{deskText.kicker}</p>
       <h1 className="mt-1 font-display text-4xl">
         {desk.periodLabel} {deskText.meeting}

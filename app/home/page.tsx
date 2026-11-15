@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MemberPinForm } from "@/components/member-pin";
 import { MonthPill } from "@/components/month-pill";
-import { ScenePhoto } from "@/components/scene-photo";
+import { MovingScenes } from "@/components/moving-scenes";
 import { Shell } from "@/components/shell";
 import { Stat } from "@/components/stat";
 import { copy } from "@/content/ui";
@@ -36,13 +36,13 @@ export default async function HomePage() {
 
   return (
     <Shell chamaName={home.chamaName} personName={home.personName} role={session.role} current="/home" asMember>
-      <ScenePhoto name="member-morning" alt="A member reading a message on a phone beside a window">
+      <MovingScenes start="member-morning">
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-white/80">{text.today}</p>
           <p className="mt-1 text-2xl font-semibold">{first}</p>
           <p className="mt-1 text-sm text-white/85">{home.motivation.message}</p>
         </div>
-      </ScenePhoto>
+      </MovingScenes>
       <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-accent">{text.position}</p>
       <h1 className="mt-1 font-display text-4xl">
         {first}&apos;s {text.money}
