@@ -9,6 +9,8 @@ export const OTP_MAX_SENDS = 3;
 export const OTP_SEND_WINDOW_MS = 15 * 60 * 1000;
 export const PIN_MAX_ATTEMPTS = 3;
 export const LOCKOUT_MS = 15 * 60 * 1000;
+/** A treasurer or chair waits this long after too many wrong PINs, then the lock lifts by itself. */
+export const OFFICER_LOCKOUT_MS = LOCKOUT_MS;
 
 export function sha256(value: string): string {
   return createHash("sha256").update(value).digest("hex");

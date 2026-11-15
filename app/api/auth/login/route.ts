@@ -2,11 +2,11 @@ import { loginWithPin } from "@/lib/auth/service";
 import { clientIp, demoOtpVisible, limitAuth, setSessionCookie } from "@/lib/auth/http";
 
 export async function POST(request: Request) {
-  const limit = limitAuth(request, "login");
+  const body = (await request.json().catch(() => null)) as { phone?: string; pin?: string; chamaId?: string; role?: string } | null;
+  const limit = limitAuth(request, "login", body?.phone);
   if (!limit.ok) {
     return Response.json({ status: "rate_limited", retryAfterMs: limit.retryAfterMs }, { status: 429 });
   }
-  const body = (await request.json().catch(() => null)) as { phone?: string; pin?: string; chamaId?: string; role?: string } | null;
   if (!body?.phone) {
     return Response.json({ status: "invalid_credentials", message: "Enter your phone number." }, { status: 400 });
   }

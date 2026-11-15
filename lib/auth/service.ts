@@ -5,7 +5,7 @@ import { hashPin, verifyPin } from "./pin";
 import { notifyLock } from "./lock-notice";
 import { acceptsStoredPin, validatePin } from "./pin-policy";
 import { normalizePhone } from "../phone";
-import { OTP_MAX_ATTEMPTS, PIN_MAX_ATTEMPTS, newSessionToken, sessionLifetimeMs, sha256 } from "./session";
+import { OTP_MAX_ATTEMPTS, OFFICER_LOCKOUT_MS, PIN_MAX_ATTEMPTS, newSessionToken, sessionLifetimeMs, sha256 } from "./session";
 
 export interface ChamaChoice {
   chamaId: string;
@@ -44,34 +44,42 @@ function dummyPinHash(): Promise<string> {
   return dummyHash;
 }
 
-async function isTreasurer(personId: string): Promise<boolean> {
+async function isOfficial(personId: string): Promise<boolean> {
   const post = await prismaRaw.membership.findFirst({
-    where: { personId, role: "TREASURER", status: "ACTIVE" },
+    where: { personId, role: { in: ["TREASURER", "CHAIR"] }, status: "ACTIVE" },
     select: { id: true },
   });
   return Boolean(post);
 }
 
-async function recordFailure(personId: string, attempts: number, messaging?: MessagingProvider): Promise<LoginResult> {
-  if (await isTreasurer(personId)) {
-    await prismaRaw.person.update({
-      where: { id: personId },
-      data: { failedLoginAttempts: 0, lockedUntil: null },
-    });
-    return { status: "invalid_credentials", message: "Wrong PIN." };
-  }
+function officialLockMessage(lockedUntil: Date, now: Date): string {
+  const minutes = Math.max(1, Math.ceil((lockedUntil.getTime() - now.getTime()) / 60_000));
+  return `Too many wrong PINs. Try again in ${minutes} ${minutes === 1 ? "minute" : "minutes"}.`;
+}
+
+function lockedMessage(official: boolean, lockedUntil: Date, now: Date): string {
+  return official ? officialLockMessage(lockedUntil, now) : LOCKED_MESSAGE;
+}
+
+async function recordFailure(
+  personId: string,
+  attempts: number,
+  messaging: MessagingProvider | undefined,
+  now: Date,
+): Promise<LoginResult> {
   const next = attempts + 1;
   if (next >= PIN_MAX_ATTEMPTS) {
-    const lockedUntil = PIN_LOCK_UNTIL;
+    const official = await isOfficial(personId);
+    const lockedUntil = official ? new Date(now.getTime() + OFFICER_LOCKOUT_MS) : PIN_LOCK_UNTIL;
     await prismaRaw.person.update({
       where: { id: personId },
       data: { failedLoginAttempts: next, lockedUntil },
     });
-    await notifyLock(personId, messaging);
+    if (!official) await notifyLock(personId, messaging);
     return {
       status: "locked",
       lockedUntil: lockedUntil.toISOString(),
-      message: LOCKED_MESSAGE,
+      message: lockedMessage(official, lockedUntil, now),
     };
   }
   await prismaRaw.person.update({
@@ -159,15 +167,19 @@ export async function loginWithPin(input: {
   const person = await prismaRaw.person.findUnique({ where: { phone } });
   if (!person) return unknownNumber();
   if (person.lockedUntil) {
-    if (await isTreasurer(person.id)) {
-      await prismaRaw.person.update({
-        where: { id: person.id },
-        data: { failedLoginAttempts: 0, lockedUntil: null },
-      });
-      person.failedLoginAttempts = 0;
-    } else {
-      return { status: "locked", lockedUntil: person.lockedUntil.toISOString(), message: LOCKED_MESSAGE };
+    if (person.lockedUntil > now) {
+      const official = await isOfficial(person.id);
+      return {
+        status: "locked",
+        lockedUntil: person.lockedUntil.toISOString(),
+        message: lockedMessage(official, person.lockedUntil, now),
+      };
     }
+    await prismaRaw.person.update({
+      where: { id: person.id },
+      data: { failedLoginAttempts: 0, lockedUntil: null },
+    });
+    person.failedLoginAttempts = 0;
   }
 
   const found = await prismaRaw.membership.findMany({
@@ -190,7 +202,7 @@ export async function loginWithPin(input: {
   for (const membership of memberships) {
     if (await verifyPin(pin, membership.hashedPin)) matches.push(membership);
   }
-  if (matches.length === 0) return recordFailure(person.id, person.failedLoginAttempts, input.messaging);
+  if (matches.length === 0) return recordFailure(person.id, person.failedLoginAttempts, input.messaging, now);
   if (person.failedLoginAttempts !== 0) {
     await prismaRaw.person.update({
       where: { id: person.id },
@@ -199,7 +211,7 @@ export async function loginWithPin(input: {
   }
 
   const chosen = input.chamaId ? matches.filter((membership) => membership.chamaId === input.chamaId) : matches;
-  if (chosen.length === 0) return recordFailure(person.id, person.failedLoginAttempts, input.messaging);
+  if (chosen.length === 0) return recordFailure(person.id, person.failedLoginAttempts, input.messaging, now);
   if (chosen.length > 1 && input.role !== "MEMBER") return { status: "choose_chama", chamas: chamaChoices(chosen) };
 
   const membership =
@@ -251,7 +263,12 @@ export async function verifyOtp(input: {
     return { status: "otp_invalid" };
   }
   if (challenge.person.lockedUntil && challenge.person.lockedUntil > now) {
-    return { status: "locked", lockedUntil: challenge.person.lockedUntil.toISOString(), message: LOCKED_MESSAGE };
+    const official = await isOfficial(challenge.personId);
+    return {
+      status: "locked",
+      lockedUntil: challenge.person.lockedUntil.toISOString(),
+      message: lockedMessage(official, challenge.person.lockedUntil, now),
+    };
   }
   if (challenge.expiresAt <= now) return { status: "otp_expired" };
   if (sha256(input.code) !== challenge.codeHash) {
@@ -262,12 +279,17 @@ export async function verifyOtp(input: {
       data: { attempts, consumedAt: lock ? now : null },
     });
     if (lock) {
-      const lockedUntil = PIN_LOCK_UNTIL;
+      const official = await isOfficial(challenge.personId);
+      const lockedUntil = official ? new Date(now.getTime() + OFFICER_LOCKOUT_MS) : PIN_LOCK_UNTIL;
       await prismaRaw.person.update({
         where: { id: challenge.personId },
         data: { failedLoginAttempts: 0, lockedUntil },
       });
-      return { status: "locked", lockedUntil: lockedUntil.toISOString(), message: LOCKED_MESSAGE };
+      return {
+        status: "locked",
+        lockedUntil: lockedUntil.toISOString(),
+        message: lockedMessage(official, lockedUntil, now),
+      };
     }
     return { status: "otp_invalid" };
   }
