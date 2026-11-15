@@ -12,6 +12,7 @@ export function MemberPinForm({ labels = english }: { labels?: typeof english })
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
+    if (pending) return;
     setPending(true);
     setMessage("");
     try {
@@ -46,7 +47,8 @@ export function MemberPinForm({ labels = english }: { labels?: typeof english })
       <button
         className="btn mt-3 disabled:opacity-60"
         disabled={pending || pin.length < 8}
-        type="submit"
+        onClick={submit}
+        type="button"
       >
         {pending ? labels.saving : labels.save}
       </button>

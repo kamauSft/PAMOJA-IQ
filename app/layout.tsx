@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { brand } from "@/config/brand";
 import { DevCleanup } from "@/components/dev-cleanup";
@@ -18,10 +19,11 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html lang={locale} className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body className="font-sans antialiased">
-        <ThemeBoot />
+        <ThemeBoot nonce={nonce} />
         {process.env.NODE_ENV === "development" ? <DevCleanup /> : null}
         {children}
       </body>
