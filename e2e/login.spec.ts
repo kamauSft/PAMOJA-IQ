@@ -14,15 +14,15 @@ test("rejects an unknown number", async ({ page }) => {
 });
 
 test("shows how many PIN tries are left", async ({ page }) => {
-  await page.goto("/login?who=member");
+  await page.goto("/login?door=member");
   await page.getByLabel("Phone").fill("0712345005");
-  await page.getByLabel("PIN").fill("0000");
+  await page.getByLabel("PIN").fill("999999");
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByTestId("login-error")).toHaveText("Wrong PIN. 2 tries left.");
 });
 
 test("signs a member in with a PIN and keeps the treasurer pages closed", async ({ page }) => {
-  await page.goto("/login?who=member");
+  await page.goto("/login?door=member");
   await page.getByLabel("Phone").fill("0712345005");
   await page.getByLabel("PIN").fill("Ab3!@cde");
   await page.getByRole("button", { name: "Continue" }).click();
@@ -39,7 +39,7 @@ test("signs a member in with a PIN and keeps the treasurer pages closed", async 
 });
 
 test("signs the treasurer in with the PIN", async ({ page }) => {
-  await page.goto("/login?who=treasurer");
+  await page.goto("/login?door=treasurer");
   await expect(page.getByLabel("Phone")).toHaveValue("");
   await page.getByLabel("Phone").fill("0712345002");
   await expect(page.getByLabel("PIN")).toHaveValue("");

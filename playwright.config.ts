@@ -19,10 +19,20 @@ export default defineConfig({
       },
     },
   ],
+  /**
+   * The browser tests run against a production build, not the dev server. The
+   * dev server rebuilds whenever a file changes — including the database the
+   * tests write to — and a rebuild during a navigation drops the request. A
+   * production build also proves the strict content policy and the nonce work.
+   */
   webServer: {
-    command: "npm run dev -- --port 3000",
+    command: "npm run build && npm run start -- --port 3000",
     url: "http://127.0.0.1:3000/login",
-    reuseExistingServer: true,
-    timeout: 120_000,
+    reuseExistingServer: !process.env.CI,
+    timeout: 300_000,
+    env: {
+      // The seeded demo is deliberate here. A real deployment never sets this.
+      ALLOW_DEMO_IN_PROD: "true",
+    },
   },
 });
