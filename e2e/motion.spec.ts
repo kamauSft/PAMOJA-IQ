@@ -21,7 +21,7 @@ test("shows people gathering on the member sign-in page", async ({ page }) => {
   await expectFilm(page, "/videos/gathering.mp4");
 });
 
-test("shows a working meeting on the treasurer sign-in page", async ({ page }) => {
+test("shows members talking on the treasurer sign-in page", async ({ page }) => {
   await page.goto("/login?door=treasurer");
   await expectFilm(page, "/videos/meeting.mp4");
 });

@@ -18,8 +18,8 @@ const HOLD_MS = 8_000;
 
 /**
  * Real footage of people together, chosen to suit the screen. Members see
- * people arriving and greeting each other; officers see a working meeting.
- * Both loops are silent and stay under 1 MB.
+ * women gathered outdoors reading together; officers see women talking
+ * together indoors. Both loops are silent and stay under 1 MB.
  */
 const FILMS: Record<Scene, string> = {
   "chama-meeting": "/videos/meeting.mp4",

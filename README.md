@@ -53,7 +53,7 @@ The rule that keeps the app honest: **money is integer cents, and only `lib/fina
 
 ## Moving scenes
 
-The sign-in and home screens play real footage of people together, not drifting stills. The member door shows people arriving and greeting each other around a table; the treasurer door and the chama screens show people working through a meeting. Each clip is a silent 12-second H.264 loop, under 1 MB, with the pictured still kept as the poster and as the fallback.
+The sign-in and home screens play real footage of people together, not drifting stills. The member door shows women gathered outdoors reading together; the treasurer door and the chama screens show women talking together indoors. Each clip is a short silent H.264 loop, under 1 MB, with the pictured still kept as the poster and as the fallback.
 
 - `components/moving-scenes.tsx` — chooses the clip to suit the door, with the stills underneath.
 - `app/globals.css` — `scene-drift`, the slow zoom used by the fallback.

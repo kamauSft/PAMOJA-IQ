@@ -31,10 +31,10 @@ out_dir = os.path.join(root, "public", "videos")
 source_dir = os.path.join(root, "assets", "video")
 os.makedirs(out_dir, exist_ok=True)
 
-# name, default source, subtitle start, length in seconds
+# name, default source, trim start, length in seconds
 jobs = [
-    ("gathering.mp4", "gathering-source.mp4", 0, 12),
-    ("meeting.mp4", "meeting-source.mp4", 3, 12),
+    ("gathering.mp4", "gathering-source.mp4", 0.3, 6),
+    ("meeting.mp4", "meeting-source.mp4", 0.7, 6),
 ]
 
 for name, default_source, start, length in jobs:

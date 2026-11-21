@@ -20,23 +20,25 @@ Because the pictures move, the edges matter: a crop that loses the subject when 
 
 ## The films
 
-| File                          | Where it appears                                                                | Source                                                                                                                                                                                                                                | Licence                                                                                                                                       |
-| ----------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `public/videos/gathering.mp4` | Member sign-in door and member home                                             | [Pexels clip 3255274](https://www.pexels.com/video/group-of-people-standing-around-the-conference-table-greeting-each-other-3255274/), [direct HD file](https://videos.pexels.com/video-files/3255274/3255274-hd_1920_1080_25fps.mp4) | [Pexels License](https://www.pexels.com/license/) — free commercial use, editing allowed, no attribution required                             |
-| `public/videos/meeting.mp4`   | Treasurer/chair sign-in door, chama meeting, treasurer desk, and the front page | [Mixkit clip 4547](https://mixkit.co/free-stock-video/people-having-a-work-meeting-around-a-table-4547/), [direct 720p file](https://assets.mixkit.co/videos/4547/4547-720.mp4)                                                       | [Mixkit Stock Video Free License](https://mixkit.co/license/modal/videoFree/) — free commercial use, editing allowed, no attribution required |
+| File                          | Where it appears                                                                | Source                                                                                                                                                                                                                       | Licence                                                                                                           |
+| ----------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `public/videos/gathering.mp4` | Member sign-in door and member home                                             | [Pexels clip 9653701](https://www.pexels.com/video/group-of-african-women-reading-book-under-tree-9653701/), [direct HD file](https://videos.pexels.com/video-files/9653701/9653701-hd_1920_1080_25fps.mp4)           | [Pexels License](https://www.pexels.com/license/) — free commercial use, editing allowed, no attribution required |
+| `public/videos/meeting.mp4`   | Treasurer/chair sign-in door, chama meeting, treasurer desk, and the front page | [Pexels clip 7950977](https://www.pexels.com/video/people-talking-together-7950977/), [direct HD file](https://videos.pexels.com/video-files/7950977/7950977-hd_1920_1080_30fps.mp4)                                 | [Pexels License](https://www.pexels.com/license/) — free commercial use, editing allowed, no attribution required |
 
-Both finished loops are 12 seconds, 1280 × 720, H.264, 25 frames a second, silent, and under 1 MB, with a 0.5-second fade in and out. They autoplay muted in a loop. The matching still is the poster, and a device asking for less motion gets no video at all.
+The member film shows African women gathered outdoors, reading together in the shade. It reads as a group learning and talking, not a conference room. The officer film shows three Black women in conversation indoors: members talking through a matter, without suits or a boardroom table. Both are more like a chama than the earlier corporate stock clips.
 
-The footage is credited here even though neither licence requires it. Mixkit clip 23381 is deliberately **not** used: its page is marked as a Restricted License, not the free one above.
+Both finished loops are 6 seconds, 1280 × 720, H.264, 25 frames a second, silent, and under 1 MB, with a 0.5-second fade in and out. They autoplay muted in a loop. The matching still is the poster, and a device asking for less motion gets no video at all.
+
+The footage is credited here even though the Pexels licence does not require it. Mixkit clip 23381 is deliberately **not** used: its page is marked as a Restricted License, not the free one previously used here.
 
 ## Rebuilding or replacing the loops
 
 The source clips are not committed; only the small finished loops are. To rebuild, download the sources into `assets/video/` as:
 
 - `gathering-source.mp4` — the Pexels HD file above
-- `meeting-source.mp4` — the Mixkit 720p file above
+- `meeting-source.mp4` — the Pexels HD file above
 
-Then run `npm run film`. You can instead point `GATHERING_SRC` and `MEETING_SRC` at files elsewhere. The script takes 0–12 s from the gathering source and 3–15 s from the meeting source, scales and centre-crops to 1280 × 720, fades the ends, drops the sound, and writes H.264 with `+faststart`. It needs `ffmpeg` on PATH, or Python's `imageio-ffmpeg` package. If a source is missing, that loop is left untouched.
+Then run `npm run film`. You can instead point `GATHERING_SRC` and `MEETING_SRC` at files elsewhere. The script takes 0.3–6.3 s from the gathering source and 0.7–6.7 s from the meeting source, scales and centre-crops to 1280 × 720, fades the ends, drops the sound, and writes H.264 with `+faststart`. It needs `ffmpeg` on PATH, or Python's `imageio-ffmpeg` package. If a source is missing, that loop is left untouched.
 
 When real chama footage arrives, keep the same file names and rough size, or update `FILMS` in `components/moving-scenes.tsx` and these notes together. Get written consent from everyone filmed before using footage of a real chama.
 
