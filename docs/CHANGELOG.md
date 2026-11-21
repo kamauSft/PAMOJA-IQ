@@ -11,7 +11,7 @@
 - A PIN cannot leak into the address bar. The sign-in button does nothing until the browser has taken over the page, so an early tap can never fall back to a plain form submit that would put the PIN in the URL.
 - The browser tests now run against a production build. The dev server rebuilds whenever a file changes — including the database a test writes to — and a rebuild in the middle of a navigation used to drop the request.
 - The dependent packages are locked again, so `npm ci` passes and CI can go green. The browser test for the status page names the heading the page actually shows, and the browser tests read `.env` on a developer's computer.
-- The sign-in and home screens cross-fade three photographs, each with a slow drift and zoom. The motion stops when the device asks for less motion.
+- The sign-in and home screens play a real silent loop of the three photographs, drifting and fading into one another. The stills remain as the poster and as the fallback, and the motion stops when the device asks for less motion. The loop is rebuilt from the stills with `npm run film`.
 - The project carries an MIT licence and a short map of how the pieces fit together.
 
 ## 2026-10-21

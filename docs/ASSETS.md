@@ -16,6 +16,12 @@ Each file is under 200 KB. The phone file is the narrower crop. The desktop file
 
 Because the pictures move, the edges matter: a crop that loses the subject when it zooms to 113% will look wrong. Keep the person or the table inside the middle 80% of the frame.
 
+## The film
+
+`public/videos/scenes.mp4` is a real 24-second silent loop made from the three desktop photographs. Each still sits on a blurred copy of itself, drifts slowly inward, and fades into the next. It is H.264, 1280 × 720, 12 frames a second, about 520 KB, with no sound track. The stills above are the poster and the fallback for anyone who asks for less motion.
+
+To rebuild the film after replacing the photographs, run `npm run film`. It needs `ffmpeg` on PATH, or Python's `imageio-ffmpeg` package. These files are locally made illustrations, not Canva exports; rebuild the film once the Canva pictures are in place.
+
 ## Exporting a premium set
 
 Any stock library or Canva export works, as long as the six files keep their names. Export each scene twice:

@@ -53,10 +53,11 @@ The rule that keeps the app honest: **money is integer cents, and only `lib/fina
 
 ## Moving photographs
 
-The sign-in and home screens show three photographs that cross-fade every eight seconds, each with a slow drift and zoom. It is CSS only, so it costs no video file and no extra requests:
+The sign-in and home screens play a silent 24-second film on a loop: three photographs drifting slowly and fading into one another. It is a real H.264 file, about 520 KB, with the stills kept as the poster and as the fallback for anyone who has asked for less motion.
 
-- `components/moving-scenes.tsx` — the cross-fade.
-- `app/globals.css` — `scene-drift`, the slow zoom.
+- `components/moving-scenes.tsx` — the video, with the crossfade underneath.
+- `app/globals.css` — `scene-drift`, the slow zoom used by the fallback.
+- `scripts/make-film.py` — rebuilds the film from the stills (`npm run film`).
 - `docs/ASSETS.md` — the file names and the sizes to export.
 
 It stops for anyone who has asked their device to reduce motion.
@@ -93,6 +94,7 @@ Free is KES 0. Standard is the higher of KES 500 and KES 30 an active member. Pr
 | `npm run db:reset` | Recreate the local database and seed it |
 | `npm run format` | Prettier |
 | `npm run fixtures` | Rebuild the sample Excel files |
+| `npm run film` | Rebuild the silent scene loop from `public/images` |
 | `npm run lockout:reset` | Clear a sign-in lock from practice attempts |
 
 ### Browser tests on this computer

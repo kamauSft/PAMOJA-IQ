@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export type Scene = "chama-meeting" | "treasurer-desk" | "member-morning";
 
@@ -15,6 +15,9 @@ const ALL: Scene[] = ["chama-meeting", "treasurer-desk", "member-morning"];
 
 /** How long one photograph stays before the next one fades in. */
 const HOLD_MS = 8_000;
+
+/** A short, silent loop made from the three photographs. */
+const FILM = "/videos/scenes.mp4";
 
 export function MovingScenes({
   scenes = ALL,
@@ -35,10 +38,14 @@ export function MovingScenes({
   );
   const [index, setIndex] = useState(0);
   const [moving, setMoving] = useState(false);
+  const [film, setFilm] = useState(false);
+  const video = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce || order.length < 2) return;
+    if (reduce) return;
+    setFilm(true);
+    if (order.length < 2) return;
     setMoving(true);
     const timer = window.setInterval(() => {
       setIndex((current) => (current + 1) % order.length);
@@ -46,7 +53,13 @@ export function MovingScenes({
     return () => window.clearInterval(timer);
   }, [order.length]);
 
+  useEffect(() => {
+    if (!film) return;
+    void video.current?.play().catch(() => setFilm(false));
+  }, [film]);
+
   const height = variant === "hero" ? "min-h-[46vh] sm:min-h-[52vh]" : "h-40 sm:h-[220px]";
+  const first = order[0] ?? "chama-meeting";
 
   return (
     <div className={`relative w-full overflow-hidden ${height}`}>
@@ -63,7 +76,7 @@ export function MovingScenes({
           >
             <Image
               src={`/images/${scene}-phone.webp`}
-              alt={active ? ALT[scene] : ""}
+              alt={active && !film ? ALT[scene] : ""}
               fill
               priority={priority && sceneIndex === 0}
               sizes="100vw"
@@ -80,6 +93,21 @@ export function MovingScenes({
           </div>
         );
       })}
+      {film ? (
+        <video
+          ref={video}
+          className="absolute inset-0 h-full w-full object-cover"
+          src={FILM}
+          poster={`/images/${first}-desktop.webp`}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+          onError={() => setFilm(false)}
+        />
+      ) : null}
       <div className="absolute inset-0 bg-[#0F2A3D]/70" />
       {children ? <div className="scene-copy absolute inset-0 flex items-end p-5 sm:p-8">{children}</div> : null}
     </div>
