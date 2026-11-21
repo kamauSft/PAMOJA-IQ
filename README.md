@@ -12,7 +12,7 @@ You need Node.js 22 or newer. In PowerShell:
 
 ```powershell
 node --version
-cd C:\Users\USER\pamoja-iq
+cd path\to\PAMOJA-IQ
 copy .env.example .env
 npm install
 npx prisma db push
@@ -36,6 +36,31 @@ The owner saved in the server settings uses one phone for both doors. That phone
 | Peter Otieno Omondi | Treasurer | 0712345002 | The books, with password Ab3!@cde |
 | Amina Hassan Bakari | Member | 0712345005 | Her own position |
 
+## How the app is put together
+
+| Layer | Where | What it does |
+|---|---|---|
+| Screens | `app/**/page.tsx` | Server components. They read a session, load figures, and render. They do not calculate money. |
+| Shared pieces | `components/` | Forms, shells, statistics, and the moving photographs. |
+| Money maths | `lib/finance/` | Integer cents and basis points. Assertions guard every entry point. |
+| Sign-in | `lib/auth/` | Argon2id PINs, server sessions, OTP, lockout, rate limits. |
+| Tenancy | `lib/tenancy/` | A Prisma extension stamps and filters `chamaId`, so a screen cannot read another chama's rows. |
+| Import | `lib/import/` | Reads a messy Excel register, shows each payment, then saves it in one transaction. |
+| Tables | `prisma/schema.prisma` | The database shape, plus `prisma/seed.ts` for Umoja. |
+| API | `app/api/**/route.ts` | Small JSON endpoints. Each one checks the session and the role before it acts. |
+
+The rule that keeps the app honest: **money is integer cents, and only `lib/finance` does the maths.** Screens read the results.
+
+## Moving photographs
+
+The sign-in and home screens show three photographs that cross-fade every eight seconds, each with a slow drift and zoom. It is CSS only, so it costs no video file and no extra requests:
+
+- `components/moving-scenes.tsx` — the cross-fade.
+- `app/globals.css` — `scene-drift`, the slow zoom.
+- `docs/ASSETS.md` — the file names and the sizes to export.
+
+It stops for anyone who has asked their device to reduce motion.
+
 ## Price
 
 Free is KES 0. Standard is the higher of KES 500 and KES 30 an active member. Pro is the higher of KES 1,000 and KES 60 an active member. Umoja has 19 active members: Standard KES 570, Pro KES 1,140.
@@ -50,7 +75,9 @@ Free is KES 0. Standard is the higher of KES 500 and KES 30 an active member. Pr
 - `prisma` — tables and the demo seed
 - `fixtures` — sample Excel files (`npm run fixtures` rebuilds them)
 - `tests` — unit tests
+- `e2e` — browser tests
 - `docs` — spec, changelog, deploy notes
+- `web` — the separate static demo published to GitHub Pages. It holds no sign-in and no real member data. The real product is this Next.js app.
 
 ## Scripts
 
@@ -68,4 +95,22 @@ Free is KES 0. Standard is the higher of KES 500 and KES 30 an active member. Pr
 | `npm run fixtures` | Rebuild the sample Excel files |
 | `npm run lockout:reset` | Clear a sign-in lock from practice attempts |
 
-Money is integer cents. `lib/finance` does the maths. The screens only read those results.
+### Browser tests on this computer
+
+`npm run test:e2e` reads `.env` for `DATABASE_URL`, resets the demo books, then builds and starts the app on port 3000. It runs against the **production build**, so the strict content policy is what gets tested. The test server sets `ALLOW_DEMO_IN_PROD=true` for itself only; a real deployment never sets it. The tests need Chrome, because Playwright uses your installed browser outside CI.
+
+## PIN rules
+
+- A member uses **6 digits**. An official uses **8 digits**. An older account may hold a long password instead.
+- A 4-digit PIN is refused, so a short guess cannot open a door.
+- Three wrong PINs lock a member until the treasurer or the chair unlocks the number.
+- Three wrong PINs lock a treasurer or chair for **15 minutes**, then the lock lifts by itself.
+- Wrong guesses are counted against the phone number as well as the address, so changing address does not help.
+
+## Real member data
+
+The app ships with the Umoja demo only. When a real chama is loaded, keep `DEMO_MODE=false` on the internet copy, set a real `SESSION_SECRET`, and replace the demo photographs in `public/images` with pictures of that chama, taken with each person's written consent.
+
+## Licence
+
+MIT. See `LICENSE`.

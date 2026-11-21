@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### A locked treasurer returns by themselves, and the pipeline is honest again
+
+- Three wrong PINs now lock a treasurer or chair for 15 minutes, then the lock lifts by itself. A member still needs the treasurer or the chair to unlock the number. The earlier rule ("a treasurer is not locked") is withdrawn: it left the highest door open to endless guessing.
+- A wrong PIN is counted against the phone number as well as the address, and the address is only believed behind a proxy we control (`TRUST_PROXY`). A fresh address no longer resets the count.
+- A 4-digit PIN is refused at sign-in. A member uses 6 digits, an official 8.
+- The internet copy no longer allows inline scripts. Every page load carries its own nonce, and the browser test proves the page still runs under that policy.
+- A PIN cannot leak into the address bar. The sign-in button does nothing until the browser has taken over the page, so an early tap can never fall back to a plain form submit that would put the PIN in the URL.
+- The browser tests now run against a production build. The dev server rebuilds whenever a file changes — including the database a test writes to — and a rebuild in the middle of a navigation used to drop the request.
+- The dependent packages are locked again, so `npm ci` passes and CI can go green. The browser test for the status page names the heading the page actually shows, and the browser tests read `.env` on a developer's computer.
+- The sign-in and home screens cross-fade three photographs, each with a slow drift and zoom. The motion stops when the device asks for less motion.
+- The project carries an MIT licence and a short map of how the pieces fit together.
+
+## 2026-10-21
+
 ### A new password, and two messy registers
 
 - The member door is phone and PIN only. Sign out returns to the home page, where Member and Treasurer are the two doors.

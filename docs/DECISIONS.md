@@ -1,5 +1,13 @@
 # Decisions
 
+## 2026-11-15 - A locked treasurer waits 15 minutes, then returns
+
+A member who forgets a PIN needs a person: the treasurer or the chair unlocks the number, and that stays. A treasurer or chair who forgets a PIN is different, because locking the highest door forever leaves the chama with no one to unlock anybody. Three wrong PINs stop an official for 15 minutes; after that the lock lifts by itself and the count starts again. The trade is deliberate: a patient guesser gets a slow stream of attempts instead of a fast one, and every wrong guess is still counted against the phone number.
+
+## 2026-11-15 - The photographs cross-fade and drift
+
+The front door and the two home screens show three photographs. Each one fades into the next every eight seconds and drifts slowly while it is shown, so a still picture reads like a quiet video. It is done with CSS only: no video file, no extra download, and it stops when the device asks for less motion. A real video file stays an option, but it would cost a megabyte or more on a phone in Nairobi.
+
 ## 2026-10-18 — This computer stays on a file; the internet copy uses Postgres
 
 Thomas starts the app by double-clicking `start-pamoja.bat`. That copy uses the local records file. The internet copy uses Postgres, and its build switches the database type only when the address starts with `postgres`. The padlock settings stay off on this computer. Demo data can be added on the internet copy only when that copy is marked as a demo. The public sample page does not point at the real app until that internet address exists.
