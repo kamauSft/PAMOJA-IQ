@@ -3,6 +3,13 @@ import { expect, test } from "@playwright/test";
 async function expectFilm(page: import("@playwright/test").Page, source: string) {
   const film = page.locator(`video[data-film="${source}"]`);
   await expect(film).toBeVisible();
+  const box = await film.boundingBox();
+  const viewport = page.viewportSize();
+  expect(box).not.toBeNull();
+  if (box && viewport) {
+    expect(box.width).toBeGreaterThanOrEqual(viewport.width - 1);
+    expect(box.height).toBeGreaterThanOrEqual(viewport.height - 1);
+  }
   await expect
     .poll(() => film.evaluate((video) => (video as HTMLVideoElement).readyState))
     .toBeGreaterThanOrEqual(2);
@@ -16,12 +23,12 @@ async function expectFilm(page: import("@playwright/test").Page, source: string)
   expect(await film.evaluate((video) => (video as HTMLVideoElement).loop)).toBe(true);
 }
 
-test("shows people gathering on the member sign-in page", async ({ page }) => {
+test("fills the member sign-in page with a meeting scene", async ({ page }) => {
   await page.goto("/login?door=member");
   await expectFilm(page, "/videos/gathering.mp4");
 });
 
-test("shows members talking on the treasurer sign-in page", async ({ page }) => {
+test("fills the treasurer sign-in page with a meeting scene", async ({ page }) => {
   await page.goto("/login?door=treasurer");
   await expectFilm(page, "/videos/meeting.mp4");
 });

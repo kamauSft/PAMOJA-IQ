@@ -17,9 +17,9 @@ const ALL: Scene[] = ["chama-meeting", "treasurer-desk", "member-morning"];
 const HOLD_MS = 8_000;
 
 /**
- * Real footage of people together, chosen to suit the screen. Members see
- * women gathered outdoors reading together; officers see women talking
- * together indoors. Both loops are silent and stay under 1 MB.
+ * Real footage of people together, chosen to suit the screen. Both loops show
+ * a formal meeting of men and women from a high angle, with faces softened so
+ * nobody is identifiable. They are silent and stay under 1 MB.
  */
 const FILMS: Record<Scene, string> = {
   "chama-meeting": "/videos/meeting.mp4",
@@ -36,7 +36,7 @@ export function MovingScenes({
 }: {
   scenes?: Scene[];
   start?: Scene;
-  variant?: "strip" | "hero";
+  variant?: "strip" | "hero" | "page";
   priority?: boolean;
   children?: React.ReactNode;
 }) {
@@ -61,7 +61,17 @@ export function MovingScenes({
     return () => window.clearInterval(timer);
   }, [order.length]);
 
-  const height = variant === "hero" ? "min-h-[46vh] sm:min-h-[52vh]" : "h-40 sm:h-[220px]";
+  const height =
+    variant === "page"
+      ? "min-h-screen"
+      : variant === "hero"
+        ? "min-h-[46vh] sm:min-h-[52vh]"
+        : "h-40 sm:h-[220px]";
+  const copyPosition = variant === "page" ? "items-center justify-center p-5 sm:p-8" : "items-end p-5 sm:p-8";
+  const shade =
+    variant === "page"
+      ? "bg-gradient-to-b from-[#0F2A3D]/85 via-[#0F2A3D]/70 to-[#0F2A3D]/90"
+      : "bg-[#0F2A3D]/70";
   // The film follows the door, not the still that is currently fading in.
   const door = start ?? scenes[0] ?? "chama-meeting";
   const filmSrc = FILMS[door];
@@ -72,7 +82,7 @@ export function MovingScenes({
   }, [film, filmSrc]);
 
   return (
-    <div className={`relative w-full overflow-hidden ${height}`}>
+    <div className={`relative w-full overflow-hidden ${height}`} data-variant={variant}>
       {order.map((scene, sceneIndex) => {
         const active = sceneIndex === index;
         return (
@@ -120,9 +130,9 @@ export function MovingScenes({
           onError={() => setFilm(false)}
         />
       ) : null}
-      <div className="absolute inset-0 bg-[#0F2A3D]/70" />
+      <div className={`absolute inset-0 ${shade}`} />
       {children ? (
-        <div className="scene-copy absolute inset-0 flex items-end p-5 sm:p-8">{children}</div>
+        <div className={`scene-copy absolute inset-0 flex ${copyPosition}`}>{children}</div>
       ) : null}
     </div>
   );

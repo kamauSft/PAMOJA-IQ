@@ -20,7 +20,7 @@ export default async function LandingPage() {
         </p>
         <Preferences locale={locale} languageLabel={text.language} lightLabel={text.themeLight} darkLabel={text.themeDark} />
       </header>
-      <MovingScenes>
+      <MovingScenes variant="page" priority>
         <div className="max-w-3xl text-white">
           <p className="text-xs uppercase tracking-[0.16em] text-white/80">{brand.tagline}</p>
           <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">{page.bankHeadline}</h1>
