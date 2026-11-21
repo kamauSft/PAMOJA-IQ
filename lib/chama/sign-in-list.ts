@@ -17,12 +17,13 @@ export async function loadSignInList(): Promise<SignInPerson[]> {
     include: { person: { select: { id: true, name: true, lockedUntil: true } } },
     orderBy: { memberNo: "asc" },
   });
+  const now = new Date();
   const people = new Map<string, SignInPerson>();
   for (const row of rows) {
     const current = people.get(row.personId) ?? {
       personId: row.personId,
       name: row.person.name,
-      locked: Boolean(row.person.lockedUntil),
+      locked: Boolean(row.person.lockedUntil && row.person.lockedUntil > now),
       roles: [],
     };
     current.roles.push({ membershipId: row.id, memberNo: row.memberNo, role: row.role });

@@ -9,7 +9,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -19,6 +19,7 @@
     "db:reset": "prisma db push --force-reset && tsx prisma/seed.ts",
     "format": "prettier --write .",
     "fixtures": "tsx scripts/generate-fixtures.ts",
+    "film": "python scripts/make-film.py",
     "lockout:reset": "tsx scripts/reset-lockout.ts",
     "test:e2e": "playwright test",
     "postinstall": "prisma generate"

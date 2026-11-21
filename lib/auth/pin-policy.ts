@@ -9,9 +9,22 @@ function pick(chars: string): string {
   return chars[randomInt(0, chars.length)] ?? "A";
 }
 
-/** At least 8 characters, with a letter, a capital, a number, and 2 special characters. */
-export function validatePin(pin: string, _kind?: "MEMBER" | "OFFICIAL"): string | null {
-  if (pin.length < 8) return "Use at least 8 characters.";
+function randomDigits(count: number): string {
+  let value = "";
+  for (let index = 0; index < count; index += 1) value += randomInt(0, 10).toString();
+  return value;
+}
+
+/**
+ * A member uses 6 digits. An official uses 8 digits. An older account may still
+ * hold a long password, so that shape stays welcome. A 4-digit PIN is refused.
+ */
+export function validatePin(pin: string, kind: "MEMBER" | "OFFICIAL" = "MEMBER"): string | null {
+  const wanted = kind === "MEMBER" ? 6 : 8;
+  if (/^\d{6}$/.test(pin) || /^\d{8}$/.test(pin)) return null;
+  if (pin.length < 8) {
+    return `Use ${wanted} digits, or at least 8 characters with a capital, a number, and 2 symbols.`;
+  }
   if (!/[A-Za-z]/.test(pin)) return "Include a letter.";
   if (!/[A-Z]/.test(pin)) return "Include a capital letter.";
   if (!/\d/.test(pin)) return "Include a number.";
@@ -20,7 +33,7 @@ export function validatePin(pin: string, _kind?: "MEMBER" | "OFFICIAL"): string 
 }
 
 export function acceptsStoredPin(pin: string): boolean {
-  return /^(?:\d{4}|\d{6}|\d{8})$/.test(pin) || validatePin(pin) === null;
+  return /^(?:\d{6}|\d{8})$/.test(pin) || validatePin(pin) === null;
 }
 
 export function randomPassword(): string {
@@ -45,9 +58,9 @@ export function randomPassword(): string {
 }
 
 export function randomOfficialPin(): string {
-  return randomPassword();
+  return randomDigits(8);
 }
 
 export function randomMemberPin(): string {
-  return randomPassword();
+  return randomDigits(6);
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { copy } from "@/content/ui";
 
@@ -47,16 +47,27 @@ export function LoginForm({
   const [choices, setChoices] = useState<ChamaChoice[]>([]);
   const [challengeId, setChallengeId] = useState("");
   const [code, setCode] = useState("");
-  const [demoCode, setDemoCode] = useState("");
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
+  // The button stays disabled until the browser has taken over the page. A PIN
+  // must never reach a URL, which is where a plain form submit would put it.
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setReady(true);
+  }, []);
 
   function goHome(role?: string) {
     router.push(afterSignIn ?? (role && role !== "MEMBER" ? "/desk" : "/home"));
   }
 
-  async function submitPhone(event: React.FormEvent) {
-    event.preventDefault();
+  function submit() {
+    if (pending) return;
+    if (challengeId) void submitCode();
+    else void submitPhone();
+  }
+
+  async function submitPhone() {
     setPending(true);
     setMessage("");
     try {
@@ -86,7 +97,6 @@ export function LoginForm({
       }
       if (body.status === "otp_required") {
         setChallengeId(body.challengeId ?? "");
-        setDemoCode(body.demoCode ?? "");
         setMessage(body.demoCode ? labels.enterDemo : labels.enterSms);
         return;
       }
@@ -98,8 +108,7 @@ export function LoginForm({
     }
   }
 
-  async function submitCode(event: React.FormEvent) {
-    event.preventDefault();
+  async function submitCode() {
     setPending(true);
     setMessage("");
     try {
@@ -127,7 +136,18 @@ export function LoginForm({
 
   return (
     <div className="card p-6">
-      <form onSubmit={challengeId ? submitCode : submitPhone} className="space-y-4">
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          submit();
+        }}
+        onKeyDown={(event) => {
+          if (event.key !== "Enter") return;
+          event.preventDefault();
+          submit();
+        }}
+        className="space-y-4"
+      >
         {!challengeId ? (
           <>
             <label className="block text-sm font-medium">
@@ -192,8 +212,9 @@ export function LoginForm({
         )}
         <button
           className="btn w-full disabled:opacity-60"
-          disabled={pending}
-          type="submit"
+          disabled={pending || !ready}
+          onClick={submit}
+          type="button"
         >
           {pending ? labels.checking : challengeId ? labels.confirm : labels.continue}
         </button>
