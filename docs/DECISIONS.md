@@ -4,13 +4,13 @@
 
 A member who forgets a PIN needs a person: the treasurer or the chair unlocks the number, and that stays. A treasurer or chair who forgets a PIN is different, because locking the highest door forever leaves the chama with no one to unlock anybody. Three wrong PINs stop an official for 15 minutes; after that the lock lifts by itself and the count starts again. The trade is deliberate: a patient guesser gets a slow stream of attempts instead of a fast one, and every wrong guess is still counted against the phone number.
 
-## 2026-11-21 - A small film, not a streamed video
+## 2026-11-21 - Real footage, chosen by the door
 
-The moving scenes are now a 24-second H.264 loop built from the three stills: about 520 KB, silent, autoplaying and muted, with the stills as poster and fallback. A streamed video would look much the same on a phone and cost several megabytes. The film stops entirely for a device that asks for less motion. `npm run film` rebuilds it once the photographs are replaced.
+A drifting still photograph is not people gathering. The member door and home now show people standing and greeting (Pexels 3255274); the treasurer and chair doors, the chama meeting, and the desk show people working around a table (Mixkit 4547). Both are 12-second silent H.264 loops under 1 MB, so a phone does not stream a long film, and each is tied to the door rather than to the still currently fading in. The matching still stays as the poster and as the fallback; a device asking for less motion gets no video. Mixkit clip 23381 was rejected because its page is marked Restricted rather than Free. `npm run film` rebuilds the loops from source clips kept outside the repository; sources, licences, and replacement instructions are in `docs/ASSETS.md`.
 
-## 2026-11-15 - The photographs cross-fade and drift
+## 2026-11-15 - The photographs cross-fade and drift as the fallback
 
-The front door and the two home screens show three photographs. Each one fades into the next every eight seconds and drifts slowly while it is shown, so a still picture reads like a quiet video. It is done with CSS only: no video file, no extra download, and it stops when the device asks for less motion. A real video file stays an option, but it would cost a megabyte or more on a phone in Nairobi.
+The front door and the two home screens still show three photographs, each fading into the next every eight seconds while drifting slowly. This was once the whole motion design; it is now the layer under the footage, the poster while a film loads, and the entire experience when playback fails or the device asks for less motion. It is done with CSS only, so that fallback costs no extra download.
 
 ## 2026-10-18 — This computer stays on a file; the internet copy uses Postgres
 

@@ -16,8 +16,16 @@ const ALL: Scene[] = ["chama-meeting", "treasurer-desk", "member-morning"];
 /** How long one photograph stays before the next one fades in. */
 const HOLD_MS = 8_000;
 
-/** A short, silent loop made from the three photographs. */
-const FILM = "/videos/scenes.mp4";
+/**
+ * Real footage of people together, chosen to suit the screen. Members see
+ * people arriving and greeting each other; officers see a working meeting.
+ * Both loops are silent and stay under 1 MB.
+ */
+const FILMS: Record<Scene, string> = {
+  "chama-meeting": "/videos/meeting.mp4",
+  "treasurer-desk": "/videos/meeting.mp4",
+  "member-morning": "/videos/gathering.mp4",
+};
 
 export function MovingScenes({
   scenes = ALL,
@@ -53,13 +61,15 @@ export function MovingScenes({
     return () => window.clearInterval(timer);
   }, [order.length]);
 
+  const height = variant === "hero" ? "min-h-[46vh] sm:min-h-[52vh]" : "h-40 sm:h-[220px]";
+  // The film follows the door, not the still that is currently fading in.
+  const door = start ?? scenes[0] ?? "chama-meeting";
+  const filmSrc = FILMS[door];
+
   useEffect(() => {
     if (!film) return;
     void video.current?.play().catch(() => setFilm(false));
-  }, [film]);
-
-  const height = variant === "hero" ? "min-h-[46vh] sm:min-h-[52vh]" : "h-40 sm:h-[220px]";
-  const first = order[0] ?? "chama-meeting";
+  }, [film, filmSrc]);
 
   return (
     <div className={`relative w-full overflow-hidden ${height}`}>
@@ -95,10 +105,12 @@ export function MovingScenes({
       })}
       {film ? (
         <video
+          key={filmSrc}
           ref={video}
           className="absolute inset-0 h-full w-full object-cover"
-          src={FILM}
-          poster={`/images/${first}-desktop.webp`}
+          src={filmSrc}
+          data-film={filmSrc}
+          poster={`/images/${door}-desktop.webp`}
           autoPlay
           muted
           loop
@@ -109,7 +121,9 @@ export function MovingScenes({
         />
       ) : null}
       <div className="absolute inset-0 bg-[#0F2A3D]/70" />
-      {children ? <div className="scene-copy absolute inset-0 flex items-end p-5 sm:p-8">{children}</div> : null}
+      {children ? (
+        <div className="scene-copy absolute inset-0 flex items-end p-5 sm:p-8">{children}</div>
+      ) : null}
     </div>
   );
 }

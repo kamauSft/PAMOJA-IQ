@@ -41,7 +41,7 @@ The owner saved in the server settings uses one phone for both doors. That phone
 | Layer | Where | What it does |
 |---|---|---|
 | Screens | `app/**/page.tsx` | Server components. They read a session, load figures, and render. They do not calculate money. |
-| Shared pieces | `components/` | Forms, shells, statistics, and the moving photographs. |
+| Shared pieces | `components/` | Forms, shells, statistics, and the moving scenes. |
 | Money maths | `lib/finance/` | Integer cents and basis points. Assertions guard every entry point. |
 | Sign-in | `lib/auth/` | Argon2id PINs, server sessions, OTP, lockout, rate limits. |
 | Tenancy | `lib/tenancy/` | A Prisma extension stamps and filters `chamaId`, so a screen cannot read another chama's rows. |
@@ -51,14 +51,15 @@ The owner saved in the server settings uses one phone for both doors. That phone
 
 The rule that keeps the app honest: **money is integer cents, and only `lib/finance` does the maths.** Screens read the results.
 
-## Moving photographs
+## Moving scenes
 
-The sign-in and home screens play a silent 24-second film on a loop: three photographs drifting slowly and fading into one another. It is a real H.264 file, about 520 KB, with the stills kept as the poster and as the fallback for anyone who has asked for less motion.
+The sign-in and home screens play real footage of people together, not drifting stills. The member door shows people arriving and greeting each other around a table; the treasurer door and the chama screens show people working through a meeting. Each clip is a silent 12-second H.264 loop, under 1 MB, with the pictured still kept as the poster and as the fallback.
 
-- `components/moving-scenes.tsx` — the video, with the crossfade underneath.
+- `components/moving-scenes.tsx` — chooses the clip to suit the door, with the stills underneath.
 - `app/globals.css` — `scene-drift`, the slow zoom used by the fallback.
-- `scripts/make-film.py` — rebuilds the film from the stills (`npm run film`).
-- `docs/ASSETS.md` — the file names and the sizes to export.
+- `public/videos/gathering.mp4` and `meeting.mp4` — the finished loops.
+- `scripts/make-film.py` — rebuilds them from the source clips (`npm run film`).
+- `docs/ASSETS.md` — the sources, licences, and how to replace them.
 
 It stops for anyone who has asked their device to reduce motion.
 
@@ -94,7 +95,7 @@ Free is KES 0. Standard is the higher of KES 500 and KES 30 an active member. Pr
 | `npm run db:reset` | Recreate the local database and seed it |
 | `npm run format` | Prettier |
 | `npm run fixtures` | Rebuild the sample Excel files |
-| `npm run film` | Rebuild the silent scene loop from `public/images` |
+| `npm run film` | Rebuild the two silent scene loops from `assets/video/` |
 | `npm run lockout:reset` | Clear a sign-in lock from practice attempts |
 
 ### Browser tests on this computer
@@ -111,7 +112,7 @@ Free is KES 0. Standard is the higher of KES 500 and KES 30 an active member. Pr
 
 ## Real member data
 
-The app ships with the Umoja demo only. When a real chama is loaded, keep `DEMO_MODE=false` on the internet copy, set a real `SESSION_SECRET`, and replace the demo photographs in `public/images` with pictures of that chama, taken with each person's written consent.
+The app ships with the Umoja demo only. When a real chama is loaded, keep `DEMO_MODE=false` on the internet copy, set a real `SESSION_SECRET`, and replace the demo photographs in `public/images` and the stock footage in `public/videos/` with media of that chama, taken with each person's written consent.
 
 ## Licence
 

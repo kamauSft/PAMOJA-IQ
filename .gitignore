@@ -13,6 +13,7 @@ coverage/
 .DS_Store
 /uploads/
 /tmp/
+/assets/video/
 next-env.d.ts
 *.tsbuildinfo
 test-results/
