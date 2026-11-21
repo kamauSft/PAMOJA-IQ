@@ -32,9 +32,11 @@ source_dir = os.path.join(root, "assets", "video")
 os.makedirs(out_dir, exist_ok=True)
 
 # name, default source, trim start, length in seconds
+# Both sources are high-angle group meetings with men and women. The blur keeps
+# the people in the background unidentifiable.
 jobs = [
-    ("gathering.mp4", "gathering-source.mp4", 0.3, 6),
-    ("meeting.mp4", "meeting-source.mp4", 0.7, 6),
+    ("gathering.mp4", "gathering-source.mp4", 0.5, 6),
+    ("meeting.mp4", "meeting-source.mp4", 0.5, 6),
 ]
 
 for name, default_source, start, length in jobs:
@@ -57,7 +59,7 @@ for name, default_source, start, length in jobs:
         "-i",
         source,
         "-vf",
-        f"fps=25,scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,{fades}",
+        f"fps=25,scale=1440:810:force_original_aspect_ratio=increase,crop=1440:810,gblur=sigma=2,{fades}",
         "-an",
         "-c:v",
         "libx264",

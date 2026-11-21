@@ -36,7 +36,7 @@ export default async function HomePage() {
 
   return (
     <Shell chamaName={home.chamaName} personName={home.personName} role={session.role} current="/home" asMember>
-      <MovingScenes start="member-morning">
+      <MovingScenes start="member-morning" variant="page">
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-white/80">{text.today}</p>
           <p className="mt-1 text-2xl font-semibold">{first}</p>

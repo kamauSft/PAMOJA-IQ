@@ -37,35 +37,39 @@ export default async function LoginPage({
 
   return (
     <main>
-      <MovingScenes start={treasurerDoor ? "treasurer-desk" : "member-morning"} variant="hero" priority>
-        <div className="text-white">
-          <p className="text-xs uppercase tracking-[0.16em] text-white/80">{treasurerDoor ? text.shell.roles.TREASURER : text.login.todayTitle}</p>
-          <p className="mt-1 text-2xl font-semibold">{treasurerDoor ? brand.name : text.login.todayLine}</p>
+      <MovingScenes start={treasurerDoor ? "treasurer-desk" : "member-morning"} variant="page" priority>
+        <div className="w-full max-w-md">
+          <div className="mb-6 rounded-xl border border-white/20 bg-[#0F2A3D]/55 p-4 text-white backdrop-blur-sm">
+            <div className="flex items-center justify-between gap-3">
+              <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em]">
+                <BrandMark />
+                {brand.name}
+              </p>
+              <Preferences
+                locale={locale}
+                languageLabel={text.language}
+                lightLabel={text.themeLight}
+                darkLabel={text.themeDark}
+              />
+            </div>
+            <p className="mt-2 text-xs text-white/80">{brand.tagline}</p>
+            <p className="mt-4 text-xs uppercase tracking-[0.16em] text-white/80">
+              {treasurerDoor ? text.shell.roles.TREASURER : text.login.todayTitle}
+            </p>
+            <h1 className="mt-1 text-[2rem]">{title}</h1>
+            <p className="mt-2 text-sm text-white/85">{intro}</p>
+          </div>
+          <LoginForm
+            initialPhone=""
+            initialPin=""
+            startWithPin
+            afterSignIn={door === "member" ? "/home" : door === "treasurer" ? "/desk" : undefined}
+            preferredRole={preferredRole}
+            showForgot={door !== "treasurer"}
+            labels={text.login}
+          />
         </div>
       </MovingScenes>
-      <div className="mx-auto flex max-w-md flex-col px-5 py-8">
-      <div className="flex items-center justify-between gap-3">
-        <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-leaf">
-          <BrandMark />
-          {brand.name}
-        </p>
-        <Preferences locale={locale} languageLabel={text.language} lightLabel={text.themeLight} darkLabel={text.themeDark} />
-      </div>
-      <p className="mt-2 text-xs text-muted">{brand.tagline}</p>
-      <h1 className="mt-3 text-[2rem]">{title}</h1>
-      <p className="mt-2 text-sm text-muted">{intro}</p>
-      <div className="mt-6">
-        <LoginForm
-          initialPhone=""
-          initialPin=""
-          startWithPin
-          afterSignIn={door === "member" ? "/home" : door === "treasurer" ? "/desk" : undefined}
-          preferredRole={preferredRole}
-          showForgot={door !== "treasurer"}
-          labels={text.login}
-        />
-      </div>
-      </div>
     </main>
   );
 }

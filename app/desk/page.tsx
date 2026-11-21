@@ -35,7 +35,7 @@ export default async function DeskPage() {
 
   return (
     <Shell chamaName={desk.chamaName} personName={session.personName} role={session.role} current="/desk">
-      <MovingScenes start="treasurer-desk">
+      <MovingScenes start="treasurer-desk" variant="page">
         <p className="text-2xl font-semibold">{desk.chamaName}</p>
       </MovingScenes>
       <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-accent">{deskText.kicker}</p>
