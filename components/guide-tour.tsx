@@ -38,13 +38,13 @@ export function GuideTour({ labels = english }: { labels?: typeof english }) {
   }, [open]);
 
   return (
-    <section id="guide" className="bg-canvas px-4 py-16 sm:px-6">
-      <div className="mx-auto grid max-w-5xl items-center gap-8 rounded-2xl border border-line bg-surface p-5 shadow-sm md:grid-cols-[1fr_1.1fr] md:p-8">
+    <section id="guide" className="scroll-mt-24 bg-[#EAF7EF] px-4 py-20 sm:px-6">
+      <div className="mx-auto grid max-w-5xl items-center gap-8 rounded-2xl border border-[#CBE4D6] bg-white p-5 shadow-sm md:grid-cols-[1fr_1.1fr] md:p-8">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">{labels.eyebrow}</p>
-          <h2 className="mt-2 font-display text-3xl text-navy sm:text-4xl">{labels.title}</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#146B3A]">{labels.eyebrow}</p>
+          <h2 className="editorial text-balance mt-2 text-3xl text-[#0B3D24] sm:text-4xl">{labels.title}</h2>
           <p className="mt-3 text-sm text-muted">{labels.body}</p>
-          <button className="btn mt-5" type="button" onClick={() => setOpen(true)}>
+          <button className="btn mt-5 rounded-full bg-[#146B3A] text-white" type="button" onClick={() => setOpen(true)}>
             {labels.button}
             <svg viewBox="0 0 24 24" className="ml-2 h-4 w-4" fill="currentColor" aria-hidden="true">
               <path d="M8 5v14l11-7z" />

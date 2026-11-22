@@ -15,6 +15,7 @@
 - The loops are encoded more clearly: a lighter blur and H.264 at CRF 25 keep the meeting easy to see while the faces stay indistinct. Both files remain under 1 MB.
 - Sign-in now has a clear Home link beside the language and theme buttons, so a person can get back to the front page in one tap. Signing in still goes straight to the member home or the treasurer desk.
 - The landing page now offers a 37-second guided tour by Asha, a geometric agentic-AI avatar whose mouth and waveform move with the narration. She welcomes a visitor, explains how the Agentic AI reads Excel, places payments, and prepares positions, then points to the member and treasurer doors. The tour has narration, burned-in captions, native controls, and a transcript; it is click-to-play and under 1 MB. `scripts/make-guide.py` rebuilds it from shapes and a local voice, with no photograph of an individual.
+- The public landing page now has the mature, editorial structure of a real institution: a fixed navigation bar, a full-screen film, a proof band, alternating mint and cream sections, an About, a three-step Agentic AI workflow, the two doors, the guided tour, frequently asked questions, contact, and a footer. The copy is bilingual, the anchors work on a phone, and the first screen is still the whole meeting film.
 - The project carries an MIT licence and a short map of how the pieces fit together.
 
 ## 2026-10-21

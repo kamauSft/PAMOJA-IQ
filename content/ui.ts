@@ -41,6 +41,115 @@ const en = {
     transcript: "Read the tour transcript",
     close: "Close tour",
   },
+  site: {
+    nav: {
+      about: "About",
+      how: "How it works",
+      doors: "Two doors",
+      guide: "Guided tour",
+      faq: "Questions",
+      contact: "Contact",
+      signIn: "Sign in",
+      menu: "Menu",
+    },
+    hero: {
+      eyebrow: "Agentic AI for chamas",
+      headline: "Your chama's records, clear and private.",
+      sentence:
+        "One treasurer keeps the books. An AI agent reads the Excel, places each payment, and prepares each position for review. Members see only their own account.",
+      member: "Enter as a member",
+      treasurer: "Enter as treasurer",
+      note: "No member sees another member's figures.",
+      watch: "Watch the guided tour",
+    },
+    proof: {
+      title: "Built for real chama routines",
+      items: [
+        { value: "1", label: "shared register" },
+        { value: "2", label: "clear doors" },
+        { value: "0", label: "member figures shown to others" },
+        { value: "37s", label: "guided tour" },
+      ],
+    },
+    about: {
+      eyebrow: "About Pamoja IQ",
+      title: "A calm home for the group's numbers.",
+      body: "Chama records often start in a messy Excel sheet. Pamoja IQ turns that sheet into a register the treasurer can check, and a private position each member can trust.",
+      points: [
+        "The agent names unfamiliar columns and places payments on the right line.",
+        "The treasurer reviews the work before any position is published.",
+        "Each member opens only their own savings, loan, and statement.",
+      ],
+      imageAlt: "Chama members reviewing their records together around a table",
+    },
+    how: {
+      eyebrow: "How it works",
+      title: "From Excel to a position you can trust.",
+      body: "The agent does the reading and placing. Your treasurer keeps the judgement and the final say.",
+      steps: [
+        {
+          title: "Bring the Excel",
+          body: "The treasurer uploads the register, even when the columns are named differently.",
+        },
+        {
+          title: "The agent reads it",
+          body: "It names the columns, matches each member, and puts every payment on the right line.",
+        },
+        {
+          title: "Review, then publish",
+          body: "The treasurer checks the month and shares each position. Members then see only their own.",
+        },
+      ],
+    },
+    doors: {
+      eyebrow: "Two doors, one truth",
+      title: "Choose the door that is yours.",
+      body: "The same register serves two different views. Every person signs in with a phone number and a PIN.",
+      memberTitle: "Member",
+      memberBody: "Open your own savings, loan, statement, and goals. Other members' numbers are not here.",
+      memberCta: "Go to member sign-in",
+      treasurerTitle: "Treasurer",
+      treasurerBody: "Bring in Excel, check payments, prepare positions, and publish when the books are ready.",
+      treasurerCta: "Go to treasurer sign-in",
+    },
+    faq: {
+      eyebrow: "Questions",
+      title: "The answers, before you sign in.",
+      items: [
+        {
+          question: "Does a member see the whole register?",
+          answer:
+            "No. A member sees only their own savings, loan, statement, and goal progress.",
+        },
+        {
+          question: "Does the Excel sheet need a special format?",
+          answer:
+            "No. The agent reads the column names it finds, matches members by name and phone, and shows any rows it cannot place before anything is shared.",
+        },
+        {
+          question: "Does the agent publish positions by itself?",
+          answer:
+            "No. It prepares the work. The treasurer reviews the month and publishes each position.",
+        },
+        {
+          question: "Where do the records live?",
+          answer: "On the server for the chama. Nothing is sent to another member's view.",
+        },
+      ],
+    },
+    contact: {
+      eyebrow: "Talk to us",
+      title: "Bring your chama onto Pamoja IQ.",
+      body: "Start with the treasurer's door, or write to us and we will help you bring the first Excel register across.",
+      button: "Start a chama",
+      emailLabel: "Write to us",
+    },
+    footer: {
+      tagline: "Intelligent Chama Solution",
+      note: "Pamoja means together in Kiswahili.",
+      rights: "All rights reserved.",
+    },
+  },
   login: {
     phone: "Phone",
     pin: "PIN",
@@ -372,6 +481,115 @@ const sw: typeof en = {
     playing: "Ziara ya kuongozwa",
     transcript: "Soma maandishi ya ziara",
     close: "Funga ziara",
+  },
+  site: {
+    nav: {
+      about: "Kuhusu",
+      how: "Jinsi inavyofanya kazi",
+      doors: "Milango miwili",
+      guide: "Ziara inayoongozwa",
+      faq: "Maswali",
+      contact: "Wasiliana",
+      signIn: "Ingia",
+      menu: "Menyu",
+    },
+    hero: {
+      eyebrow: "Akili bandia kwa vyama",
+      headline: "Rekodi za chama chako, wazi na za faragha.",
+      sentence:
+        "Mweka hazina huweka daftari. Wakala wa AI husoma Excel, huweka kila malipo, na kuandaa kila nafasi kwa ukaguzi. Wanachama wanaona akaunti yao tu.",
+      member: "Ingia kama mwanachama",
+      treasurer: "Ingia kama mweka hazina",
+      note: "Hakuna mwanachama anayeeona namba za mwenzake.",
+      watch: "Tazama ziara inayoongozwa",
+    },
+    proof: {
+      title: "Imejengwa kwa utaratibu halisi wa chama",
+      items: [
+        { value: "1", label: "daftari la pamoja" },
+        { value: "2", label: "milango wazi" },
+        { value: "0", label: "namba za wanachama zinazoonekana kwa wengine" },
+        { value: "37s", label: "ziara inayoongozwa" },
+      ],
+    },
+    about: {
+      eyebrow: "Kuhusu Pamoja IQ",
+      title: "Nyumba tulivu ya namba za kikundi.",
+      body: "Rekodi za chama mara nyingi huanza kwenye Excel iliyochanganyika. Pamoja IQ inageuza jedwali hilo kuwa daftari ambalo mweka hazina anaweza kuliangalia, na nafasi ya faragha ambayo kila mwanachama anaweza kuamini.",
+      points: [
+        "Wakala hupata majina ya safu zisizojulikana na kuweka malipo kwenye mstari sahihi.",
+        "Mweka hazina hukagua kazi kabla ya nafasi yoyote kuchapishwa.",
+        "Kila mwanachama anafungua akiba, mkopo, na taarifa yake tu.",
+      ],
+      imageAlt: "Wanachama wa chama wakikagua rekodi zao pamoja mezani",
+    },
+    how: {
+      eyebrow: "Jinsi inavyofanya kazi",
+      title: "Kutoka Excel hadi nafasi unayoweza kuamini.",
+      body: "Wakala husoma na kuweka. Mweka hazina huhifadhi uamuzi na neno la mwisho.",
+      steps: [
+        {
+          title: "Leta Excel",
+          body: "Mweka hazina hupakia daftari, hata kama safu zina majina tofauti.",
+        },
+        {
+          title: "Wakala husoma",
+          body: "Hutaja safu, huwalinganisha wanachama, na huweka kila malipo kwenye mstari sahihi.",
+        },
+        {
+          title: "Kagua, kisha chapisha",
+          body: "Mweka hazina huangalia mwezi na kushiriki nafasi. Kisha kila mwanachama anaona yake tu.",
+        },
+      ],
+    },
+    doors: {
+      eyebrow: "Milango miwili, ukweli mmoja",
+      title: "Chagua mlango wako.",
+      body: "Daftari moja hutumikia mitazamo miwili. Kila mtu anayingia na nambari ya simu na PIN.",
+      memberTitle: "Mwanachama",
+      memberBody: "Fungua akiba, mkopo, taarifa, na malengo yako. Namba za wanachama wengine hazipo hapa.",
+      memberCta: "Nenda kwa kuingia kwa mwanachama",
+      treasurerTitle: "Mweka hazina",
+      treasurerBody: "Leta Excel, angalia malipo, andaa nafasi, na uzichapishe daftari likiwa tayari.",
+      treasurerCta: "Nenda kwa kuingia kwa mweka hazina",
+    },
+    faq: {
+      eyebrow: "Maswali",
+      title: "Majibu kabla ya kuingia.",
+      items: [
+        {
+          question: "Je, mwanachama anaona daftari lote?",
+          answer:
+            "Hapana. Mwanachama anaona akiba, mkopo, taarifa, na maendeleo ya lengo lake tu.",
+        },
+        {
+          question: "Je, Excel inahitaji umbo maalum?",
+          answer:
+            "Hapana. Wakala husoma majina ya safu aliyokuta, huwalinganisha wanachama kwa jina na simu, na huonyesha mistari isiyoweza kuwekwa kabla ya kushiriki chochote.",
+        },
+        {
+          question: "Je, wakala huchapisha nafasi peke yake?",
+          answer:
+            "Hapana. Huandaa kazi. Mweka hazina huangalia mwezi na kuchapisha kila nafasi.",
+        },
+        {
+          question: "Rekodi ziko wapi?",
+          answer: "Kwenye seva ya chama. Hakuna kinachotumwa kwa mtazamo wa mwanachama mwingine.",
+        },
+      ],
+    },
+    contact: {
+      eyebrow: "Wasiliana nasi",
+      title: "Leta chama chako kwenye Pamoja IQ.",
+      body: "Anza na mlango wa mweka hazina, au tuandikie na tukusaidie kuleta Excel ya kwanza.",
+      button: "Anzisha chama",
+      emailLabel: "Tuandikie",
+    },
+    footer: {
+      tagline: "Intelligent Chama Solution",
+      note: "Pamoja maana yake ni pamoja kwa Kiswahili.",
+      rights: "Haki zote zimehifadhiwa.",
+    },
   },
   login: {
     phone: "Simu",

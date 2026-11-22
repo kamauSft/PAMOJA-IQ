@@ -47,6 +47,16 @@ body {
   line-height: 1.5;
 }
 
+/* Editorial headings give the public pages a calmer, more mature rhythm. */
+.editorial {
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: -0.025em;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
 h1,
 h2,
 h3 {
