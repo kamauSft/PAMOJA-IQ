@@ -12,6 +12,10 @@ A small strip at the top was not what was asked for: the film has to occupy the 
 
 The first full-page loops were too soft. The high-angle framing already keeps faces indistinct, so the blur was reduced and the encode raised to CRF 25; both files stay under 1 MB and the meeting is easier to see. A Home link now sits in the sign-in header beside the language and theme buttons, so a person can return to the front page in one tap. A successful sign-in still goes straight to `/home` or `/desk`.
 
+## 2026-11-22 - Builds do not depend on a font vendor
+
+The first deployment after the redesign failed in CI because `next/font` tried to fetch Google fonts during the build, and the GitHub Pages demo tried to load Tailwind through a PostCSS config it never installed. Fonts are now plain CSS stacks, and the demo has its own empty PostCSS config so it cannot inherit the root one. Root lint ignores the demo's generated files. Neither build needs a font vendor or an unused CSS package.
+
 ## 2026-11-22 - The landing page reads like an institution
 
 The film still fills the first screen, but a single hero and one tour card did not answer the questions a visitor brings. The page now follows the mature pattern of the reference site: a fixed bar with clear anchors, a facts band, alternating mint and cream sections, an About, a numbered workflow, the two doors, the guide, questions, contact, and a footer. Editorial serif headings and short paragraphs keep the tone calm rather than salesy. The words stay bilingual and the video stays behind the whole first screen; reduced-motion visitors still get stills instead of film.
