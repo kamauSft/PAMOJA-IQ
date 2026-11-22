@@ -10,7 +10,11 @@ test("offers a guided tour on the landing page", async ({ page }) => {
   const film = dialog.locator('video[src="/videos/guide.mp4"]');
   await expect(film).toBeVisible();
   await expect(film).toHaveAttribute("controls", "");
-  await expect(dialog.getByText("Read the tour transcript")).toBeVisible();
+  await dialog.getByText("Read the tour transcript").click();
+  const transcript = (await dialog.innerText()).toLowerCase();
+  expect(transcript).toContain("agentic ai");
+  expect(transcript).not.toContain("lock");
+  expect(transcript).not.toContain("fifteen");
 
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);

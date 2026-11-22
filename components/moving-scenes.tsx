@@ -32,12 +32,14 @@ export function MovingScenes({
   start,
   variant = "strip",
   priority = false,
+  contentClassName,
   children,
 }: {
   scenes?: Scene[];
   start?: Scene;
   variant?: "strip" | "hero" | "page";
   priority?: boolean;
+  contentClassName?: string;
   children?: React.ReactNode;
 }) {
   const order = useMemo(
@@ -132,7 +134,7 @@ export function MovingScenes({
       ) : null}
       <div className={`absolute inset-0 ${shade}`} />
       {children ? (
-        <div className={`scene-copy absolute inset-0 flex ${copyPosition}`}>{children}</div>
+        <div className={`scene-copy absolute inset-0 flex ${contentClassName ?? copyPosition}`}>{children}</div>
       ) : null}
     </div>
   );
