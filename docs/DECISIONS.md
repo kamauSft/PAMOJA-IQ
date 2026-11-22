@@ -12,9 +12,9 @@ A small strip at the top was not what was asked for: the film has to occupy the 
 
 The first full-page loops were too soft. The high-angle framing already keeps faces indistinct, so the blur was reduced and the encode raised to CRF 25; both files stay under 1 MB and the meeting is easier to see. A Home link now sits in the sign-in header beside the language and theme buttons, so a person can return to the front page in one tap. A successful sign-in still goes straight to `/home` or `/desk`.
 
-## 2026-11-22 - A guide explains the doors before a person chooses one
+## 2026-11-22 - A moving agentic-AI guide explains the doors
 
-A mature site tells a visitor what to do before asking them to sign in. The landing page now carries a short, presenter-led tour: Asha welcomes the visitor, explains that one treasurer keeps the books and each member sees only their own account, then walks through both doors and the fifteen-minute official lockout. It is click-to-play with narration, captions, and a transcript, so nothing speaks without permission and the explanation still works on a quiet phone. The presenter is a stylised licensed portrait, not a real chama member; the voice and script are original project work. Source portrait stays outside the repository, and `scripts/make-guide.ps1` rebuilds the 41-second, under-1 MB video.
+A mature site tells a visitor what the product does before asking them to sign in. The landing page now carries a short guided tour: Asha, a geometric agentic-AI avatar, welcomes the visitor and explains that the agent reads an unfamiliar Excel sheet, names its columns, places each payment, and prepares positions for the treasurer to publish. A member's own view and the two doors follow. Lockout rules are left to the security notes; they do not belong in a welcome. The avatar is drawn from shapes, so no individual's face is used, and its mouth and waveform move with the measured audio so it is plainly speaking. It is click-to-play with narration, captions, and a transcript, under 1 MB, and rebuilt by `python scripts/make-guide.py`.
 
 ## 2026-11-15 - The photographs cross-fade and drift as the fallback
 
