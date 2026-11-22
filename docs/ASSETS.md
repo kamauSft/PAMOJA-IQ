@@ -42,6 +42,17 @@ Then run `npm run film`. You can instead point `GATHERING_SRC` and `MEETING_SRC`
 
 When real chama footage arrives, keep the same file names and rough size, or update `FILMS` in `components/moving-scenes.tsx` and these notes together. Get written consent from everyone filmed before using footage of a real chama.
 
+## The guided tour
+
+| File                            | Where it appears                     | Source                                                                                                                                                                                                                                                  | Licence                                                                                                           |
+| ------------------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `public/images/guide-poster.webp` | Landing-page tour card and video poster | [Pexels photo 10405192](https://www.pexels.com/photo/smiling-woman-looking-on-a-laptop-with-hand-gesture-10405192/) by Okurut Eric, [direct file](https://images.pexels.com/photos/10405192/pexels-photo-10405192.jpeg?auto=compress&cs=tinysrgb&w=1600) | [Pexels License](https://www.pexels.com/license/) — free commercial use, editing allowed, no attribution required |
+| `public/videos/guide.mp4`       | Landing-page guided tour              | The portrait above, narrated with the local Windows `Microsoft Zira Desktop` voice and captioned by `scripts/make-guide.ps1`                                                                                                                         | Narration and captions are original project copy; portrait licence as above                                      |
+
+Asha is a stylised presenter, not a member or employee of a real chama. The tour runs for 41 seconds, is 1280 × 720 H.264 with AAC audio and burned-in English captions, and stays under 1 MB. It is click-to-play with native controls, so no sound starts without the person asking for it. The transcript is also in `components/guide-tour.tsx`.
+
+To rebuild it on Windows, put the portrait at `assets/video/presenter.jpg` (not committed) and run `powershell -ExecutionPolicy Bypass -File scripts/make-guide.ps1`. The script uses any female voice installed on the machine, synthesises each sentence, times the captions to the audio, adds a slow zoom and the guide label, and writes both files above. If a different voice is installed, the timings are recalculated automatically.
+
 ## Exporting a premium still set
 
 Canva exports work as long as the six files keep their names. Export each scene twice:

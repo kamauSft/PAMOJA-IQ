@@ -32,6 +32,15 @@ const en = {
     featurePrivate: "Members see only their own account",
     featureReminders: "Reminders before due dates",
   },
+  guide: {
+    eyebrow: "A guided start",
+    title: "Meet Asha. She will show you the two doors.",
+    body: "A short narrated tour explains who uses each door, what a member sees, and how a treasurer publishes a position. Captions are built in.",
+    button: "Play the 40-second tour",
+    playing: "Guided tour",
+    transcript: "Read the tour transcript",
+    close: "Close tour",
+  },
   login: {
     phone: "Phone",
     pin: "PIN",
@@ -354,6 +363,15 @@ const sw: typeof en = {
     featureUpload: "Pakia kumbukumbu",
     featurePrivate: "Mwanachama anaona akaunti yake tu",
     featureReminders: "Ukumbusho kabla ya siku ya malipo",
+  },
+  guide: {
+    eyebrow: "Mwanzo ulioongozwa",
+    title: "Kutana na Asha. Atakuonyesha milango miwili.",
+    body: "Ziara fupi yenye sauti inaeleza anayetumia kila mlango, anachokiona mwanachama, na jinsi mweka hazina anavyochapisha nafasi. Maneno yameandikwa kwenye video.",
+    button: "Cheza ziara ya sekunde 40",
+    playing: "Ziara ya kuongozwa",
+    transcript: "Soma maandishi ya ziara",
+    close: "Funga ziara",
   },
   login: {
     phone: "Simu",
