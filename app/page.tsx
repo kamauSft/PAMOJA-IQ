@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
+import { GuideTour } from "@/components/guide-tour";
 import { MovingScenes } from "@/components/moving-scenes";
 import { Preferences } from "@/components/preferences";
 import { brand } from "@/config/brand";
@@ -46,6 +47,7 @@ export default async function LandingPage() {
           </div>
         </div>
       </MovingScenes>
+      <GuideTour labels={text.guide} />
     </main>
   );
 }
