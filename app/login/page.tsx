@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BrandMark } from "@/components/brand-mark";
 import { LoginForm } from "@/components/login-form";
@@ -45,12 +46,20 @@ export default async function LoginPage({
                 <BrandMark />
                 {brand.name}
               </p>
-              <Preferences
-                locale={locale}
-                languageLabel={text.language}
-                lightLabel={text.themeLight}
-                darkLabel={text.themeDark}
-              />
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/"
+                  className="tap shrink-0 rounded-lg border border-white/40 px-3 py-2 text-[13px] font-semibold text-white hover:bg-white/10"
+                >
+                  {text.shell.homeLink}
+                </Link>
+                <Preferences
+                  locale={locale}
+                  languageLabel={text.language}
+                  lightLabel={text.themeLight}
+                  darkLabel={text.themeDark}
+                />
+              </div>
             </div>
             <p className="mt-2 text-xs text-white/80">{brand.tagline}</p>
             <p className="mt-4 text-xs uppercase tracking-[0.16em] text-white/80">

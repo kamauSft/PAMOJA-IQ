@@ -8,6 +8,10 @@ A member who forgets a PIN needs a person: the treasurer or the chair unlocks th
 
 A small strip at the top was not what was asked for: the film has to occupy the whole page. The landing, sign-in, home, and desk screens now use the full-page scene, so the meeting sits behind the words and the form instead of above them. Both loops show a formal meeting of men and women from a high angle, softened so nobody is identifiable; the earlier 9653701 and 7950977 choice is superseded by Pexels 4433631 and 6192937. Each is a 6-second, 1440 × 810, H.264, 25-frame, silent loop under 1 MB, so a phone does not stream a long film. The film stays with the door, not with the still that is currently fading in. The matching still remains the poster and the fallback, and a device asking for less motion gets no video. Only the finished loops are committed; the sources stay outside the repository, with licences and rebuild instructions in `docs/ASSETS.md`.
 
+## 2026-11-21 - A clearer film and a visible way home
+
+The first full-page loops were too soft. The high-angle framing already keeps faces indistinct, so the blur was reduced and the encode raised to CRF 25; both files stay under 1 MB and the meeting is easier to see. A Home link now sits in the sign-in header beside the language and theme buttons, so a person can return to the front page in one tap. A successful sign-in still goes straight to `/home` or `/desk`.
+
 ## 2026-11-15 - The photographs cross-fade and drift as the fallback
 
 The front door and the two home screens still show three photographs, each fading into the next every eight seconds while drifting slowly. This was once the whole motion design; it is now the layer under the footage, the poster while a film loads, and the entire experience when playback fails or the device asks for less motion. It is done with CSS only, so that fallback costs no extra download.

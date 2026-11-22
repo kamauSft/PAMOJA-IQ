@@ -69,6 +69,7 @@ const en = {
     todayLine: "Haba na haba hujaza kibaba.",
   },
   shell: {
+    homeLink: "Home",
     signOut: "Sign out",
     signOutAll: "Sign out everywhere",
     official: [
@@ -391,6 +392,7 @@ const sw: typeof en = {
     todayLine: "Haba na haba hujaza kibaba.",
   },
   shell: {
+    homeLink: "Nyumbani",
     signOut: "Toka",
     signOutAll: "Toka kwenye vifaa vyote",
     official: [
