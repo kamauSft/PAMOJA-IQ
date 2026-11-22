@@ -8,11 +8,11 @@ const english = copy("en").guide;
 
 /** The narration is fixed in English; the surrounding page copy is bilingual. */
 const SCRIPT = [
-  "Welcome to Pamoja IQ. I am Asha, your guide.",
-  "One treasurer keeps the books. Each member sees only their own account.",
-  "A member chooses Member, enters a phone number and PIN, and sees their own position.",
-  "A treasurer chooses Treasurer, brings in Excel, checks the month, then publishes each position.",
-  "No member sees another member's numbers. An official locks for fifteen minutes after three wrong PINs.",
+  "Welcome to Pamoja IQ. I am Asha, your agentic AI guide.",
+  "This is not just a ledger. An agent reads the chama's Excel and names the columns.",
+  "It puts every payment on the right member's line and checks the month for the treasurer.",
+  "A member opens their own door and sees only their savings, loan and position.",
+  "The treasurer reviews the work, then publishes each position when it is ready.",
   "Choose your door below. Pamoja IQ, together the numbers are clearer.",
 ];
 
@@ -59,7 +59,7 @@ export function GuideTour({ labels = english }: { labels?: typeof english }) {
         >
           <Image
             src="/images/guide-poster.webp"
-            alt="Asha, the Pamoja IQ guided-tour presenter"
+            alt="Asha, the stylised agentic AI presenter"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover transition duration-500 group-hover:scale-105"
