@@ -25,7 +25,7 @@ Because the pictures move, the edges matter: a crop that loses the subject when 
 | `public/videos/gathering.mp4` | Member sign-in door and member home                                             | [Pexels clip 4433631](https://www.pexels.com/video/men-and-women-having-a-meeting-4433631/), [direct HD file](https://videos.pexels.com/video-files/4433631/4433631-hd_1920_1080_25fps.mp4)                  | [Pexels License](https://www.pexels.com/license/) — free commercial use, editing allowed, no attribution required |
 | `public/videos/meeting.mp4`   | Treasurer/chair sign-in door, chama meeting, treasurer desk, and the front page | [Pexels clip 6192937](https://www.pexels.com/video/people-having-a-meeting-6192937/), [direct HD file](https://videos.pexels.com/video-files/6192937/6192937-hd_1920_1080_25fps.mp4)                      | [Pexels License](https://www.pexels.com/license/) — free commercial use, editing allowed, no attribution required |
 
-Both films show a formal meeting of men and women around a table, shot from a high angle. That framing and a soft blur keep the people in the background, so nobody is identifiable. The member loop uses the high-angle colleagues clip; the officer loop uses the overhead wooden-table clip.
+Both films show a formal meeting of men and women around a table, shot from a high angle. That framing and a light blur keep the people in the background, so nobody is identifiable, while the room and the gathering stay clear. The member loop uses the high-angle colleagues clip; the officer loop uses the overhead wooden-table clip.
 
 Both finished loops are 6 seconds, 1440 × 810, H.264, 25 frames a second, silent, and under 1 MB, with a 0.5-second fade in and out. They autoplay muted in a loop and cover the whole first screen. The matching still is the poster, and a device asking for less motion gets no video at all.
 
@@ -38,7 +38,7 @@ The source clips are not committed; only the small finished loops are. To rebuil
 - `gathering-source.mp4` — the Pexels HD file above
 - `meeting-source.mp4` — the Pexels HD file above
 
-Then run `npm run film`. You can instead point `GATHERING_SRC` and `MEETING_SRC` at files elsewhere. The script takes 0.5–6.5 s from each source, scales and centre-crops to 1440 × 810, softens the frame so faces stay unidentifiable, fades the ends, drops the sound, and writes H.264 with `+faststart`. It needs `ffmpeg` on PATH, or Python's `imageio-ffmpeg` package. If a source is missing, that loop is left untouched.
+Then run `npm run film`. You can instead point `GATHERING_SRC` and `MEETING_SRC` at files elsewhere. The script takes 0.5–6.5 s from each source, scales and centre-crops to 1440 × 810, applies a light blur so faces stay unidentifiable without hiding the scene, fades the ends, drops the sound, and writes H.264 at CRF 25 with `+faststart`. It needs `ffmpeg` on PATH, or Python's `imageio-ffmpeg` package. If a source is missing, that loop is left untouched.
 
 When real chama footage arrives, keep the same file names and rough size, or update `FILMS` in `components/moving-scenes.tsx` and these notes together. Get written consent from everyone filmed before using footage of a real chama.
 

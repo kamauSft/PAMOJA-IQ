@@ -12,6 +12,8 @@
 - The browser tests now run against a production build. The dev server rebuilds whenever a file changes — including the database a test writes to — and a rebuild in the middle of a navigation used to drop the request.
 - The dependent packages are locked again, so `npm ci` passes and CI can go green. The browser test for the status page names the heading the page actually shows, and the browser tests read `.env` on a developer's computer.
 - The sign-in, home, and desk screens now put real footage behind the whole first screen. Both loops show a formal meeting of men and women from a high angle, with faces softened so nobody is identifiable. Each short silent loop is under 1 MB, comes from Pexels under the free licence recorded in `docs/ASSETS.md`, and stays on that door while the stills rotate underneath. The stills remain as the poster and as the fallback, and a device asking for less motion gets no video. `npm run film` rebuilds both loops from source clips kept outside the repository.
+- The loops are encoded more clearly: a lighter blur and H.264 at CRF 25 keep the meeting easy to see while the faces stay indistinct. Both files remain under 1 MB.
+- Sign-in now has a clear Home link beside the language and theme buttons, so a person can get back to the front page in one tap. Signing in still goes straight to the member home or the treasurer desk.
 - The project carries an MIT licence and a short map of how the pieces fit together.
 
 ## 2026-10-21

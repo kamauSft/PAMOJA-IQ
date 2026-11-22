@@ -2,6 +2,12 @@ import { expect, test } from "@playwright/test";
 
 test.describe.configure({ mode: "serial" });
 
+test("offers a clear way back to the home page", async ({ page }) => {
+  await page.goto("/login?door=member");
+  await page.getByRole("link", { name: "Home", exact: true }).click();
+  await expect(page).toHaveURL(/\/$/);
+});
+
 test("rejects an unknown number", async ({ page }) => {
   await page.goto("/login?door=member");
   await page.getByLabel("Phone").fill("0799000111");
