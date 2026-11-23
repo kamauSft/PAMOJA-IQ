@@ -2,6 +2,7 @@ import { Readable } from "node:stream";
 import ExcelJS from "exceljs";
 import type { MembershipRole } from "@prisma/client";
 import { normalizePhone } from "@/lib/phone";
+import { isKwanWorkbook, parseKwanWorkbook } from "./kwan";
 
 export interface ParsedMember {
   memberNo: string | null;
@@ -596,6 +597,10 @@ export async function readUpload(buffer: Buffer, filename: string): Promise<Work
   } else {
     await book.xlsx.load(buffer as unknown as ExcelJS.Buffer);
   }
+  // KWAN's register is a wide event grid, not a monthly column sheet. The
+  // chama's roster is already onboarded, so an upload contributes payments only.
+  if (isKwanWorkbook(book)) return { ...parseKwanWorkbook(book), members: [] };
+
   const { askColumnMap, askNoteLines, aiImportEnabled } = await import("@/lib/import/column-assist");
   const needed = unclearSheets(book);
   const notes = noteSheets(book);

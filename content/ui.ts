@@ -34,7 +34,7 @@ const en = {
   },
   guide: {
     eyebrow: "A guided start",
-    title: "Meet Asha. She will show you the two doors.",
+    title: "Meet your presenter. She will show you the two doors.",
     body: "A short narrated tour explains who uses each door, what a member sees, and how a treasurer publishes a position. Captions are built in.",
     button: "Play the guided tour",
     playing: "Guided tour",
@@ -475,7 +475,7 @@ const sw: typeof en = {
   },
   guide: {
     eyebrow: "Mwanzo ulioongozwa",
-    title: "Kutana na Asha. Atakuonyesha milango miwili.",
+    title: "Kutana na mwasilishaji. Atakuonyesha milango miwili.",
     body: "Ziara fupi yenye sauti inaeleza anayetumia kila mlango, anachokiona mwanachama, na jinsi mweka hazina anavyochapisha nafasi. Maneno yameandikwa kwenye video.",
     button: "Cheza ziara inayoongozwa",
     playing: "Ziara ya kuongozwa",

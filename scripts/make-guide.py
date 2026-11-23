@@ -1,42 +1,38 @@
-"""Build the narrated Agentic AI tour with a moving, faceless avatar.
+"""Build the narrated Agentic AI tour with a real presenter and local voice.
 
-The narrator voice is synthesised with a local Windows voice. The avatar is
-drawn here from shapes, so it is not a photograph of an individual. Only the
-finished video and poster are committed.
+The presenter clip is a licensed Pexels asset kept outside version control in
+assets/video/. The narration is synthesised with a local Windows voice, and the
+finished video and poster are the only generated files committed.
 
 Run: python scripts/make-guide.py
 """
 
 import json
 import math
-import os
 import shutil
-import struct
 import subprocess
 import tempfile
 import textwrap
-import wave
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
+SOURCE = ROOT / "assets" / "video" / "presenter-source.mp4"
 WORK = Path(tempfile.gettempdir()) / "pamoja-guide-build"
 VIDEO = ROOT / "public" / "videos" / "guide.mp4"
 POSTER = ROOT / "public" / "images" / "guide-poster.webp"
 FPS = 24
 WIDTH, HEIGHT = 1280, 720
+CLIP_SECONDS = 7.8
 
 SENTENCES = [
-    "Welcome to Pamoja IQ. I am Asha, your agentic AI guide.",
-    "This is not just a ledger. An agent reads the chama's Excel and names the columns.",
-    "It puts every payment on the right member's line and checks the month for the treasurer.",
-    "A member opens their own door and sees only their savings, loan and position.",
-    "The treasurer reviews the work, then publishes each position when it is ready.",
-    "Choose your door below. Pamoja IQ, together the numbers are clearer.",
+    "Welcome to Pamoja IQ. Agentic AI keeps the chama's books clear.",
+    "It reads the Excel, names the columns, and places every payment on the right member's line.",
+    "A member opens one door and sees only their own savings, loan and position.",
+    "The treasurer opens the other door, reviews the month, and publishes each position.",
+    "Nothing is shared until the treasurer is ready. Choose your door below.",
 ]
-
-KEYWORDS = ["WELCOME", "EXCEL", "MEMBER", "TREASURER", "PUBLISH", "START"]
 
 
 def ffmpeg_path() -> str:
@@ -53,6 +49,7 @@ def ffmpeg_path() -> str:
 
 def synthesize(ff: str) -> list[dict]:
     WORK.mkdir(parents=True, exist_ok=True)
+    (WORK / "sentences.json").write_text(json.dumps(SENTENCES), encoding="utf-8")
     script = WORK / "voice.ps1"
     script.write_text(
         textwrap.dedent(
@@ -60,14 +57,7 @@ def synthesize(ff: str) -> list[dict]:
             $ErrorActionPreference = "Continue"
             $work = $args[0]
             $ff = $args[1]
-            $sentences = @(
-              "Welcome to Pamoja IQ. I am Asha, your agentic AI guide.",
-              "This is not just a ledger. An agent reads the chama's Excel and names the columns.",
-              "It puts every payment on the right member's line and checks the month for the treasurer.",
-              "A member opens their own door and sees only their savings, loan and position.",
-              "The treasurer reviews the work, then publishes each position when it is ready.",
-              "Choose your door below. Pamoja IQ, together the numbers are clearer."
-            )
+            $sentences = Get-Content (Join-Path $work "sentences.json") -Raw -Encoding utf8 | ConvertFrom-Json
             function Get-Duration([string]$file) {
               $out = & $ff -hide_banner -i $file -f null NUL 2>&1 | Out-String
               $m = [regex]::Match($out, 'Duration: (\d+):(\d+):(\d+\.\d+)')
@@ -109,103 +99,6 @@ def synthesize(ff: str) -> list[dict]:
     return json.loads((WORK / "timings.json").read_text(encoding="utf-8-sig"))
 
 
-def amplitudes(frames: int) -> list[float]:
-    with wave.open(str(WORK / "narration.wav"), "rb") as wav:
-        rate = wav.getframerate()
-        raw = wav.readframes(wav.getnframes())
-    samples = struct.unpack("<" + "h" * (len(raw) // 2), raw)
-    window = max(1, rate // FPS)
-    values = []
-    peak = 1e-6
-    for frame in range(frames):
-        chunk = samples[frame * window : (frame + 1) * window]
-        rms = math.sqrt(sum(sample * sample for sample in chunk) / len(chunk)) if chunk else 0.0
-        values.append(rms)
-        peak = max(peak, rms)
-    smoothed = []
-    previous = 0.0
-    for value in values:
-        current = min(1.0, value / peak)
-        smoothed.append(0.65 * previous + 0.35 * current)
-        previous = smoothed[-1]
-    return smoothed
-
-
-def fonts() -> tuple[ImageFont.FreeTypeFont, ...]:
-    folder = Path("C:/Windows/Fonts")
-    return (
-        ImageFont.truetype(str(folder / "arialbd.ttf"), 21),
-        ImageFont.truetype(str(folder / "arial.ttf"), 17),
-        ImageFont.truetype(str(folder / "georgia.ttf"), 68),
-        ImageFont.truetype(str(folder / "georgia.ttf"), 30),
-    )
-
-
-def active_index(timings: list[dict], seconds: float) -> int:
-    for index, entry in enumerate(timings):
-        if entry["start"] <= seconds < entry["end"]:
-            return index
-    return len(timings) - 1
-
-
-def draw_frame(seconds: float, level: float, index: int, font_pack: tuple) -> Image.Image:
-    bold, small, display, subdisplay = font_pack
-    image = Image.new("RGB", (WIDTH, HEIGHT), (7, 19, 28))
-    draw = ImageDraw.Draw(image, "RGBA")
-
-    for y in range(HEIGHT):
-        ratio = y / (HEIGHT - 1)
-        draw.line(
-            [(0, y), (WIDTH, y)],
-            fill=(int(7 + 9 * ratio), int(19 + 23 * ratio), int(28 + 33 * ratio), 255),
-        )
-
-    for radius, alpha in ((330, 16), (270, 24), (210, 34)):
-        draw.ellipse(
-            [930 - radius, 300 - radius, 930 + radius, 300 + radius],
-            fill=(125, 222, 200, alpha),
-        )
-
-    draw.rounded_rectangle((70, 80, 78, 640), radius=4, fill=(31, 107, 79, 255))
-    draw.text((106, 82), "PAMOJA IQ", font=bold, fill=(246, 241, 231, 255))
-    draw.text((106, 116), "AGENTIC AI", font=small, fill=(125, 222, 200, 255))
-    draw.text((102, 244), KEYWORDS[index], font=display, fill=(246, 241, 231, 255))
-    draw.text((106, 330), "Your chama, read and ready.", font=subdisplay, fill=(125, 222, 200, 220))
-
-    # Shoulders, neck and head are deliberately geometric: no individual is shown.
-    draw.ellipse((750, 505, 1110, 865), fill=(15, 42, 61, 255), outline=(31, 107, 79, 255), width=5)
-    draw.rounded_rectangle((888, 440, 952, 570), radius=28, fill=(31, 107, 79, 255))
-    draw.ellipse((810, 176, 1030, 420), fill=(15, 59, 68, 255), outline=(125, 222, 200, 255), width=5)
-    draw.ellipse((836, 204, 1004, 392), fill=(10, 42, 52, 255))
-
-    blinking = int(seconds * 2) % 19 == 0
-    if blinking:
-        draw.rounded_rectangle((866, 284, 906, 287), radius=2, fill=(246, 241, 231, 255))
-        draw.rounded_rectangle((934, 284, 974, 287), radius=2, fill=(246, 241, 231, 255))
-    else:
-        draw.rounded_rectangle((866, 280, 906, 287), radius=4, fill=(246, 241, 231, 255))
-        draw.rounded_rectangle((934, 280, 974, 287), radius=4, fill=(246, 241, 231, 255))
-
-    mouth_height = 5 + level * 38
-    draw.ellipse(
-        (900, 346 - mouth_height / 2, 960, 346 + mouth_height / 2),
-        fill=(125, 222, 200, 255),
-    )
-
-    for bar in range(12):
-        phase = 0.45 + 0.55 * abs(math.sin(seconds * 5 + bar * 0.7))
-        height = 6 + level * 46 * phase
-        x = 1090 + bar * 12
-        draw.rounded_rectangle(
-            (x, 350 - height / 2, x + 5, 350 + height / 2),
-            radius=2,
-            fill=(125, 222, 200, 190),
-        )
-
-    draw.text((898, 452), "ASHA", font=bold, fill=(246, 241, 231, 255))
-    return image
-
-
 def write_captions(timings: list[dict]) -> None:
     def stamp(seconds: float) -> str:
         hours = int(seconds // 3600)
@@ -223,7 +116,7 @@ def write_captions(timings: list[dict]) -> None:
         "",
         "[V4+ Styles]",
         "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
-        "Style: Default,Arial,28,&H00FFFFFF,&H00FFFFFF,&H003D2A0F,&H80000000,-1,0,0,0,100,100,0,0,1,2,0,2,80,80,54,1",
+        "Style: Default,Arial,24,&H00FFFFFF,&H00FFFFFF,&H003D2A0F,&H90000000,-1,0,0,0,100,100,0,0,1,2,0,2,70,70,42,1",
         "",
         "[Events]",
         "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
@@ -235,66 +128,122 @@ def write_captions(timings: list[dict]) -> None:
     (WORK / "captions.ass").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def still_frame(ff: str) -> None:
+    subprocess.run(
+        [
+            ff,
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-ss",
+            "3",
+            "-i",
+            str(SOURCE),
+            "-frames:v",
+            "1",
+            "-vf",
+            "scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720",
+            str(WORK / "still.png"),
+        ],
+        check=True,
+    )
+    image = Image.open(WORK / "still.png").convert("RGBA")
+    overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(overlay)
+    draw.rectangle((0, 0, WIDTH, 92), fill=(7, 19, 28, 205))
+    draw.rectangle((0, HEIGHT - 96, WIDTH, HEIGHT), fill=(7, 19, 28, 215))
+    font = ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf", 26)
+    small = ImageFont.truetype("C:/Windows/Fonts/arial.ttf", 17)
+    draw.text((56, 28), "PAMOJA IQ", font=font, fill=(246, 241, 231, 255))
+    draw.text((56, HEIGHT - 70), "AGENTIC AI FOR CHAMAS", font=small, fill=(125, 222, 200, 255))
+    Image.alpha_composite(image, overlay).convert("RGB").save(POSTER, "WEBP", quality=80)
+
+
+def build_video(ff: str, total: float) -> None:
+    """Keep the presenter on screen by cross-fading the licensed clip as needed."""
+    scale = (
+        "scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,"
+        "setsar=1,setpts=PTS-STARTPTS,fps=24,format=yuv420p"
+    )
+    overlap = 0.45
+    advance = CLIP_SECONDS - overlap
+    segments = max(1, math.ceil((total - overlap) / advance))
+    labels = [f"s{index}" for index in range(segments)]
+
+    parts = [
+        f"[0:v]trim=start=0:duration={CLIP_SECONDS},{scale}[v0];",
+        f"[v0]split={segments}" + "".join(f"[{label}]" for label in labels) + ";",
+    ]
+    previous = labels[0]
+    offset = advance
+    for index in range(1, segments):
+        output = f"x{index}"
+        parts.append(
+            f"[{previous}][{labels[index]}]xfade=transition=fade:duration={overlap}:offset={offset:.3f}[{output}];"
+        )
+        previous = output
+        offset += advance
+    parts.append(f"[{previous}]trim=duration={total:.3f},setpts=PTS-STARTPTS,fps=24[bg];")
+    parts.append(
+        "[bg]drawbox=x=0:y=0:w=1280:h=92:color=0x07131c@0.80:t=fill,"
+        "drawbox=x=0:y=624:w=1280:h=96:color=0x07131c@0.84:t=fill,"
+        "drawtext=fontfile='C\\:/Windows/Fonts/arialbd.ttf':text='PAMOJA IQ':fontcolor=0xF6F1E7:fontsize=26:x=56:y=28,"
+        "drawtext=fontfile='C\\:/Windows/Fonts/arial.ttf':text='AGENTIC AI FOR CHAMAS':fontcolor=0x7DDEC8:fontsize=17:x=56:y=650,"
+        "ass=captions.ass[v]"
+    )
+    filter_complex = "".join(parts)
+
+    subprocess.run(
+        [
+            ff,
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-i",
+            str(SOURCE),
+            "-i",
+            str(WORK / "narration.wav"),
+            "-filter_complex",
+            filter_complex,
+            "-map",
+            "[v]",
+            "-map",
+            "1:a",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "medium",
+            "-crf",
+            "30",
+            "-pix_fmt",
+            "yuv420p",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "96k",
+            "-shortest",
+            "-movflags",
+            "+faststart",
+            str(VIDEO),
+        ],
+        cwd=WORK,
+        check=True,
+    )
+
+
 def main() -> None:
+    if not SOURCE.exists():
+        raise SystemExit(f"Presenter clip is missing: {SOURCE}")
     ff = ffmpeg_path()
     timings = synthesize(ff)
     total = timings[-1]["end"] + 0.2
-    frames = math.ceil(total * FPS)
-    levels = amplitudes(frames)
-    font_pack = fonts()
     write_captions(timings)
-
+    still_frame(ff)
     VIDEO.parent.mkdir(parents=True, exist_ok=True)
     POSTER.parent.mkdir(parents=True, exist_ok=True)
-    command = [
-        ff,
-        "-y",
-        "-hide_banner",
-        "-loglevel",
-        "error",
-        "-f",
-        "rawvideo",
-        "-pix_fmt",
-        "rgb24",
-        "-s",
-        f"{WIDTH}x{HEIGHT}",
-        "-r",
-        str(FPS),
-        "-i",
-        "-",
-        "-i",
-        str(WORK / "narration.wav"),
-        "-vf",
-        "ass=captions.ass",
-        "-c:v",
-        "libx264",
-        "-preset",
-        "medium",
-        "-crf",
-        "26",
-        "-pix_fmt",
-        "yuv420p",
-        "-c:a",
-        "aac",
-        "-b:a",
-        "96k",
-        "-shortest",
-        "-movflags",
-        "+faststart",
-        str(VIDEO),
-    ]
-    process = subprocess.Popen(command, cwd=WORK, stdin=subprocess.PIPE)
-    assert process.stdin is not None
-    for frame in range(frames):
-        seconds = frame / FPS
-        image = draw_frame(seconds, levels[frame], active_index(timings, seconds), font_pack)
-        process.stdin.write(image.tobytes())
-        if frame == int(2 * FPS):
-            image.save(POSTER, "WEBP", quality=78)
-    process.stdin.close()
-    if process.wait() != 0:
-        raise SystemExit("ffmpeg failed while building the guided tour")
-
+    build_video(ff, total)
     print(f"Tour: {total:.1f} seconds")
     print(f"Video: {VIDEO.stat().st_size} bytes")
     print(f"Poster: {POSTER.stat().st_size} bytes")

@@ -8,12 +8,11 @@ const english = copy("en").guide;
 
 /** The narration is fixed in English; the surrounding page copy is bilingual. */
 const SCRIPT = [
-  "Welcome to Pamoja IQ. I am Asha, your agentic AI guide.",
-  "This is not just a ledger. An agent reads the chama's Excel and names the columns.",
-  "It puts every payment on the right member's line and checks the month for the treasurer.",
-  "A member opens their own door and sees only their savings, loan and position.",
-  "The treasurer reviews the work, then publishes each position when it is ready.",
-  "Choose your door below. Pamoja IQ, together the numbers are clearer.",
+  "Welcome to Pamoja IQ. Agentic AI keeps the chama's books clear.",
+  "It reads the Excel, names the columns, and places every payment on the right member's line.",
+  "A member opens one door and sees only their own savings, loan and position.",
+  "The treasurer opens the other door, reviews the month, and publishes each position.",
+  "Nothing is shared until the treasurer is ready. Choose your door below.",
 ];
 
 export function GuideTour({ labels = english }: { labels?: typeof english }) {
@@ -59,7 +58,7 @@ export function GuideTour({ labels = english }: { labels?: typeof english }) {
         >
           <Image
             src="/images/guide-poster.webp"
-            alt="Asha, the stylised agentic AI presenter"
+            alt="A presenter explaining Pamoja IQ"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover transition duration-500 group-hover:scale-105"
@@ -71,7 +70,7 @@ export function GuideTour({ labels = english }: { labels?: typeof english }) {
             </svg>
           </span>
           <span className="absolute bottom-3 left-3 rounded-lg bg-navy/85 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-white">
-            Asha · Guide
+            Pamoja IQ · Guide
           </span>
         </button>
       </div>
