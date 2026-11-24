@@ -409,11 +409,11 @@ describe("rules and maker-checker", () => {
 
   it("opens the member door and the treasurer door for one owner phone", async () => {
     await member({ phone: "+254711000001", role: "CHAIR" });
-    const ready = await ensureOwnerAccount({ phone: "0712000888", name: "Meshack Akoko", pin: "Ab3!@cde" });
+    const ready = await ensureOwnerAccount({ phone: "0712000888", name: "Sample Owner", pin: "Ab3!@cde" });
     expect(ready).toEqual({ ok: true });
     expect((await loginWithPin({ phone: "0712000888", pin: "Ab3!@cde", role: "MEMBER", now })).status).toBe("authenticated");
     expect((await loginWithPin({ phone: "0712000888", pin: "Ab3!@cde", role: "TREASURER", now })).status).toBe("authenticated");
-    const again = await ensureOwnerAccount({ phone: "0712000888", name: "Meshack Akoko", pin: "Ab3!@cde" });
+    const again = await ensureOwnerAccount({ phone: "0712000888", name: "Sample Owner", pin: "Ab3!@cde" });
     expect(again).toEqual({ ok: true });
     const posts = await prismaRaw.membership.findMany({ where: { person: { phone: "+254712000888" } } });
     expect(posts.map((row) => row.role).sort()).toEqual(["MEMBER", "TREASURER"]);

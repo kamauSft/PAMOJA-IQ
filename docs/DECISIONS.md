@@ -12,6 +12,14 @@ A small strip at the top was not what was asked for: the film has to occupy the 
 
 The first full-page loops were too soft. The high-angle framing already keeps faces indistinct, so the blur was reduced and the encode raised to CRF 25; both files stay under 1 MB and the meeting is easier to see. A Home link now sits in the sign-in header beside the language and theme buttons, so a person can return to the front page in one tap. A successful sign-in still goes straight to `/home` or `/desk`.
 
+## 2026-11-24 - A licensed presenter explains the doors
+
+The owner asked for a white female presenter who actually talks. The landing tour now uses Pexels clip 9064525 by RDNE Stock project, licensed for commercial use, instead of the earlier drawn avatar. The clip is cross-faded so the presenter stays visible and moving through the narration; a local female voice explains that Agentic AI reads the Excel, names the columns, places payments and prepares positions for the treasurer to publish. Captions and a transcript are included, and lockout rules stay out of the welcome. The finished film is about 32 seconds, 1280 × 720 H.264/AAC, about 1.49 MB, and is rebuilt by `python scripts/make-guide.py` from a source kept outside version control. The faceless-avatar choice is withdrawn.
+
+## 2026-11-23 - The real chama gets its own private database
+
+KWAN's register holds real names and years of contribution history. It must not reach the public demo, the GitHub Pages site or version control. Onboarding therefore writes to `prisma/kwan.db` only, with `DEMO_MODE=false`, and launches on port 3001 through `start-kwan.cmd`. The supplied files contain no phone numbers, so members receive deterministic placeholder Kenyan numbers and unique 6-digit PINs; `scripts/swap-kwan-phones.ts` replaces them when the chama supplies real numbers. The treasurer's name and phone are passed privately at onboarding and are not stored in this repository; the post uses an 8-digit PIN. Money stays in integer cents and the source totals are preserved without being written into tracked files. The wide sheet shape is handled in the import path itself, so future monthly uploads follow the same idempotent member/month rules as the standard template. Commercial pricing and positioning claims stay out of the repository.
+
 ## 2026-11-22 - Builds do not depend on a font vendor
 
 The first deployment after the redesign failed in CI because `next/font` tried to fetch Google fonts during the build, and the GitHub Pages demo tried to load Tailwind through a PostCSS config it never installed. Fonts are now plain CSS stacks, and the demo has its own empty PostCSS config so it cannot inherit the root one. Root lint ignores the demo's generated files. Neither build needs a font vendor or an unused CSS package.
@@ -19,10 +27,6 @@ The first deployment after the redesign failed in CI because `next/font` tried t
 ## 2026-11-22 - The landing page reads like an institution
 
 The film still fills the first screen, but a single hero and one tour card did not answer the questions a visitor brings. The page now follows the mature pattern of the reference site: a fixed bar with clear anchors, a facts band, alternating mint and cream sections, an About, a numbered workflow, the two doors, the guide, questions, contact, and a footer. Editorial serif headings and short paragraphs keep the tone calm rather than salesy. The words stay bilingual and the video stays behind the whole first screen; reduced-motion visitors still get stills instead of film.
-
-## 2026-11-22 - A moving agentic-AI guide explains the doors
-
-A mature site tells a visitor what the product does before asking them to sign in. The landing page now carries a short guided tour: Asha, a geometric agentic-AI avatar, welcomes the visitor and explains that the agent reads an unfamiliar Excel sheet, names its columns, places each payment, and prepares positions for the treasurer to publish. A member's own view and the two doors follow. Lockout rules are left to the security notes; they do not belong in a welcome. The avatar is drawn from shapes, so no individual's face is used, and its mouth and waveform move with the measured audio so it is plainly speaking. It is click-to-play with narration, captions, and a transcript, under 1 MB, and rebuilt by `python scripts/make-guide.py`.
 
 ## 2026-11-15 - The photographs cross-fade and drift as the fallback
 

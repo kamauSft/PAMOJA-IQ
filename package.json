@@ -21,6 +21,8 @@
     "fixtures": "tsx scripts/generate-fixtures.ts",
     "film": "python scripts/make-film.py",
     "lockout:reset": "tsx scripts/reset-lockout.ts",
+    "kwan:onboard": "tsx scripts/onboard-kwan.ts",
+    "kwan:phones": "tsx scripts/swap-kwan-phones.ts",
     "test:e2e": "playwright test",
     "postinstall": "prisma generate"
   },

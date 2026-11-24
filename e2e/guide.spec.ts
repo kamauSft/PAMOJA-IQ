@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("offers a guided tour on the landing page", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Meet Asha/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Meet your presenter/ })).toBeVisible();
   await page.getByRole("button", { name: "Play the guided tour" }).first().click();
 
   const dialog = page.getByRole("dialog", { name: "Guided tour" });

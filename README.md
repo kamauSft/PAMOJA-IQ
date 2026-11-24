@@ -53,7 +53,7 @@ The rule that keeps the app honest: **money is integer cents, and only `lib/fina
 
 ## Moving scenes
 
-The sign-in, home, and desk screens put real footage behind the whole first screen, not a small strip. Both loops show a formal meeting of men and women from a high angle; the faces are softened so nobody is identifiable. Each is a short silent H.264 loop, under 1 MB, with the pictured still kept as the poster and as the fallback. The landing page also has a click-to-play guided tour by a moving, faceless agentic-AI presenter, with narration, captions, and a transcript, and a full editorial structure with About, workflow, two doors, questions, contact, and footer sections.
+The sign-in, home, and desk screens put real footage behind the whole first screen, not a small strip. Both loops show a formal meeting of men and women from a high angle; the faces are softened so nobody is identifiable. Each is a short silent H.264 loop, under 1 MB, with the pictured still kept as the poster and as the fallback. The landing page also has a click-to-play guided tour presented by a licensed Pexels clip of a white woman talking to camera, explaining Agentic AI with narration, captions, and a transcript, plus a full editorial structure with About, workflow, two doors, questions, contact, and footer sections.
 
 - `components/moving-scenes.tsx` — chooses the clip to suit the door, with the stills underneath.
 - `app/globals.css` — `scene-drift`, the slow zoom used by the fallback.
