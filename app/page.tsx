@@ -2,15 +2,13 @@ import Link from "next/link";
 import { GuideTour } from "@/components/guide-tour";
 import { LandingNav } from "@/components/landing-nav";
 import {
-  AboutSection,
   ContactSection,
   DoorsSection,
   FaqSection,
-  HowSection,
-  ProofBand,
   SiteFooter,
 } from "@/components/landing-sections";
 import { MovingScenes } from "@/components/moving-scenes";
+import { ProductProof } from "@/components/product-proof";
 import { copy } from "@/content/ui";
 import { getLocale } from "@/lib/locale";
 
@@ -42,7 +40,9 @@ export default async function LandingPage() {
           <h1 className="editorial text-balance mt-6 text-4xl font-normal leading-[1.08] sm:text-6xl lg:text-7xl">
             {site.hero.headline}
           </h1>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-white/85 sm:text-lg">{site.hero.sentence}</p>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-white/85 sm:text-lg">
+            {site.hero.sentence}
+          </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/login?door=member"
@@ -58,7 +58,10 @@ export default async function LandingPage() {
             </Link>
           </div>
           <p className="mt-5 text-sm text-white/70">{site.hero.note}</p>
-          <a href="#guide" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#7DDECA] hover:text-white">
+          <a
+            href="#guide"
+            className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#7DDECA] hover:text-white"
+          >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
               <path d="M8 5v14l11-7z" />
             </svg>
@@ -67,9 +70,7 @@ export default async function LandingPage() {
         </div>
       </MovingScenes>
 
-      <ProofBand site={site} />
-      <AboutSection site={site} />
-      <HowSection site={site} />
+      <ProductProof text={text} />
       <DoorsSection site={site} />
       <GuideTour labels={text.guide} />
       <FaqSection site={site} />

@@ -8,8 +8,7 @@ import { brand } from "@/config/brand";
 import type { Locale } from "@/content/ui";
 
 type NavLabels = {
-  about: string;
-  how: string;
+  proof: string;
   doors: string;
   guide: string;
   faq: string;
@@ -18,9 +17,10 @@ type NavLabels = {
   menu: string;
 };
 
-const LINKS: Array<[keyof Pick<NavLabels, "about" | "how" | "doors" | "guide" | "faq" | "contact">, string]> = [
-  ["about", "#about"],
-  ["how", "#how"],
+const LINKS: Array<
+  [keyof Pick<NavLabels, "proof" | "doors" | "guide" | "faq" | "contact">, string]
+> = [
+  ["proof", "#proof"],
   ["doors", "#doors"],
   ["guide", "#guide"],
   ["faq", "#faq"],
@@ -58,7 +58,9 @@ export function LandingNav({
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2 text-white">
           <BrandMark className="h-7 w-7 text-[#7DDECA]" />
-          <span className="hidden text-sm font-semibold uppercase tracking-[0.16em] sm:inline">{brand.name}</span>
+          <span className="hidden text-sm font-semibold uppercase tracking-[0.16em] sm:inline">
+            {brand.name}
+          </span>
         </Link>
 
         <nav aria-label="Primary" className="ml-auto hidden items-center gap-5 md:flex">
@@ -99,7 +101,10 @@ export function LandingNav({
                   {labels[key]}
                 </a>
               ))}
-              <Link href="/login" className="block rounded-lg px-3 py-2 text-sm font-semibold text-ink hover:bg-canvas">
+              <Link
+                href="/login"
+                className="block rounded-lg px-3 py-2 text-sm font-semibold text-ink hover:bg-canvas"
+              >
                 {labels.signIn}
               </Link>
             </nav>

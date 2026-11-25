@@ -1,38 +1,48 @@
-"""Build the narrated Agentic AI tour with a real presenter and local voice.
+"""Build the lip-synced guided tour with D-ID.
 
-The presenter clip is a licensed Pexels asset kept outside version control in
-assets/video/. The narration is synthesised with a local Windows voice, and the
-finished video and poster are the only generated files committed.
+A still is taken from the licensed Pexels presenter clip, uploaded to D-ID,
+and animated one sentence at a time with a natural neural voice. Each D-ID
+render gives an exact duration, so the burned-in captions match the audio.
+The API key is read from D_ID_API_KEY and is never written to disk.
 
-Run: python scripts/make-guide.py
+Run: D_ID_API_KEY=... python scripts/make-guide.py
+On Windows PowerShell: $env:D_ID_API_KEY="..."; python scripts/make-guide.py
 """
 
+import base64
 import json
-import math
+import os
+import platform
 import shutil
 import subprocess
 import tempfile
-import textwrap
+import time
+import urllib.error
+import urllib.request
+import uuid
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "assets" / "video" / "presenter-source.mp4"
+SCRIPT_JSON = ROOT / "content" / "guide-script.json"
 WORK = Path(tempfile.gettempdir()) / "pamoja-guide-build"
 VIDEO = ROOT / "public" / "videos" / "guide.mp4"
 POSTER = ROOT / "public" / "images" / "guide-poster.webp"
-FPS = 24
-WIDTH, HEIGHT = 1280, 720
-CLIP_SECONDS = 7.8
 
-SENTENCES = [
-    "Welcome to Pamoja IQ. Agentic AI keeps the chama's books clear.",
-    "It reads the Excel, names the columns, and places every payment on the right member's line.",
-    "A member opens one door and sees only their own savings, loan and position.",
-    "The treasurer opens the other door, reviews the month, and publishes each position.",
-    "Nothing is shared until the treasurer is ready. Choose your door below.",
-]
+API = "https://api.d-id.com"
+POLL_SECONDS = 5
+FONT_BOLD = (
+    "C:/Windows/Fonts/arialbd.ttf"
+    if platform.system() == "Windows"
+    else "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+)
+FONT_REGULAR = (
+    "C:/Windows/Fonts/arial.ttf"
+    if platform.system() == "Windows"
+    else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+)
 
 
 def ffmpeg_path() -> str:
@@ -47,66 +57,180 @@ def ffmpeg_path() -> str:
         raise SystemExit("Install ffmpeg, or `pip install imageio-ffmpeg`, then try again.") from error
 
 
-def synthesize(ff: str) -> list[dict]:
-    WORK.mkdir(parents=True, exist_ok=True)
-    (WORK / "sentences.json").write_text(json.dumps(SENTENCES), encoding="utf-8")
-    script = WORK / "voice.ps1"
-    script.write_text(
-        textwrap.dedent(
-            r"""
-            $ErrorActionPreference = "Continue"
-            $work = $args[0]
-            $ff = $args[1]
-            $sentences = Get-Content (Join-Path $work "sentences.json") -Raw -Encoding utf8 | ConvertFrom-Json
-            function Get-Duration([string]$file) {
-              $out = & $ff -hide_banner -i $file -f null NUL 2>&1 | Out-String
-              $m = [regex]::Match($out, 'Duration: (\d+):(\d+):(\d+\.\d+)')
-              if (-not $m.Success) { throw "No duration found for $file" }
-              return ([double]$m.Groups[1].Value * 3600) + ([double]$m.Groups[2].Value * 60) + [double]$m.Groups[3].Value
-            }
-            Add-Type -AssemblyName System.Speech
-            $synth = New-Object System.Speech.Synthesis.SpeechSynthesizer
-            $voice = $synth.GetInstalledVoices() | Where-Object { $_.VoiceInfo.Gender -eq "Female" } | Select-Object -First 1
-            if ($voice) { $synth.SelectVoice($voice.VoiceInfo.Name) }
-            $synth.Rate = -1
-            $concat = @()
-            $timings = @()
-            $cursor = 0.0
-            for ($i = 0; $i -lt $sentences.Count; $i++) {
-              $wav = "s$i.wav"
-              $synth.SetOutputToWaveFile((Join-Path $work $wav))
-              $synth.Speak($sentences[$i])
-              $duration = Get-Duration (Join-Path $work $wav)
-              $concat += "file '$wav'"
-              if ($i -lt $sentences.Count - 1) { $concat += "file 'silence.wav'" }
-              $end = $cursor + $duration + 0.15
-              $timings += [pscustomobject]@{ text = $sentences[$i]; start = $cursor; end = $end }
-              $cursor += $duration + 0.35
-            }
-            $synth.Dispose()
-            & $ff -y -hide_banner -loglevel error -f lavfi -i anullsrc=r=22050:cl=mono -t 0.35 -c:a pcm_s16le (Join-Path $work "silence.wav")
-            $concat | Set-Content -Encoding ascii (Join-Path $work "concat.txt")
-            & $ff -y -hide_banner -loglevel error -f concat -safe 0 -i (Join-Path $work "concat.txt") -c:a pcm_s16le (Join-Path $work "narration.wav")
-            $timings | ConvertTo-Json -Depth 3 | Set-Content -Encoding utf8 (Join-Path $work "timings.json")
-            """
-        ),
-        encoding="utf-8",
+def auth_header() -> str:
+    """D-ID Studio keys are `user:password`; some accounts expect base64 Basic."""
+    key = os.environ.get("D_ID_API_KEY", "").strip()
+    if not key:
+        raise SystemExit(
+            "Set D_ID_API_KEY in the environment before building the tour. "
+            "The key is not stored in this repository."
+        )
+    mode = os.environ.get("D_ID_AUTH_MODE", "auto").strip().lower()
+    if mode == "base64" or (mode == "auto" and ":" not in key):
+        key = base64.b64encode(key.encode("utf-8")).decode("ascii")
+    return f"Basic {key}"
+
+
+def request_json(method: str, path: str, auth: str, payload: dict | None = None) -> dict:
+    data = json.dumps(payload).encode("utf-8") if payload is not None else None
+    headers = {"Authorization": auth, "Accept": "application/json"}
+    if data is not None:
+        headers["Content-Type"] = "application/json"
+    request = urllib.request.Request(API + path, data=data, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as error:
+        detail = error.read().decode("utf-8", errors="replace")[:600]
+        raise SystemExit(f"D-ID {method} {path} failed ({error.code}): {detail}") from error
+    except urllib.error.URLError as error:
+        raise SystemExit(f"D-ID {method} {path} could not be reached: {error.reason}") from error
+
+
+def absolute_url(url: str) -> str:
+    if url.startswith(("https://", "http://")):
+        return url
+    if url.startswith("/"):
+        return API + url
+    raise SystemExit(f"D-ID returned an unexpected URL: {url[:120]}")
+
+
+def upload_presenter_still(image: Path, auth: str) -> str:
+    boundary = "----PamojaGuide" + uuid.uuid4().hex
+    header = (
+        f"--{boundary}\r\n"
+        'Content-Disposition: form-data; name="image"; filename="presenter-still.jpg"\r\n'
+        "Content-Type: image/jpeg\r\n\r\n"
+    ).encode("ascii")
+    footer = f"\r\n--{boundary}--\r\n".encode("ascii")
+    body = header + image.read_bytes() + footer
+    request = urllib.request.Request(
+        API + "/images",
+        data=body,
+        headers={
+            "Authorization": auth,
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+            "Accept": "application/json",
+        },
+        method="POST",
     )
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            result = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as error:
+        detail = error.read().decode("utf-8", errors="replace")[:600]
+        raise SystemExit(f"D-ID image upload failed ({error.code}): {detail}") from error
+    url = result.get("url")
+    if not url:
+        raise SystemExit("D-ID accepted the presenter still but returned no URL.")
+    return absolute_url(url)
+
+
+def create_talk(source_url: str, sentence: str, index: int, auth: str) -> str:
+    provider = os.environ.get("D_ID_VOICE_PROVIDER", "microsoft").strip().lower()
+    voice = os.environ.get("D_ID_VOICE_ID", "en-US-JennyNeural").strip()
+    rate = os.environ.get("D_ID_VOICE_RATE", "1.0").strip()
+    speaking = {
+        "type": "text",
+        "input": sentence,
+        "ssml": False,
+        "subtitles": False,
+        "provider": {
+            "type": provider,
+            "voice_id": voice,
+            "voice_config": {"rate": rate},
+        },
+    }
+    payload = {
+        "source_url": source_url,
+        "name": f"Pamoja IQ guide {index + 1}",
+        "script": speaking,
+        "config": {"fluent": True, "pad_audio": 0.15, "result_format": "mp4"},
+        "user_data": "pamoja-iq-guide",
+    }
+    result = request_json("POST", "/talks", auth, payload)
+    talk_id = result.get("id")
+    if not talk_id:
+        raise SystemExit(f"D-ID did not return a talk id for sentence {index + 1}.")
+    return talk_id
+
+
+def wait_for_talk(talk_id: str, auth: str) -> str:
+    timeout = int(os.environ.get("GUIDE_LIPSYNC_TIMEOUT", "900"))
+    started = time.monotonic()
+    while True:
+        result = request_json("GET", f"/talks/{talk_id}", auth)
+        status = result.get("status")
+        if status == "done" and result.get("result_url"):
+            return absolute_url(result["result_url"])
+        if status in {"error", "rejected"}:
+            raise SystemExit(f"D-ID rejected talk {talk_id}: {json.dumps(result)[:600]}")
+        if time.monotonic() - started > timeout:
+            raise SystemExit(f"D-ID talk {talk_id} did not finish within {timeout} seconds.")
+        time.sleep(POLL_SECONDS)
+
+
+def download(url: str, destination: Path) -> None:
+    request = urllib.request.Request(url, headers={"Accept": "video/mp4"})
+    try:
+        with urllib.request.urlopen(request, timeout=120) as response, destination.open("wb") as output:
+            shutil.copyfileobj(response, output)
+    except urllib.error.HTTPError as error:
+        raise SystemExit(f"Could not download the D-ID result ({error.code}).") from error
+    if destination.stat().st_size < 10_000:
+        raise SystemExit(f"The D-ID result for {destination.name} was unexpectedly small.")
+
+
+def duration_of(ff: str, path: Path) -> float:
+    result = subprocess.run(
+        [ff, "-hide_banner", "-i", str(path), "-f", "null", "NUL"],
+        capture_output=True,
+        text=True,
+    )
+    import re
+
+    match = re.search(r"Duration: (\d+):(\d+):(\d+\.\d+)", result.stderr)
+    if not match:
+        raise SystemExit(f"Could not read the duration of {path.name}.")
+    return float(match.group(1)) * 3600 + float(match.group(2)) * 60 + float(match.group(3))
+
+
+def extract_still(ff: str) -> Path:
+    destination = WORK / "presenter-still.jpg"
+    second = os.environ.get("GUIDE_FRAME_SECOND", "3").strip()
     subprocess.run(
-        ["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script), str(WORK), ff],
+        [
+            ff,
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-ss",
+            second,
+            "-i",
+            str(SOURCE),
+            "-frames:v",
+            "1",
+            "-vf",
+            "scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720",
+            "-q:v",
+            "2",
+            str(destination),
+        ],
         check=True,
     )
-    return json.loads((WORK / "timings.json").read_text(encoding="utf-8-sig"))
+    return destination
 
 
-def write_captions(timings: list[dict]) -> None:
-    def stamp(seconds: float) -> str:
-        hours = int(seconds // 3600)
-        minutes = int((seconds % 3600) // 60)
-        secs = int(seconds % 60)
-        centis = int(round((seconds - math.floor(seconds)) * 100))
-        return f"{hours}:{minutes:02d}:{secs:02d}.{centis:02d}"
+def caption_stamp(seconds: float) -> str:
+    centiseconds = int(round(seconds * 100))
+    hours, centiseconds = divmod(centiseconds, 360_000)
+    minutes, centiseconds = divmod(centiseconds, 6_000)
+    secs, centis = divmod(centiseconds, 100)
+    return f"{hours}:{minutes:02d}:{secs:02d}.{centis:02d}"
 
+
+def write_captions(sentences: list[str], durations: list[float]) -> float:
     lines = [
         "[Script Info]",
         "ScriptType: v4.00+",
@@ -121,79 +245,80 @@ def write_captions(timings: list[dict]) -> None:
         "[Events]",
         "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
     ]
-    for entry in timings:
+    cursor = 0.0
+    for sentence, duration in zip(sentences, durations):
         lines.append(
-            f"Dialogue: 0,{stamp(entry['start'])},{stamp(entry['end'])},Default,,0,0,0,,{entry['text']}"
+            f"Dialogue: 0,{caption_stamp(cursor + 0.05)},"
+            f"{caption_stamp(cursor + max(0.35, duration - 0.08))},"
+            f"Default,,0,0,0,,{sentence}"
         )
+        cursor += duration
     (WORK / "captions.ass").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return cursor
 
 
-def still_frame(ff: str) -> None:
-    subprocess.run(
-        [
-            ff,
-            "-y",
-            "-hide_banner",
-            "-loglevel",
-            "error",
-            "-ss",
-            "3",
-            "-i",
-            str(SOURCE),
-            "-frames:v",
-            "1",
-            "-vf",
-            "scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720",
-            str(WORK / "still.png"),
-        ],
-        check=True,
-    )
-    image = Image.open(WORK / "still.png").convert("RGBA")
+def ffmpeg_font(path: str) -> str:
+    return path.replace("\\", "/").replace(":", "\\:")
+
+
+def write_poster(still: Path) -> None:
+    image = Image.open(still).convert("RGBA")
     overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
-    draw.rectangle((0, 0, WIDTH, 92), fill=(7, 19, 28, 205))
-    draw.rectangle((0, HEIGHT - 96, WIDTH, HEIGHT), fill=(7, 19, 28, 215))
-    font = ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf", 26)
-    small = ImageFont.truetype("C:/Windows/Fonts/arial.ttf", 17)
-    draw.text((56, 28), "PAMOJA IQ", font=font, fill=(246, 241, 231, 255))
-    draw.text((56, HEIGHT - 70), "AGENTIC AI FOR CHAMAS", font=small, fill=(125, 222, 200, 255))
+    draw.rectangle((0, 0, 1280, 92), fill=(7, 19, 28, 205))
+    draw.rectangle((0, 624, 1280, 720), fill=(7, 19, 28, 215))
+    bold = ImageFont.truetype(FONT_BOLD, 26)
+    small = ImageFont.truetype(FONT_REGULAR, 17)
+    tiny = ImageFont.truetype(FONT_REGULAR, 14)
+    draw.text((56, 28), "PAMOJA IQ", font=bold, fill=(246, 241, 231, 255))
+    draw.text((56, 650), "AGENTIC AI FOR CHAMAS", font=small, fill=(125, 222, 200, 255))
+    disclosure = "ILLUSTRATIVE PRESENTER"
+    right = 1280 - 56 - int(draw.textlength(disclosure, font=tiny))
+    draw.text((right, 36), disclosure, font=tiny, fill=(125, 222, 200, 255))
+    POSTER.parent.mkdir(parents=True, exist_ok=True)
     Image.alpha_composite(image, overlay).convert("RGB").save(POSTER, "WEBP", quality=80)
 
 
-def build_video(ff: str, total: float) -> None:
-    """Keep the presenter on screen by cross-fading the licensed clip as needed."""
-    scale = (
-        "scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,"
-        "setsar=1,setpts=PTS-STARTPTS,fps=24,format=yuv420p"
+def finish_video(ff: str, segments: list[Path], total: float) -> None:
+    concat = WORK / "concat.txt"
+    concat.write_text(
+        "".join(f"file '{segment.name}'\n" for segment in segments),
+        encoding="ascii",
     )
-    overlap = 0.45
-    advance = CLIP_SECONDS - overlap
-    segments = max(1, math.ceil((total - overlap) / advance))
-    labels = [f"s{index}" for index in range(segments)]
-
-    parts = [
-        f"[0:v]trim=start=0:duration={CLIP_SECONDS},{scale}[v0];",
-        f"[v0]split={segments}" + "".join(f"[{label}]" for label in labels) + ";",
-    ]
-    previous = labels[0]
-    offset = advance
-    for index in range(1, segments):
-        output = f"x{index}"
-        parts.append(
-            f"[{previous}][{labels[index]}]xfade=transition=fade:duration={overlap}:offset={offset:.3f}[{output}];"
-        )
-        previous = output
-        offset += advance
-    parts.append(f"[{previous}]trim=duration={total:.3f},setpts=PTS-STARTPTS,fps=24[bg];")
-    parts.append(
-        "[bg]drawbox=x=0:y=0:w=1280:h=92:color=0x07131c@0.80:t=fill,"
+    combined = WORK / "combined.mp4"
+    subprocess.run(
+        [
+            ff,
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            str(concat),
+            "-c",
+            "copy",
+            str(combined),
+        ],
+        cwd=WORK,
+        check=True,
+    )
+    video_filter = (
+        "scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,"
+        "setsar=1,setpts=PTS-STARTPTS,fps=24,format=yuv420p,"
+        "drawbox=x=0:y=0:w=1280:h=92:color=0x07131c@0.80:t=fill,"
         "drawbox=x=0:y=624:w=1280:h=96:color=0x07131c@0.84:t=fill,"
-        "drawtext=fontfile='C\\:/Windows/Fonts/arialbd.ttf':text='PAMOJA IQ':fontcolor=0xF6F1E7:fontsize=26:x=56:y=28,"
-        "drawtext=fontfile='C\\:/Windows/Fonts/arial.ttf':text='AGENTIC AI FOR CHAMAS':fontcolor=0x7DDEC8:fontsize=17:x=56:y=650,"
+        f"drawtext=fontfile='{ffmpeg_font(FONT_BOLD)}':text='PAMOJA IQ':"
+        "fontcolor=0xF6F1E7:fontsize=26:x=56:y=28,"
+        f"drawtext=fontfile='{ffmpeg_font(FONT_REGULAR)}':text='ILLUSTRATIVE PRESENTER':"
+        "fontcolor=0x7DDEC8:fontsize=14:x=w-text_w-56:y=36,"
+        f"drawtext=fontfile='{ffmpeg_font(FONT_REGULAR)}':text='AGENTIC AI FOR CHAMAS':"
+        "fontcolor=0x7DDEC8:fontsize=17:x=56:y=650,"
         "ass=captions.ass[v]"
     )
-    filter_complex = "".join(parts)
-
     subprocess.run(
         [
             ff,
@@ -202,15 +327,15 @@ def build_video(ff: str, total: float) -> None:
             "-loglevel",
             "error",
             "-i",
-            str(SOURCE),
-            "-i",
-            str(WORK / "narration.wav"),
+            str(combined),
             "-filter_complex",
-            filter_complex,
+            video_filter,
             "-map",
             "[v]",
             "-map",
-            "1:a",
+            "0:a:0",
+            "-t",
+            f"{total:.3f}",
             "-c:v",
             "libx264",
             "-preset",
@@ -222,8 +347,7 @@ def build_video(ff: str, total: float) -> None:
             "-c:a",
             "aac",
             "-b:a",
-            "96k",
-            "-shortest",
+            "112k",
             "-movflags",
             "+faststart",
             str(VIDEO),
@@ -236,14 +360,43 @@ def build_video(ff: str, total: float) -> None:
 def main() -> None:
     if not SOURCE.exists():
         raise SystemExit(f"Presenter clip is missing: {SOURCE}")
+    sentences = json.loads(SCRIPT_JSON.read_text(encoding="utf-8"))
+    if not isinstance(sentences, list) or not sentences:
+        raise SystemExit(f"The guide script is empty: {SCRIPT_JSON}")
+
+    auth = auth_header()
     ff = ffmpeg_path()
-    timings = synthesize(ff)
-    total = timings[-1]["end"] + 0.2
-    write_captions(timings)
-    still_frame(ff)
+    WORK.mkdir(parents=True, exist_ok=True)
     VIDEO.parent.mkdir(parents=True, exist_ok=True)
-    POSTER.parent.mkdir(parents=True, exist_ok=True)
-    build_video(ff, total)
+
+    still = extract_still(ff)
+    source_url = upload_presenter_still(still, auth)
+    print(f"D-ID source ready for {len(sentences)} sentences")
+
+    segments: list[Path] = []
+    durations: list[float] = []
+    for index, sentence in enumerate(sentences):
+        talk_id = create_talk(source_url, sentence, index, auth)
+        result_url = wait_for_talk(talk_id, auth)
+        segment = WORK / f"segment_{index}.mp4"
+        download(result_url, segment)
+        durations.append(duration_of(ff, segment))
+        segments.append(segment)
+        print(f"Sentence {index + 1}/{len(sentences)} rendered ({durations[-1]:.2f}s)")
+
+    total = write_captions(sentences, durations)
+    write_poster(still)
+    finish_video(ff, segments, total)
+    (WORK / "timings.json").write_text(
+        json.dumps(
+            [
+                {"text": sentence, "duration": duration}
+                for sentence, duration in zip(sentences, durations)
+            ],
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     print(f"Tour: {total:.1f} seconds")
     print(f"Video: {VIDEO.stat().st_size} bytes")
     print(f"Poster: {POSTER.stat().st_size} bytes")

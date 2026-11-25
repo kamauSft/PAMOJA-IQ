@@ -22,12 +22,15 @@ const en = {
     feature3Body: "A quiet note before the contribution is due.",
     security: "Records stay on the server. A member cannot open another member's numbers.",
     howTitle: "How a month works",
-    howBody: "The treasurer uploads Excel, checks each member's position, and shares it. From that moment every member sees their own numbers and how close they are to a goal.",
+    howBody:
+      "The treasurer uploads Excel, checks each member's position, and shares it. From that moment every member sees their own numbers and how close they are to a goal.",
     priceTitle: "What a chama pays",
-    priceBody: "Standard is the higher of KES 500 and KES 30 for each active member. Pro is the higher of KES 1,000 and KES 60.",
+    priceBody:
+      "Standard is the higher of KES 500 and KES 30 for each active member. Pro is the higher of KES 1,000 and KES 60.",
     bankHeadline: "Clear, private records for every chama member.",
     bankSentence: "The treasurer keeps one set of books. Each member opens only their own account.",
-    excelLine: "An AI Agent reads an unfamiliar Excel sheet and names the columns. Each payment is placed on that member's own line.",
+    excelLine:
+      "An AI Agent reads an unfamiliar Excel sheet and names the columns. Each payment is placed on that member's own line.",
     featureUpload: "Upload records",
     featurePrivate: "Members see only their own account",
     featureReminders: "Reminders before due dates",
@@ -38,13 +41,13 @@ const en = {
     body: "A short narrated tour explains who uses each door, what a member sees, and how a treasurer publishes a position. Captions are built in.",
     button: "Play the guided tour",
     playing: "Guided tour",
+    disclosure: "Stock presenter · illustrative guide",
     transcript: "Read the tour transcript",
     close: "Close tour",
   },
   site: {
     nav: {
-      about: "About",
-      how: "How it works",
+      proof: "See the work",
       doors: "Two doors",
       guide: "Guided tour",
       faq: "Questions",
@@ -63,53 +66,52 @@ const en = {
       watch: "Watch the guided tour",
     },
     proof: {
-      title: "Built for real chama routines",
-      items: [
-        { value: "1", label: "shared register" },
-        { value: "2", label: "clear doors" },
-        { value: "0", label: "member figures shown to others" },
-        { value: "37s", label: "guided tour" },
-      ],
-    },
-    about: {
-      eyebrow: "About Pamoja IQ",
-      title: "A calm home for the group's numbers.",
-      body: "Chama records often start in a messy Excel sheet. Pamoja IQ turns that sheet into a register the treasurer can check, and a private position each member can trust.",
-      points: [
-        "The agent names unfamiliar columns and places payments on the right line.",
-        "The treasurer reviews the work before any position is published.",
-        "Each member opens only their own savings, loan, and statement.",
-      ],
-      imageAlt: "Chama members reviewing their records together around a table",
-    },
-    how: {
-      eyebrow: "How it works",
-      title: "From Excel to a position you can trust.",
-      body: "The agent does the reading and placing. Your treasurer keeps the judgement and the final say.",
+      eyebrow: "Real work, not a sales deck",
+      title: "One spreadsheet becomes four private positions.",
+      body: "Follow the same steps a treasurer takes in Pamoja IQ: bring the Excel, check what the agent placed, read the month grid, then publish. Every figure below is illustrative.",
+      note: "Illustrative figures. No real member or chama data appears in the public demo.",
       steps: [
         {
-          title: "Bring the Excel",
-          body: "The treasurer uploads the register, even when the columns are named differently.",
+          label: "01 · Excel",
+          title: "A familiar sheet arrives",
+          body: "Odd headings are fine. A JUMLA or TOTAL row is left out.",
         },
         {
-          title: "The agent reads it",
-          body: "It names the columns, matches each member, and puts every payment on the right line.",
+          label: "02 · Review",
+          title: "Every payment is placed",
+          body: "The agent names the columns and matches each line before anything is shared.",
         },
         {
-          title: "Review, then publish",
-          body: "The treasurer checks the month and shares each position. Members then see only their own.",
+          label: "03 · Month grid",
+          title: "The month is clear at a glance",
+          body: "Paid, late, missed or not due, held on the treasurer's desk until review is done.",
+        },
+        {
+          label: "04 · Publish",
+          title: "Then each member sees only their own",
+          body: "The treasurer shares the position. Other members are never named on a member's screen.",
         },
       ],
+      file: "register-march.xlsx",
+      skipped: "skipped",
+      matched: "matched by name",
+      notPlaced: "needs review",
+      deskOnly: "On the desk only",
+      publishedAt: "Published 09:41",
+      memberView: "What Member 014 sees after publishing",
+      statementNote: "Statement lines come from the shared position only.",
     },
     doors: {
       eyebrow: "Two doors, one truth",
       title: "Choose the door that is yours.",
       body: "The same register serves two different views. Every person signs in with a phone number and a PIN.",
       memberTitle: "Member",
-      memberBody: "Open your own savings, loan, statement, and goals. Other members' numbers are not here.",
+      memberBody:
+        "Open your own savings, loan, statement, and goals. Other members' numbers are not here.",
       memberCta: "Go to member sign-in",
       treasurerTitle: "Treasurer",
-      treasurerBody: "Bring in Excel, check payments, prepare positions, and publish when the books are ready.",
+      treasurerBody:
+        "Bring in Excel, check payments, prepare positions, and publish when the books are ready.",
       treasurerCta: "Go to treasurer sign-in",
     },
     faq: {
@@ -118,8 +120,7 @@ const en = {
       items: [
         {
           question: "Does a member see the whole register?",
-          answer:
-            "No. A member sees only their own savings, loan, statement, and goal progress.",
+          answer: "No. A member sees only their own savings, loan, statement, and goal progress.",
         },
         {
           question: "Does the Excel sheet need a special format?",
@@ -181,7 +182,8 @@ const en = {
     rejected: "That code was not accepted.",
     signIn: "Sign in",
     fallback: "Enter the phone number you use in the chama, and your PIN.",
-    doorTreasurer: "Treasurer's door. From here you keep the books, add members, and bring in the Excel register.",
+    doorTreasurer:
+      "Treasurer's door. From here you keep the books, add members, and bring in the Excel register.",
     doorMember: "Member's door. You will see your own savings, loan, and statement.",
     todayTitle: "Today",
     todayLine: "Haba na haba hujaza kibaba.",
@@ -217,8 +219,10 @@ const en = {
     close: "Close",
     memberTitle: "Your position",
     deskTitle: "The desk",
-    memberNote: "Ask about your own savings, what is still open, and your net. The figures are counted here.",
-    deskNote: "Ask about the desk, including payments you have not shared. The figures are counted here.",
+    memberNote:
+      "Ask about your own savings, what is still open, and your net. The figures are counted here.",
+    deskNote:
+      "Ask about the desk, including payments you have not shared. The figures are counted here.",
     question: "Your question",
     send: "Ask",
     sending: "Reading the books…",
@@ -384,7 +388,8 @@ const en = {
     kicker: "Treasurer",
     meeting: "meeting",
     books: "Books as of",
-    uploadBody: "Add the spreadsheet, then open Member positions before anyone else sees the new payments.",
+    uploadBody:
+      "Add the spreadsheet, then open Member positions before anyone else sees the new payments.",
     noFile: "No spreadsheet has been added yet.",
     updated: "Last updated from",
     updatedOn: "on",
@@ -406,9 +411,11 @@ const en = {
     noReceipts: "Every payment is matched.",
     openReceipts: "Open the receipt queue",
     addTitle: "Add a member",
-    addBody: "Enter their name and phone. A temporary PIN appears here once. It is not sent to a phone.",
+    addBody:
+      "Enter their name and phone. A temporary PIN appears here once. It is not sent to a phone.",
     addPin: "Temporary PIN",
-    addKept: "This number is already an official, so it is now a member as well. The official door keeps its own PIN.",
+    addKept:
+      "This number is already an official, so it is now a member as well. The official door keeps its own PIN.",
     addName: "Full name",
     addPhone: "Phone",
     addSave: "Add member",
@@ -416,7 +423,8 @@ const en = {
     addFailed: "The member could not be added.",
     addDone: "Added. They can sign in on the member door with",
     signTitle: "PINs and locked numbers",
-    signBody: "Enter your own PIN, then unlock a number or give a new PIN. The new PIN appears here once. It is not sent to a phone.",
+    signBody:
+      "Enter your own PIN, then unlock a number or give a new PIN. The new PIN appears here once. It is not sent to a phone.",
     yourPin: "Your PIN",
     unlock: "Unlock",
     unlocking: "Unlocking…",
@@ -437,7 +445,8 @@ const en = {
     remove: "Remove",
     removing: "Removing…",
     removed: "Removed from the chama. Their old payments stay in the books.",
-    removeAsk: "Remove this person from the chama? They cannot sign in. Old payments stay in the books.",
+    removeAsk:
+      "Remove this person from the chama? They cannot sign in. Old payments stay in the books.",
   },
 };
 
@@ -463,12 +472,15 @@ const sw: typeof en = {
     feature3Body: "Ujumbe mtulivu kabla ya mchango kufika.",
     security: "Kumbukumbu zinabaki kwenye seva. Mwanachama hawezi kufungua namba za mwenzake.",
     howTitle: "Mwezi unaendaje",
-    howBody: "Mweka hazina anapakia Excel, anaangalia nafasi ya kila mwanachama, kisha anashiriki. Kuanzia hapo kila mtu anaona namba zake na umbali wa lengo lake.",
+    howBody:
+      "Mweka hazina anapakia Excel, anaangalia nafasi ya kila mwanachama, kisha anashiriki. Kuanzia hapo kila mtu anaona namba zake na umbali wa lengo lake.",
     priceTitle: "Chama hulipa kiasi gani",
-    priceBody: "Kawaida ni kikubwa kati ya KES 500 na KES 30 kwa kila mwanachama anayehudumu. Pro ni kikubwa kati ya KES 1,000 na KES 60.",
+    priceBody:
+      "Kawaida ni kikubwa kati ya KES 500 na KES 30 kwa kila mwanachama anayehudumu. Pro ni kikubwa kati ya KES 1,000 na KES 60.",
     bankHeadline: "Kumbukumbu wazi na za faragha kwa kila mwanachama.",
     bankSentence: "Mweka hazina huweka daftari moja. Kila mwanachama anafungua akaunti yake tu.",
-    excelLine: "AI Agent husoma Excel isiyoeleweka na kutaja safu. Kila malipo yanawekwa kwenye mstari wa mwanachama huyo.",
+    excelLine:
+      "AI Agent husoma Excel isiyoeleweka na kutaja safu. Kila malipo yanawekwa kwenye mstari wa mwanachama huyo.",
     featureUpload: "Pakia kumbukumbu",
     featurePrivate: "Mwanachama anaona akaunti yake tu",
     featureReminders: "Ukumbusho kabla ya siku ya malipo",
@@ -479,13 +491,13 @@ const sw: typeof en = {
     body: "Ziara fupi yenye sauti inaeleza anayetumia kila mlango, anachokiona mwanachama, na jinsi mweka hazina anavyochapisha nafasi. Maneno yameandikwa kwenye video.",
     button: "Cheza ziara inayoongozwa",
     playing: "Ziara ya kuongozwa",
+    disclosure: "Mwasilishaji wa kibiashara · mfano wa ziara",
     transcript: "Soma maandishi ya ziara",
     close: "Funga ziara",
   },
   site: {
     nav: {
-      about: "Kuhusu",
-      how: "Jinsi inavyofanya kazi",
+      proof: "Angalia kazi",
       doors: "Milango miwili",
       guide: "Ziara inayoongozwa",
       faq: "Maswali",
@@ -504,53 +516,52 @@ const sw: typeof en = {
       watch: "Tazama ziara inayoongozwa",
     },
     proof: {
-      title: "Imejengwa kwa utaratibu halisi wa chama",
-      items: [
-        { value: "1", label: "daftari la pamoja" },
-        { value: "2", label: "milango wazi" },
-        { value: "0", label: "namba za wanachama zinazoonekana kwa wengine" },
-        { value: "37s", label: "ziara inayoongozwa" },
-      ],
-    },
-    about: {
-      eyebrow: "Kuhusu Pamoja IQ",
-      title: "Nyumba tulivu ya namba za kikundi.",
-      body: "Rekodi za chama mara nyingi huanza kwenye Excel iliyochanganyika. Pamoja IQ inageuza jedwali hilo kuwa daftari ambalo mweka hazina anaweza kuliangalia, na nafasi ya faragha ambayo kila mwanachama anaweza kuamini.",
-      points: [
-        "Wakala hupata majina ya safu zisizojulikana na kuweka malipo kwenye mstari sahihi.",
-        "Mweka hazina hukagua kazi kabla ya nafasi yoyote kuchapishwa.",
-        "Kila mwanachama anafungua akiba, mkopo, na taarifa yake tu.",
-      ],
-      imageAlt: "Wanachama wa chama wakikagua rekodi zao pamoja mezani",
-    },
-    how: {
-      eyebrow: "Jinsi inavyofanya kazi",
-      title: "Kutoka Excel hadi nafasi unayoweza kuamini.",
-      body: "Wakala husoma na kuweka. Mweka hazina huhifadhi uamuzi na neno la mwisho.",
+      eyebrow: "Kazi halisi, si matangazo",
+      title: "Lahajedwali moja linakuwa nafasi nne za faragha.",
+      body: "Fuata hatua zilezile za mweka hazina katika Pamoja IQ: leta Excel, angalia alipoweka wakala, soma gridi ya mwezi, kisha chapisha. Kila namba hapa ni mfano tu.",
+      note: "Namba za mfano. Hakuna data halisi ya mwanachama au chama kwenye onyesho la umma.",
       steps: [
         {
-          title: "Leta Excel",
-          body: "Mweka hazina hupakia daftari, hata kama safu zina majina tofauti.",
+          label: "01 · Excel",
+          title: "Lahajedwali lililozoeleka linafika",
+          body: "Vichwa vya safu visivyojulikana vinakubalika. Mstari wa JUMLA au TOTAL unaachwa.",
         },
         {
-          title: "Wakala husoma",
-          body: "Hutaja safu, huwalinganisha wanachama, na huweka kila malipo kwenye mstari sahihi.",
+          label: "02 · Ukaguzi",
+          title: "Kila malipo yamewekwa",
+          body: "Wakala hutaja safu na kulinganisha kila mstari kabla ya kushiriki chochote.",
         },
         {
-          title: "Kagua, kisha chapisha",
-          body: "Mweka hazina huangalia mwezi na kushiriki nafasi. Kisha kila mwanachama anaona yake tu.",
+          label: "03 · Gridi ya mwezi",
+          title: "Mwezi unaonekana wazi",
+          body: "Imelipwa, imechelewa, haijalipwa au bado haijatakiwa, yote kwenye dawati la mweka hazina hadi yakaguliwe.",
+        },
+        {
+          label: "04 · Kuchapisha",
+          title: "Kisha kila mwanachama anaona yake tu",
+          body: "Mweka hazina hushiriki nafasi. Wanachama wengine hawatajwi kwenye skrini ya mwanachama.",
         },
       ],
+      file: "register-march.xlsx",
+      skipped: "imeachwa",
+      matched: "imelinganishwa kwa jina",
+      notPlaced: "inahitaji ukaguzi",
+      deskOnly: "Kwenye dawati tu",
+      publishedAt: "Imeshapishwa 09:41",
+      memberView: "Anachokiona Mwanachama 014 baada ya kuchapisha",
+      statementNote: "Mistari ya taarifa inatoka kwenye nafasi iliyoshirikiwa tu.",
     },
     doors: {
       eyebrow: "Milango miwili, ukweli mmoja",
       title: "Chagua mlango wako.",
       body: "Daftari moja hutumikia mitazamo miwili. Kila mtu anayingia na nambari ya simu na PIN.",
       memberTitle: "Mwanachama",
-      memberBody: "Fungua akiba, mkopo, taarifa, na malengo yako. Namba za wanachama wengine hazipo hapa.",
+      memberBody:
+        "Fungua akiba, mkopo, taarifa, na malengo yako. Namba za wanachama wengine hazipo hapa.",
       memberCta: "Nenda kwa kuingia kwa mwanachama",
       treasurerTitle: "Mweka hazina",
-      treasurerBody: "Leta Excel, angalia malipo, andaa nafasi, na uzichapishe daftari likiwa tayari.",
+      treasurerBody:
+        "Leta Excel, angalia malipo, andaa nafasi, na uzichapishe daftari likiwa tayari.",
       treasurerCta: "Nenda kwa kuingia kwa mweka hazina",
     },
     faq: {
@@ -559,8 +570,7 @@ const sw: typeof en = {
       items: [
         {
           question: "Je, mwanachama anaona daftari lote?",
-          answer:
-            "Hapana. Mwanachama anaona akiba, mkopo, taarifa, na maendeleo ya lengo lake tu.",
+          answer: "Hapana. Mwanachama anaona akiba, mkopo, taarifa, na maendeleo ya lengo lake tu.",
         },
         {
           question: "Je, Excel inahitaji umbo maalum?",
@@ -569,8 +579,7 @@ const sw: typeof en = {
         },
         {
           question: "Je, wakala huchapisha nafasi peke yake?",
-          answer:
-            "Hapana. Huandaa kazi. Mweka hazina huangalia mwezi na kuchapisha kila nafasi.",
+          answer: "Hapana. Huandaa kazi. Mweka hazina huangalia mwezi na kuchapisha kila nafasi.",
         },
         {
           question: "Rekodi ziko wapi?",
@@ -622,7 +631,8 @@ const sw: typeof en = {
     rejected: "Msimbo huo haukukubaliwa.",
     signIn: "Ingia",
     fallback: "Weka nambari ya simu unayotumia kwenye chama, na PIN yako.",
-    doorTreasurer: "Mlango wa mweka hazina. Hapa unatunza daftari, unaongeza wanachama, na unaleta Excel.",
+    doorTreasurer:
+      "Mlango wa mweka hazina. Hapa unatunza daftari, unaongeza wanachama, na unaleta Excel.",
     doorMember: "Mlango wa mwanachama. Utaona akiba yako, mkopo wako, na taarifa yako.",
     todayTitle: "Leo",
     todayLine: "Haba na haba hujaza kibaba.",
@@ -659,7 +669,8 @@ const sw: typeof en = {
     memberTitle: "Nafasi yako",
     deskTitle: "Daftari",
     memberNote: "Uliza kuhusu akiba yako, kilicho wazi, na salio. Hesabu inafanywa hapa.",
-    deskNote: "Uliza kuhusu daftari, pamoja na malipo ambayo bado hujashiriki. Hesabu inafanywa hapa.",
+    deskNote:
+      "Uliza kuhusu daftari, pamoja na malipo ambayo bado hujashiriki. Hesabu inafanywa hapa.",
     question: "Swali lako",
     send: "Uliza",
     sending: "Inasoma vitabu…",
@@ -825,7 +836,8 @@ const sw: typeof en = {
     kicker: "Mweka hazina",
     meeting: "mkutano",
     books: "Vitabu hadi",
-    uploadBody: "Ongeza lahajedwali, kisha fungua Nafasi za wanachama kabla mtu mwingine hajaona malipo mapya.",
+    uploadBody:
+      "Ongeza lahajedwali, kisha fungua Nafasi za wanachama kabla mtu mwingine hajaona malipo mapya.",
     noFile: "Bado hakuna lahajedwali lililoongezwa.",
     updated: "Sasisho la mwisho kutoka",
     updatedOn: "tarehe",
@@ -849,7 +861,8 @@ const sw: typeof en = {
     addTitle: "Ongeza mwanachama",
     addBody: "Weka jina na simu. PIN ya muda inaonekana hapa mara moja. Haitumwi kwa simu.",
     addPin: "PIN ya muda",
-    addKept: "Nambari hii tayari ni ya kiongozi, kwa hiyo sasa ni mwanachama pia. Mlango wa kiongozi unabaki na PIN yake.",
+    addKept:
+      "Nambari hii tayari ni ya kiongozi, kwa hiyo sasa ni mwanachama pia. Mlango wa kiongozi unabaki na PIN yake.",
     addName: "Jina kamili",
     addPhone: "Simu",
     addSave: "Ongeza mwanachama",
@@ -857,7 +870,8 @@ const sw: typeof en = {
     addFailed: "Mwanachama hakuongezwa.",
     addDone: "Ameongezwa. Anaweza kuingia kwenye mlango wa mwanachama kwa",
     signTitle: "PIN na nambari zilizofungwa",
-    signBody: "Weka PIN yako, kisha fungua nambari au toa PIN mpya. PIN mpya inaonekana hapa mara moja. Haitumwi kwa simu.",
+    signBody:
+      "Weka PIN yako, kisha fungua nambari au toa PIN mpya. PIN mpya inaonekana hapa mara moja. Haitumwi kwa simu.",
     yourPin: "PIN yako",
     unlock: "Fungua",
     unlocking: "Inafunguliwa…",
