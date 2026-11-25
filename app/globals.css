@@ -97,7 +97,10 @@ h3 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease;
 }
 
 .btn {
@@ -145,6 +148,22 @@ h3 {
 .num {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
+}
+
+/* The product proof changes step without a jarring jump. */
+@keyframes proof-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.proof-panel {
+  animation: proof-reveal 360ms ease-out both;
 }
 
 /* A slow drift and zoom that makes a still photograph read like a quiet video. */

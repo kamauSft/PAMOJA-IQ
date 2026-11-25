@@ -7,6 +7,7 @@ test("offers a guided tour on the landing page", async ({ page }) => {
 
   const dialog = page.getByRole("dialog", { name: "Guided tour" });
   await expect(dialog).toBeVisible();
+  await expect(dialog.getByText("Stock presenter · illustrative guide")).toBeVisible();
   const film = dialog.locator('video[src="/videos/guide.mp4"]');
   await expect(film).toBeVisible();
   await expect(film).toHaveAttribute("controls", "");

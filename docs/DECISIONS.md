@@ -1,5 +1,13 @@
 # Decisions
 
+## 2026-11-25 - D-ID animates the presenter, not a voice over silent lips
+
+The owner said the visible presenter and the words did not match. The source Pexels clip has no audio at all, and this computer only has older local voices, so retiming captions could not make the mouth agree with the script. D-ID Talks was chosen over HeyGen because it animates a still from the already licensed clip without enterprise video-reference access or a separate avatar setup, and one short talk per sentence gives an exact measured duration for each caption. The default is a natural Microsoft neural female voice, and the overlay and guide card label the performer as illustrative so the stock footage is not presented as an endorsement. The API key lives only in `D_ID_API_KEY`; no key, talk id or generated script is committed. Every sentence comes from `content/guide-script.json`, shared by the browser and the builder. The committed film remains the earlier local-voice build until a key is supplied and `npm run guide` is run.
+
+## 2026-11-25 - The landing page proves the product instead of describing a category
+
+The page read like a generic SaaS template because the proof band, About and three-step workflow could have belonged to any tool. They are replaced by one interactive proof that follows the real screens: the messy Excel with a skipped JUMLA row, the agent's placement review with a row held for review, the treasurer's month grid of paid/late/missed/not-due marks, and the publish gate beside a single member's private position and statement. The figures are made up and labelled as such; no real chama data enters the public bundle. The change keeps the full-screen meeting film, bilingual copy, click-to-play guide, and reduced-motion fallback while shortening the path from hero to evidence.
+
 ## 2026-11-15 - A locked treasurer waits 15 minutes, then returns
 
 A member who forgets a PIN needs a person: the treasurer or the chair unlocks the number, and that stays. A treasurer or chair who forgets a PIN is different, because locking the highest door forever leaves the chama with no one to unlock anybody. Three wrong PINs stop an official for 15 minutes; after that the lock lifts by itself and the count starts again. The trade is deliberate: a patient guesser gets a slow stream of attempts instead of a fast one, and every wrong guess is still counted against the phone number.
@@ -14,7 +22,7 @@ The first full-page loops were too soft. The high-angle framing already keeps fa
 
 ## 2026-11-24 - A licensed presenter explains the doors
 
-The owner asked for a white female presenter who actually talks. The landing tour now uses Pexels clip 9064525 by RDNE Stock project, licensed for commercial use, instead of the earlier drawn avatar. The clip is cross-faded so the presenter stays visible and moving through the narration; a local female voice explains that Agentic AI reads the Excel, names the columns, places payments and prepares positions for the treasurer to publish. Captions and a transcript are included, and lockout rules stay out of the welcome. The finished film is about 32 seconds, 1280 × 720 H.264/AAC, about 1.49 MB, and is rebuilt by `python scripts/make-guide.py` from a source kept outside version control. The faceless-avatar choice is withdrawn.
+The owner asked for a white female presenter who actually talks. The landing tour now uses Pexels clip 9064525 by RDNE Stock project, licensed for commercial use, instead of the earlier drawn avatar. The clip is cross-faded so the presenter stays visible and moving through the narration; a local female voice explains that Agentic AI reads the Excel, names the columns, places payments and prepares positions for the treasurer to publish. Captions and a transcript are included, and lockout rules stay out of the welcome. The finished film is about 32 seconds, 1280 × 720 H.264/AAC, about 1.49 MB, and is rebuilt from a source kept outside version control. The faceless-avatar choice is withdrawn. The silent-lip-movement part of this decision is superseded by the D-ID decision above.
 
 ## 2026-11-23 - The real chama gets its own private database
 

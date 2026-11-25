@@ -1,6 +1,6 @@
 # Pamoja IQ
 
-**Intelligent Chama Solution.** *Pamoja* means together in Kiswahili.
+**Intelligent Chama Solution.** _Pamoja_ means together in Kiswahili.
 
 The treasurer keeps one set of books. Each member opens only their own savings, loan, and fines. The demo group is **Umoja Savings Group**.
 
@@ -30,30 +30,30 @@ Every seeded member uses password **Ab3!@cde**.
 
 The owner saved in the server settings uses one phone for both doors. That phone is not written in this page.
 
-| Person | Role | Phone | Lands on |
-|---|---|---|---|
-| Grace Wanjiku Mwangi | Chair | 0712345001 | The books, with password Ab3!@cde |
-| Peter Otieno Omondi | Treasurer | 0712345002 | The books, with password Ab3!@cde |
-| Amina Hassan Bakari | Member | 0712345005 | Her own position |
+| Person               | Role      | Phone      | Lands on                          |
+| -------------------- | --------- | ---------- | --------------------------------- |
+| Grace Wanjiku Mwangi | Chair     | 0712345001 | The books, with password Ab3!@cde |
+| Peter Otieno Omondi  | Treasurer | 0712345002 | The books, with password Ab3!@cde |
+| Amina Hassan Bakari  | Member    | 0712345005 | Her own position                  |
 
 ## How the app is put together
 
-| Layer | Where | What it does |
-|---|---|---|
-| Screens | `app/**/page.tsx` | Server components. They read a session, load figures, and render. They do not calculate money. |
-| Shared pieces | `components/` | Forms, shells, statistics, and the moving scenes. |
-| Money maths | `lib/finance/` | Integer cents and basis points. Assertions guard every entry point. |
-| Sign-in | `lib/auth/` | Argon2id PINs, server sessions, OTP, lockout, rate limits. |
-| Tenancy | `lib/tenancy/` | A Prisma extension stamps and filters `chamaId`, so a screen cannot read another chama's rows. |
-| Import | `lib/import/` | Reads a messy Excel register, shows each payment, then saves it in one transaction. |
-| Tables | `prisma/schema.prisma` | The database shape, plus `prisma/seed.ts` for Umoja. |
-| API | `app/api/**/route.ts` | Small JSON endpoints. Each one checks the session and the role before it acts. |
+| Layer         | Where                  | What it does                                                                                   |
+| ------------- | ---------------------- | ---------------------------------------------------------------------------------------------- |
+| Screens       | `app/**/page.tsx`      | Server components. They read a session, load figures, and render. They do not calculate money. |
+| Shared pieces | `components/`          | Forms, shells, statistics, and the moving scenes.                                              |
+| Money maths   | `lib/finance/`         | Integer cents and basis points. Assertions guard every entry point.                            |
+| Sign-in       | `lib/auth/`            | Argon2id PINs, server sessions, OTP, lockout, rate limits.                                     |
+| Tenancy       | `lib/tenancy/`         | A Prisma extension stamps and filters `chamaId`, so a screen cannot read another chama's rows. |
+| Import        | `lib/import/`          | Reads a messy Excel register, shows each payment, then saves it in one transaction.            |
+| Tables        | `prisma/schema.prisma` | The database shape, plus `prisma/seed.ts` for Umoja.                                           |
+| API           | `app/api/**/route.ts`  | Small JSON endpoints. Each one checks the session and the role before it acts.                 |
 
 The rule that keeps the app honest: **money is integer cents, and only `lib/finance` does the maths.** Screens read the results.
 
 ## Moving scenes
 
-The sign-in, home, and desk screens put real footage behind the whole first screen, not a small strip. Both loops show a formal meeting of men and women from a high angle; the faces are softened so nobody is identifiable. Each is a short silent H.264 loop, under 1 MB, with the pictured still kept as the poster and as the fallback. The landing page also has a click-to-play guided tour presented by a licensed Pexels clip of a white woman talking to camera, explaining Agentic AI with narration, captions, and a transcript, plus a full editorial structure with About, workflow, two doors, questions, contact, and footer sections.
+The sign-in, home, and desk screens put real footage behind the whole first screen, not a small strip. Both loops show a formal meeting of men and women from a high angle; the faces are softened so nobody is identifiable. Each is a short silent H.264 loop, under 1 MB, with the pictured still kept as the poster and as the fallback. The landing page then shows a four-step proof of the real work — the Excel sheet, the agent's placement review, the month grid, and the publish gate that gives each member a private view — instead of generic marketing sections. The click-to-play guided tour uses a licensed Pexels presenter animated by D-ID so her mouth speaks the narration, with captions and a transcript. A lip-synced rebuild needs `D_ID_API_KEY`; until then the committed film is the earlier local-voice fallback.
 
 - `components/moving-scenes.tsx` — chooses the clip to suit the door, with the stills underneath.
 - `app/globals.css` — `scene-drift`, the slow zoom used by the fallback.
@@ -83,20 +83,21 @@ Free is KES 0. Standard is the higher of KES 500 and KES 30 an active member. Pr
 
 ## Scripts
 
-| Command | What it does |
-|---|---|
-| `npm run dev` | Start the app |
-| `npm run build` / `npm start` | Production build and serve |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | TypeScript |
-| `npm test` | Unit tests |
-| `npm run test:e2e` | Browser tests |
-| `npm run seed` | Load Umoja |
-| `npm run db:reset` | Recreate the local database and seed it |
-| `npm run format` | Prettier |
-| `npm run fixtures` | Rebuild the sample Excel files |
-| `npm run film` | Rebuild the two silent scene loops from `assets/video/` |
-| `npm run lockout:reset` | Clear a sign-in lock from practice attempts |
+| Command                       | What it does                                                    |
+| ----------------------------- | --------------------------------------------------------------- |
+| `npm run dev`                 | Start the app                                                   |
+| `npm run build` / `npm start` | Production build and serve                                      |
+| `npm run lint`                | ESLint                                                          |
+| `npm run typecheck`           | TypeScript                                                      |
+| `npm test`                    | Unit tests                                                      |
+| `npm run test:e2e`            | Browser tests                                                   |
+| `npm run seed`                | Load Umoja                                                      |
+| `npm run db:reset`            | Recreate the local database and seed it                         |
+| `npm run format`              | Prettier                                                        |
+| `npm run fixtures`            | Rebuild the sample Excel files                                  |
+| `npm run film`                | Rebuild the two silent scene loops from `assets/video/`         |
+| `npm run guide`               | Rebuild the lip-synced tour with D-ID (`D_ID_API_KEY` required) |
+| `npm run lockout:reset`       | Clear a sign-in lock from practice attempts                     |
 
 ### Browser tests on this computer
 
